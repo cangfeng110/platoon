@@ -4,11 +4,13 @@
 #include <iostream>
 #include <iomanip>
 
-const double PI = 3.1415926;
+
 
 namespace platoon {
 
 namespace common {
+
+const double PI = 3.1415926;
 
 void TransfromGpsAbsoluteToEgoRelaAzimuth(double &relativeAzimuth,
                                           double sHeading,

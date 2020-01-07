@@ -1,7 +1,8 @@
 #ifndef INBOUND_GNSS_DATA
 #define INBOUND_GNSS_DATA
 
-#endif // INBOUND_GNSS_DATA
+
+#include <stdint.h>
 
 typedef struct inbound_gnss_data
 {
@@ -54,3 +55,5 @@ typedef struct inbound_gnss_data
     /** reserved5 */
     uint32_t                rsvd5;     
 }__attribute__ ((packed))  inbound_gnss_data_t;
+
+#endif // INBOUND_GNSS_DATA
