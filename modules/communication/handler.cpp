@@ -103,7 +103,8 @@ int Handler::DecodeV2xVechileInfo() {
             v2x_other_vehicle_data.fVehicleWidth = (float)other_vehicle_data.width / 100.0;
             if (DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) {
                 const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
-                platoon::common::
+                platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(v2x_other_vehicle_data.dRelativeX, v2x_other_vehicle_data.dRelativeY,
+                                                                    other_vehicle_data.heading)
                
                 std::cout<<"egoHeading:"<<egoVehData.fHeading<<std::endl;
                 std::cout<<"v2xHeading:"<<v2x_other_vehicle_data.fHeading<<std::endl;
