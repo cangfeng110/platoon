@@ -1,0 +1,10 @@
+package platoon.protocol;
+
+struct WorldmodelVehicles
+{
+    HEADER     stHeader;
+	
+    int32_t    nVehicleNum;
+
+    WorldmodelVehicle vehicles[nVehicleNum];
+}

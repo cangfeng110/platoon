@@ -14,7 +14,8 @@
 #include "include/base/Logging.h"
 
 
-namespace platoon
+namespace platoon 
+{
 
 namespace base
 {

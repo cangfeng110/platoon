@@ -1,7 +1,7 @@
-#include "modules/Main.h"
+#include "modules/main.h"
 
-#include "modules/communication/commu.h"
+#include "modules/communication/communication.h"
 
-using namespace tjP::communication;
+using namespace platoon::communication;
 
-MAIN(commu)
+MAIN(communication)

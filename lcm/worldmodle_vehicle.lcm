@@ -1,0 +1,20 @@
+package platoon.protocol;
+
+struct WorldmodelVehicle
+{
+    HEADER     stHeader;
+
+    int64_t    nObjectID;
+
+    int8_t     nType;
+	
+    int8_t     iDriveMode;
+ 
+    double     frenet_lon_distance;
+
+    double     frenet_lat_distance;    
+
+    int32_t    pointNum;
+
+    Location   hisTrajectory[pointNum];
+}

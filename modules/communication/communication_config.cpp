@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <libconfig/libconfig.h++>
+#include "include/libconfig/libconfig.h++"
 
 #include "include/base/Logging.h"
 #include "modules/communication/communication_config.h"
@@ -9,7 +9,7 @@ namespace platoon {
 
 namespace communication {
 
-#define TJP_COMMUNICATION_CONFIG_FILE "config/tjP-communication.conf"
+#define PLATOON_COMMUNICATION_CONFIG_FILE "~/zsworkspace/platoon//config/platoon_communication.conf"
 
 CommuConfig *CommuConfig::instance_ = new CommuConfig();
 
@@ -20,9 +20,9 @@ CommuConfig *CommuConfig::GetInstance() {
 CommuConfig::CommuConfig() {
     libconfig::Config cfg;
     try {
-        cfg.readFile(TJP_COMMUNICATION_CONFIG_FILE);
+        cfg.readFile(PLATOON_COMMUNICATION_CONFIG_FILE);
     }catch (const libconfig::FileIOException& e) {
-        DIE("Can not open file %s \n", TJP_COMMUNICATION_CONFIG_FILE);
+        DIE("Can not open file %s \n", PLATOON_COMMUNICATION_CONFIG_FILE);
     }catch (const libconfig::ParseException& e) {
         DIE("Can not parse file %s : %d %s \n",
             e.getFile(), e.getLine(), e.getError());

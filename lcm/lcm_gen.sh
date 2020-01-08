@@ -1,0 +1,11 @@
+lcm-gen -x ego_vehicle_info.lcm;
+lcm-gen -x lanes_and_centerline.lcm;
+lcm-gen -x location.lcm;
+lcm-gen -x module_state.lcm;
+lcm-gen -x preception_lane_centerline.lcm;
+lcm-gen -x sensor_fusion_object.lcm;
+lcm-gen -x sensor_fusion_objects.lcm;
+lcm-gen -x v2x_team_info.lcm;
+lcm-gen -x vehicle_localization.lcm;
+lcm-gen -x worldmodle_vehicle.lcm;
+lcm-gen -x worldmodle_vehicles.lcm;

@@ -22,6 +22,9 @@ public:
     // v2x other vehicle information from ibox
     templateDataContainer_Map<VehicleData> v2x_other_vehicle_data_;
 
+    // other vehicle information in ego vehicle coordination system
+    templateDataContainer_Map<WorldModelObject> worldmodle_other_vehicle_data_;
+
     static DataContainer *GetInstance();
     void DecreaseTtl();
 

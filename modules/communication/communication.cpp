@@ -17,8 +17,7 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     // Logger
     if(CommuConfig::GetInstance()->debug_) {
         base::Logging::setLogLevel(base::Logging::Debug);
-    } 
-
+    }
     //Lcm
     if(!lcm_.good()) {
         LDIE << "lcm init error";
@@ -47,7 +46,7 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
 //
 //
 void communication::ReceiveV2xOtherVehicleInfo() {
-    if(handler_.DecodeV2xVechileInfo > 0) {
+    if(handler_.DecodeV2xVechileInfo() > 0) {
         if(DataContainer::GetInstance()->v2x_other_vehicle_data_.isUpToDate()) {
             for (auto temp : DataContainer::GetInstance()->v2x_other_vehicle_data_.getData()) {
                 std::cout << "========= display ==========" << std::endl;

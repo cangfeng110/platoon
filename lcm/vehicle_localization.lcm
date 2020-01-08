@@ -1,0 +1,33 @@
+package platoon.protocol;
+
+struct VehicleLocalization
+{
+	HEADER     stHeader;
+		
+        double     d_Latitude;
+
+        double     d_Longitude;
+
+        float      f_Heading;
+
+        float      fSpeed;
+
+        float      fYawRate;
+        
+        int8_t     i_GpsState;
+        
+        float      fLateralAccel;
+
+        float      fLongituAccel;
+        
+        double     d_relative_X;
+
+        double     d_relative_Y;
+        
+        double     d_relative_dX[100];
+              
+        double     d_relative_dY[100];
+        
+}
+
+        

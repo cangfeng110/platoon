@@ -1,0 +1,10 @@
+package platoon.protocol;
+
+struct FusionObjects
+{
+	HEADER     header;
+	
+	int32_t    nObjs;
+
+	FusionObject fObjs[nObjs];
+}
