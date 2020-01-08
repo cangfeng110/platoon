@@ -4,7 +4,7 @@
 #include <eigen3/Eigen/Eigen>
 #include <eigen3/Eigen/Dense>
 
-extern const double PI;
+// extern const double PI;
 
 namespace platoon {
 

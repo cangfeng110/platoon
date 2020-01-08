@@ -1,5 +1,13 @@
 #ifndef INBOUND_CAN_DATA_H_
 #define INBOUND_CAN_DATA_H_
+
+
+
+// #ifndef PACKED_STRUCT
+// #define PACKED_STRUCT
+// __attribute__ ((packed))
+// #endif  // PACKED_STRUCT
+
 #include <stdint.h>
 /** inboud communication header */
 typedef struct inbound_communication_header
@@ -24,7 +32,7 @@ typedef struct inbound_communication_header
     uint32_t rsvd3;
     /** reserved4 */
     uint32_t rsvd4;
-} PACKED_STRUCT inbound_communication_header_t;
+} __attribute__ ((packed)) inbound_communication_header_t;
 
 
 typedef struct inbound_can_data
@@ -99,6 +107,6 @@ typedef struct inbound_can_data
     uint32_t                rsvd5;
     /** reserved6 */
     uint32_t                rsvd6;
-} PACKED_STRUCT inbound_can_data_t;
+} __attribute__ ((packed)) inbound_can_data_t;
 
 #endif  // INBOUND_CAN_DATA_H

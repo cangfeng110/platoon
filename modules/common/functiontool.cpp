@@ -7,10 +7,12 @@
 
 
 namespace platoon {
+    
+const double PI = 3.1415926;
 
 namespace common {
 
-const double PI = 3.1415926;
+
 
 void TransfromGpsAbsoluteToEgoRelaAzimuth(double &relativeAzimuth,
                                           double sHeading,
