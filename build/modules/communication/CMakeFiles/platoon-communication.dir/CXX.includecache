@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/igs/zsworkspace/platoon/modules/communication/main.cpp
+modules/main.h
+/home/igs/zsworkspace/platoon/modules/communication/modules/main.h
+modules/communication/communication.h
+/home/igs/zsworkspace/platoon/modules/communication/modules/communication/communication.h
+

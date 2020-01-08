@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/igs/zsworkspace/platoon/include/base/Utils.cpp
+include/base/Utils.h
+/home/igs/zsworkspace/platoon/include/base/include/base/Utils.h
+sstream
+-
+thread
+-
+fcntl.h
+-
+sys/stat.h
+-
+sys/eventfd.h
+-
+sys/timerfd.h
+-
+unistd.h
+-
+string.h
+-
+memory.h
+-
+include/base/Logging.h
+/home/igs/zsworkspace/platoon/include/base/include/base/Logging.h
+
