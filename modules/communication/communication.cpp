@@ -25,7 +25,7 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
 
     //receive ego gps/vcu information from lcm
     lcm_.subscribe("VCU_VEHICLE_INFO", &communication::HandleEgoVehicleVcuInfo, this);
-    lcm_.subscribe("RAW_INS", &communication::HandleEgoVehicleGpsInfo, this);
+    lcm_.subscribe("INERTIAL_DEBUG", &communication::HandleEgoVehicleGpsInfo, this);
 
     // lcm channel
     lcm_channel_.reset(new platoon::base::Channel(&loop_, lcm_.getFileno(), "lcm"));
@@ -67,7 +67,7 @@ void communication::HandleEgoVehicleGpsInfo(const lcm::ReceiveBuffer *rbuf,
                                     const std::string &channel,
                                     const VehicleGpsData *msg)
 {
-    assert(channel == "RAW_INS");
+    assert(channel == "INERTIAL_DEBUG");
     LDEBUG << "receive ego vehicle gps info.";
     DataContainer::GetInstance()->ego_vehicle_gps_data_.setData(*msg);
 }
