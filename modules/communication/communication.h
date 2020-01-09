@@ -34,8 +34,9 @@ private:
     
     void BroastEgoVehicleInfo();
 
-    
     void ReceiveV2xOtherVehicleInfo();
+
+    void PublishWorldmodelInfo();
 
     std::unique_ptr<base::FileLogger> logger_;
     base::EventLoop loop_;

@@ -24,13 +24,14 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     }
 
     //receive ego gps/vcu information from lcm
-    lcm_.subscribe(PLATOON_CHANNEL_NAME_VCU_VEHICLE_INFO, &communication::HandleEgoVehicleVcuInfo, this);
-    lcm_.subscribe(PLATOON_CHANNEL_NAME_INERTIAL, &communication::HandleEgoVehicleGpsInfo, this);
+    lcm_.subscribe("VCU_VEHICLE_INFO", &communication::HandleEgoVehicleVcuInfo, this);
+    lcm_.subscribe("RAW_INS", &communication::HandleEgoVehicleGpsInfo, this);
 
     // lcm channel
     lcm_channel_.reset(new platoon::base::Channel(&loop_, lcm_.getFileno(), "lcm"));
     lcm_channel_->setReadCallback(std::bind(&lcm::LCM::handle, &lcm_));
     lcm_channel_->enableReading();
+
     // v2x channel
     v2x_channel_.reset(new platoon::base::Channel(&loop_, handler_.GetFileno(), "v2xComm"));
     v2x_channel_->setReadCallback(std::bind(&communication::ReceiveV2xOtherVehicleInfo, this));
@@ -38,12 +39,65 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
 
     // decrease ttl
     loop_.runEvery(100, std::bind(&DataContainer::DecreaseTtl, DataContainer::GetInstance()));
-    // broadcast v2x message
-    loop_.runEvery(20, std::bind(&communication::BroastEgoVehicleInfo, this));
-}
 
+    // broad ego vehicle info to ibox
+    loop_.runEvery(20, std::bind(&communication::BroastEgoVehicleInfo, this));
+    
+    //publish worldmodel vehilces info 
+    loop_.runEvery(20, std::bind(&communication::PublishWorldmodelInfo, this));
+}
 //
 //
+//
+communication::~communication() {
+    LINFO << "loop end";
+}
+//
+//
+//
+void communication::Loop() {
+    LINFO << "loop start";
+    loop_.loop();
+    LINFO << "loop end";
+}
+//
+//function:receive ego gps info and save to datacontainer
+//
+void communication::HandleEgoVehicleGpsInfo(const lcm::ReceiveBuffer *rbuf,
+                                    const std::string &channel,
+                                    const VehicleGpsData *msg)
+{
+    assert(channel == "RAW_INS");
+    LDEBUG << "receive ego vehicle gps info.";
+    DataContainer::GetInstance()->ego_vehicle_gps_data_.setData(*msg);
+}
+//
+//function:receive ego vcu info and save to datacontainer
+//
+void communication::HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
+                                     const std::string &channel,
+                                     const VehicleVcuData *msg)
+{
+    assert(channel == "VCU_VEHICLE_INFO");
+//    LDEBUG << "Receive from self team info.";
+    DataContainer::GetInstance()->ego_vehicle_vcu_data_.setData(*msg);   
+}
+//
+//function: broast ego vehicle info to ibox
+//
+void communication::BroastEgoVehicleInfo()
+{
+    if(!DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate() ||
+        !DataContainer::GetInstance()->ego_vehicle_vcu_data_.isUpToDate()){
+        std::cout<<"ego vehicle out date"<<std::endl;
+    } else {
+        handler_.BroastEgoVehicleGpsInfo();
+        handler_.BroastEgoVehicleVcuInfo();
+    }
+    
+}
+//
+//function: receive other vehicle info from ibox
 //
 void communication::ReceiveV2xOtherVehicleInfo() {
     if(handler_.DecodeV2xVechileInfo() > 0) {
@@ -67,52 +121,17 @@ void communication::ReceiveV2xOtherVehicleInfo() {
                           << "iGpsState        : " << (int)data.iGpsState      << std::endl
                           << "iGpsTime         : " << data.iGpsTime            << std::endl
                           << "iShiftPosition   : " << (int)data.iShiftPosition << std::endl;
-                lcm_.publish(PLATOON_CHANNEL_NAME_V2X_OTHER_VEHICLE_INFO, &(temp.second.getData()));
+                lcm_.publish("V2X_OTHER_VEHICLE_INFO", &(temp.second.getData()));
             }   
         }
     }
 }
-
-
-void communication::BroastEgoVehicleInfo()
-{
-    if(!DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate() ||
-        !DataContainer::GetInstance()->ego_vehicle_vcu_data_.isUpToDate()){
-        std::cout<<"ego vehicle out date"<<std::endl;
-    } else {
-        handler_.BroastEgoVehicleGpsInfo();
-        handler_.BroastEgoVehicleVcuInfo();
-    }
-    
-}
-
-void communication::HandleEgoVehicleGpsInfo(const lcm::ReceiveBuffer *rbuf,
-                                    const std::string &channel,
-                                    const VehicleGpsData *msg)
-{
-    assert(channel == PLATOON_CHANNEL_NAME_INERTIAL);
-    LDEBUG << "receive ego vehicle gps info.";
-    DataContainer::GetInstance()->ego_vehicle_gps_data_.setData(*msg);
-}
-
-
-void communication::HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
-                                     const std::string &channel,
-                                     const VehicleVcuData *msg)
-{
-    assert(channel == PLATOON_CHANNEL_NAME_VCU_VEHICLE_INFO);
-//    LDEBUG << "Receive from self team info.";
-    DataContainer::GetInstance()->ego_vehicle_vcu_data_.setData(*msg);   
-}
-
-communication::~communication() {
-    LINFO << "loop end";
-}
-
-void communication::Loop() {
-    LINFO << "loop start";
-    loop_.loop();
-    LINFO << "loop end";
+//
+//function:publish worldmodel info to channel
+//
+void communication::PublishWorldmodelInfo() {
+    if (DataContainer::GetInstance()->worldmodle_other_vehicle_data_.isUpToDate())
+        lcm_.publish("WORLDMODEL_OTHER_OBJECTS_INFO", &handler_.GetWorldmodleVehiles());
 }
 
 } // namesapce communication

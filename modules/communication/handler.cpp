@@ -301,13 +301,14 @@ WorldModelObjects & Handler::GetWorldmodleVehiles() {
     dis_temp -= 17; //subtract vehicle length
     worldmodel_vehicle_data.frenet_lon_distance = dis_temp;
 }
+
 //
 //function:erase other vehicle trajectory points behind ego vehicle
 //
 
 void Handler::ProcessTrajectory(std::vector<Location> &trajectory) {
     const  VehicleGpsData ego_vehicle_location = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
-    double min_dis = 1000;
+    //double min_dis = 1000;
     int index_near = -1;
     for (int i = 0; i < trajectory.size(); i++) {
         //Update relative info

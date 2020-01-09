@@ -50,7 +50,7 @@ private:
     struct sockaddr_in local_sockaddr_;
     
     char buffer_[MAX_RECV_LENGTH];
-
+    // 
     WorldModelObjects worldmodel_other_vehicles_data_;
 
     void TransV2xInfoToWorldmodelInfo(const VehicleData &v2x_vehicle_data, 
