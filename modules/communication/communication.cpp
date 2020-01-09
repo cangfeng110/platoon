@@ -15,9 +15,9 @@ namespace communication {
 
 communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("communication") {
     // Logger
-    if(CommuConfig::GetInstance()->debug_) {
-        base::Logging::setLogLevel(base::Logging::Debug);
-    }
+    // if(CommuConfig::GetInstance()->debug_) {
+    //     base::Logging::setLogLevel(base::Logging::Debug);
+    // }
     //Lcm
     if(!lcm_.good()) {
         LDIE << "lcm init error";
@@ -79,7 +79,7 @@ void communication::HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
                                      const VehicleVcuData *msg)
 {
     assert(channel == "VCU_VEHICLE_INFO");
-//    LDEBUG << "Receive from self team info.";
+    LDEBUG << "receive ego vcu info.";
     DataContainer::GetInstance()->ego_vehicle_vcu_data_.setData(*msg);   
 }
 //

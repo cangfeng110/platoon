@@ -5,7 +5,7 @@
 #include <map>
 #include <assert.h>
 
-#include "modules/communication/communication_config.h"
+// #include "modules/communication/communication_config.h"
 #include "protocol/lcmDataNameTypeDefine.h"
 #include "modules/template/templateDataContainer.h"
 

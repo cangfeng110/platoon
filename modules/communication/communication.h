@@ -10,7 +10,7 @@
 #include "include/base/Logging.h"
 #include "protocol/lcmDataNameTypeDefine.h"
 
-#include "modules/communication/communication_config.h"
+// #include "modules/communication/communication_config.h"
 #include "modules/communication/datacontainer.h"
 #include "modules/communication/handler.h"
 
