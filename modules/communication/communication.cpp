@@ -25,7 +25,7 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
 
     //receive ego gps/vcu information from lcm
     lcm_.subscribe("VCU_VEHICLE_INFO", &communication::HandleEgoVehicleVcuInfo, this);
-    lcm_.subscribe("RAW_INS", &communication::HandleEgoVehicleGpsInfo, this);
+    lcm_.subscribe("INERTIAL_DEBUG", &communication::HandleEgoVehicleGpsInfo, this);
 
     // lcm channel
     lcm_channel_.reset(new platoon::base::Channel(&loop_, lcm_.getFileno(), "lcm"));
@@ -41,7 +41,7 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     loop_.runEvery(100, std::bind(&DataContainer::DecreaseTtl, DataContainer::GetInstance()));
 
     // broad ego vehicle info to ibox
-    loop_.runEvery(20, std::bind(&communication::BroastEgoVehicleInfo, this));
+    //loop_.runEvery(20, std::bind(&communication::BroastEgoVehicleInfo, this));
     
     //publish worldmodel vehilces info 
     loop_.runEvery(20, std::bind(&communication::PublishWorldmodelInfo, this));
@@ -67,7 +67,7 @@ void communication::HandleEgoVehicleGpsInfo(const lcm::ReceiveBuffer *rbuf,
                                     const std::string &channel,
                                     const VehicleGpsData *msg)
 {
-    assert(channel == "RAW_INS");
+    assert(channel == "INERTIAL_DEBUG");
     LDEBUG << "receive ego vehicle gps info.";
     DataContainer::GetInstance()->ego_vehicle_gps_data_.setData(*msg);
 }
@@ -87,13 +87,13 @@ void communication::HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
 //
 void communication::BroastEgoVehicleInfo()
 {
-    if(!DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate() ||
-        !DataContainer::GetInstance()->ego_vehicle_vcu_data_.isUpToDate()){
-        std::cout<<"ego vehicle out date"<<std::endl;
-    } else {
+    // if(!DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate() ||
+    //     !DataContainer::GetInstance()->ego_vehicle_vcu_data_.isUpToDate()){
+    //     std::cout<<"ego vehicle out date"<<std::endl;
+    // } else {
         handler_.BroastEgoVehicleGpsInfo();
         handler_.BroastEgoVehicleVcuInfo();
-    }
+    //}
     
 }
 //
