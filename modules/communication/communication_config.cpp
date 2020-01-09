@@ -9,7 +9,7 @@ namespace platoon {
 
 namespace communication {
 
-#define PLATOON_COMMUNICATION_CONFIG_FILE "~/zsworkspace/platoon//config/platoon_communication.conf"
+#define PLATOON_COMMUNICATION_CONFIG_FILE "../../../config/platoon_communication.conf"
 
 CommuConfig *CommuConfig::instance_ = new CommuConfig();
 
