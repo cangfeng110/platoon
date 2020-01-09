@@ -152,33 +152,6 @@ communication.cpp.s:
 	cd /home/igs/zsworkspace/platoon/build && $(MAKE) -f modules/communication/CMakeFiles/platoon-communication.dir/build.make modules/communication/CMakeFiles/platoon-communication.dir/communication.cpp.s
 .PHONY : communication.cpp.s
 
-communication_config.o: communication_config.cpp.o
-
-.PHONY : communication_config.o
-
-# target to build an object file
-communication_config.cpp.o:
-	cd /home/igs/zsworkspace/platoon/build && $(MAKE) -f modules/communication/CMakeFiles/platoon-communication.dir/build.make modules/communication/CMakeFiles/platoon-communication.dir/communication_config.cpp.o
-.PHONY : communication_config.cpp.o
-
-communication_config.i: communication_config.cpp.i
-
-.PHONY : communication_config.i
-
-# target to preprocess a source file
-communication_config.cpp.i:
-	cd /home/igs/zsworkspace/platoon/build && $(MAKE) -f modules/communication/CMakeFiles/platoon-communication.dir/build.make modules/communication/CMakeFiles/platoon-communication.dir/communication_config.cpp.i
-.PHONY : communication_config.cpp.i
-
-communication_config.s: communication_config.cpp.s
-
-.PHONY : communication_config.s
-
-# target to generate assembly for a file
-communication_config.cpp.s:
-	cd /home/igs/zsworkspace/platoon/build && $(MAKE) -f modules/communication/CMakeFiles/platoon-communication.dir/build.make modules/communication/CMakeFiles/platoon-communication.dir/communication_config.cpp.s
-.PHONY : communication_config.cpp.s
-
 datacontainer.o: datacontainer.cpp.o
 
 .PHONY : datacontainer.o
@@ -299,9 +272,6 @@ help:
 	@echo "... communication.o"
 	@echo "... communication.i"
 	@echo "... communication.s"
-	@echo "... communication_config.o"
-	@echo "... communication_config.i"
-	@echo "... communication_config.s"
 	@echo "... datacontainer.o"
 	@echo "... datacontainer.i"
 	@echo "... datacontainer.s"

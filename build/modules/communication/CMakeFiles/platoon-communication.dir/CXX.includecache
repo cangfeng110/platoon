@@ -20,16 +20,6 @@ include/base/EventLoop.h
 include/base/Channel.h
 /home/igs/zsworkspace/platoon/modules/communication/include/base/Channel.h
 
-/home/igs/zsworkspace/platoon/modules/communication/communication_config.cpp
-iostream
--
-include/libconfig/libconfig.h++
-/home/igs/zsworkspace/platoon/modules/communication/include/libconfig/libconfig.h++
-include/base/Logging.h
-/home/igs/zsworkspace/platoon/modules/communication/include/base/Logging.h
-modules/communication/communication_config.h
-/home/igs/zsworkspace/platoon/modules/communication/modules/communication/communication_config.h
-
 /home/igs/zsworkspace/platoon/modules/communication/datacontainer.cpp
 modules/communication/datacontainer.h
 /home/igs/zsworkspace/platoon/modules/communication/modules/communication/datacontainer.h

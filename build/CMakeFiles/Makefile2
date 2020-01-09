@@ -189,12 +189,12 @@ modules/communication/CMakeFiles/platoon-communication.dir/all: modules/common/C
 modules/communication/CMakeFiles/platoon-communication.dir/all: include/base/CMakeFiles/platoon-base.dir/all
 	$(MAKE) -f modules/communication/CMakeFiles/platoon-communication.dir/build.make modules/communication/CMakeFiles/platoon-communication.dir/depend
 	$(MAKE) -f modules/communication/CMakeFiles/platoon-communication.dir/build.make modules/communication/CMakeFiles/platoon-communication.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/igs/zsworkspace/platoon/build/CMakeFiles --progress-num=13,14,15,16,17,18,19 "Built target platoon-communication"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/igs/zsworkspace/platoon/build/CMakeFiles --progress-num=13,14,15,16,17,18 "Built target platoon-communication"
 .PHONY : modules/communication/CMakeFiles/platoon-communication.dir/all
 
 # Build rule for subdir invocation for target.
 modules/communication/CMakeFiles/platoon-communication.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/igs/zsworkspace/platoon/build/CMakeFiles 19
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/igs/zsworkspace/platoon/build/CMakeFiles 18
 	$(MAKE) -f CMakeFiles/Makefile2 modules/communication/CMakeFiles/platoon-communication.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/igs/zsworkspace/platoon/build/CMakeFiles 0
 .PHONY : modules/communication/CMakeFiles/platoon-communication.dir/rule
