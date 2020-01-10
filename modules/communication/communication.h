@@ -32,7 +32,9 @@ private:
                                   const std::string &string,
                                   const VehicleVcuData *msg);
     
-    void BroastEgoVehicleInfo();
+    void BroastEgoVehicleGpsInfo();
+    
+    void BroastEgoVehicleVcuInfo();
 
     void ReceiveV2xOtherVehicleInfo();
 

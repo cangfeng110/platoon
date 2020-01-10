@@ -56,7 +56,7 @@ int Handler::DecodeV2xVechileInfo() {
         return -1;
     }
 
-    LDEBUG << "Receive, len : " << len;
+    LINFO << "receive length is : " << len;
 
     outbound_communication_header outbound_header;
    
@@ -64,10 +64,10 @@ int Handler::DecodeV2xVechileInfo() {
    
     if (outbound_header.proto_id != 0xAFEE2468 || outbound_header.ver != 3 
         || outbound_header.op_type != 2 || outbound_header.op_code != 1) {
-        LDEBUG << "packet type error!";
+        LDEBUG << "header type error!";
         return -1;
     } else {
-        LDEBUG << "packet type right!";
+        LINFO << "header type right!";
 
         char * buffer_temp;
         buffer_temp = &buffer_[36]; // skip outbound header
@@ -81,6 +81,8 @@ int Handler::DecodeV2xVechileInfo() {
         LDEBUG << "packet length error!";
         return -1;
     } else {
+        LINFO << "packet length right";
+
         buffer_temp += 44;
 
         for(int i=0; i < other_vehicle_num; i++) { 
@@ -116,8 +118,8 @@ int Handler::DecodeV2xVechileInfo() {
                                                                     v2x_other_vehicle_data.fAltitude);
                 platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(v2x_other_vehicle_data.dRelativeHeading, 
                                                                         ego_vehicle_gps_data.fHeading, v2x_other_vehicle_data.fHeading);
-                std::cout<<"ego vehicle heading:" <<ego_vehicle_gps_data.fHeading<<std::endl;
-                std::cout<<"v2x other vehicle heading: "<<v2x_other_vehicle_data.fHeading<<std::endl;
+                std::cout<<"ego vehicle heading:" << ego_vehicle_gps_data.fHeading << std::endl;
+                std::cout<<"v2x other vehicle heading: "<< v2x_other_vehicle_data.fHeading << std::endl;
             } else {
                 v2x_other_vehicle_data.dRelativeX = 0.0;
                 v2x_other_vehicle_data.dRelativeY = 0.0;
@@ -163,9 +165,13 @@ int Handler::BroastEgoVehicleGpsInfo() {
     //timestamp
     send_data.timestamp_seconds = (uint32_t)(ego_vehicle_gps_data.header.nTimeStamp / 1000000);
     send_data.timestamp_miliseconds = (uint32_t)(ego_vehicle_gps_data.header.nTimeStamp / 1000 - send_data.timestamp_seconds * 1000);
-    // printf("%I64u\n%ld\n%ld\n",ego_vehicle_gps_data.header.nTimeStamp, send_data.timestamp_seconds, send_data.timestamp_miliseconds);
-    // printf("ego vehicle heading:%f\n",ego_vehicle_gps_data.fAltitude);
-
+   
+   //display
+    std::cout << "ego vehicle longitude is : " << ego_vehicle_gps_data.fLongitude << std::endl;
+    std::cout << "ego_vehicle latitude is : " << ego_vehicle_gps_data.fLatitude << std::endl;
+    std::cout << "ego vehilce altitude is :" << ego_vehicle_gps_data.fAltitude << std::endl;
+    std::cout << "ego vehicle heading is : " << ego_vehicle_gps_data.fHeading << std::endl;
+    
     // udp send
     Udp sudp(send_ip,send_port);
     sudp.init();
@@ -173,9 +179,8 @@ int Handler::BroastEgoVehicleGpsInfo() {
     memcpy(buffer, &send_header, header_len);
     memcpy(buffer + header_len, &send_data, data_len);
     sudp.send(buffer, header_len + data_len);
-    printf("send ego vehicle gps information to ibox!\n");
-    printf("******************************send ego vehicle gps information over!******************************\n\n\n\n\n");
     delete []buffer;
+    LINFO << "broast ego vehicle gps info over";
 }
 //
 //function: send ego vehicle vcu info to ibox
@@ -223,9 +228,8 @@ int Handler::BroastEgoVehicleVcuInfo() {
     memcpy(buffer, &send_header, header_len);
     memcpy(buffer + header_len, &send_data, data_len);
     sudp.send(buffer, header_len + data_len);
-    printf("send ego vehicle vcu information to ibox!\n");
-    printf("******************************send ego vehicle vcu information over!******************************\n\n\n\n\n");
     delete []buffer;
+    LINFO << "broast ego vehicle vuc info over";
 }
 //
 //function: get other vehicles info in ego vehicle coordination 
