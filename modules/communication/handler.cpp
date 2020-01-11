@@ -66,7 +66,7 @@ int Handler::DecodeV2xVechileInfo() {
     std::ofstream opcode_out;
     opcode_out.open("./opcode_id_out.txt");
     opcode_out << outbound_header.op_code << std::endl;
-    opcode_out.close;
+    opcode_out.close();
 
     if (outbound_header.proto_id != 0xAFEE2468 || outbound_header.ver != 3 
         || outbound_header.op_type != 2 || outbound_header.op_code != 1) {
