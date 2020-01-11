@@ -1,14 +1,11 @@
-#ifndef INBOUND_CAN_DATA_H_
+﻿#ifndef INBOUND_CAN_DATA_H_
 #define INBOUND_CAN_DATA_H_
 
-
-
-// #ifndef PACKED_STRUCT
-// #define PACKED_STRUCT
-// __attribute__ ((packed))
-// #endif  // PACKED_STRUCT
-
 #include <stdint.h>
+#ifndef PACKED_STRUCT
+#define PACKED_STRUCT __attribute__ ((packed))
+#endif
+
 /** inboud communication header */
 // typedef struct inbound_communication_header
 // {
@@ -32,7 +29,7 @@
 //     uint32_t rsvd3;
 //     /** reserved4 */
 //     uint32_t rsvd4;
-// } __attribute__ ((packed)) inbound_communication_header_t;
+// } PACKED_STRUCT inbound_communication_header_t;
 
 
 typedef struct inbound_can_data
@@ -78,35 +75,37 @@ typedef struct inbound_can_data
     /** 车辆刹车踏板状态，0: unavailable,1: off, 2: On but notEngaged, 3: Engaged.【事件类数据】 */
     uint8_t                 brake_pedal; 
     /** 车辆刹车踏板百分比，0-100(0%-100%), 101:unavailable.【事件类数据】 */ 
-    uint8_t                 pedal_status;
-    /** 车辆失控状态，unavailable, 1: off, 2: On【事件类数据】 */
-    uint8_t                 lose_contorl;
-    /** 车辆轮胎气压状态，0:unavailable， 1: normal, 2:The vehicle has determined that at least one tire hasrun flat【事件类数据】*/
-    uint8_t                 tire_pressure;
-    /** reserved1 */
-    uint8_t                 rsvd1;
-    /** 车辆X轴方向加速度，加速为正值，unavailable(32767) 单位：0.001m/s^2 */
-    int32_t                acc_x;
-    /** 车辆Y轴方向加速度，加速为正值，unavailable(32767) 单位：0.001m/s^2 */
-    int32_t                acc_y;
-    /** 车辆Z轴方向加速度，加速为正值，unavailable(32767) 单位：0.001m/s^2 */
-    int32_t                acc_z;
-    /** 车辆俯仰角角加速度，加速为正值，unavailable(32767) 单位：0.001rad/s */
-    int32_t                gyro_x;
-    /** 车辆翻滚角角加速度，加速为正值，unavailable(32767) 单位：0.001rad/s */
-    int32_t                gyro_y;
-    /** 车辆偏航角角加速度，加速为正值，unavailable(32767) 单位：0.001rad/s */
-    int32_t                gyro_z;
-    /** reserved2 */
-    uint32_t                rsvd2;
-    /** reserved3 */
-    uint32_t                rsvd3;
-    /** reserved4 */
-    uint32_t                rsvd4;
-    /** reserved5 */
-    uint32_t                rsvd5;
-    /** reserved6 */
-    uint32_t                rsvd6;
-} __attribute__ ((packed)) inbound_can_data_t;
+    uint8_t                 pedal_status;  
+    /** 车辆纵向加速度，加速为正值，unavailable(32767) */ 
+    int16_t                longitudinal_acceleration;
+    /** 车辆失控状态，unavailable, 1: off, 2: On【事件类数据】 */ 
+	uint8_t                 lose_contorl;
+    /** 车辆轮胎气压状态，0:unavailable， 1: normal, 2:The vehicle has determined that at least one tire hasrun flat【事件类数据】*/ 
+	uint8_t                 tire_pressure;
+    /** reserved1 */ 
+	uint8_t                 rsvd1;
+    /** reserved2 */ 
+	uint16_t                rsvd2;
+    /** reserved3 */ 
+ 	uint32_t                rsvd3;
+    /** reserved4 */ 
+	uint32_t                rsvd4;
+    /** reserved5 */ 
+	uint32_t                rsvd5;
+    /** reserved6 */ 
+	uint32_t                rsvd6;
+    /** reserved7*/ 
+ 	uint32_t                rsvd7;
+    /** reserved8 */ 
+	uint32_t                rsvd8;
+    /** reserved9 */ 
+	uint32_t                rsvd9;
+    /** reserved10 */ 
+	uint32_t                rsvd10;
+    /** reserved11 */ 
+ 	uint32_t                rsvd11;
+    /** reserved12 */ 
+	uint32_t                rsvd12;
+} PACKED_STRUCT inbound_can_data_t;
 
 #endif  // INBOUND_CAN_DATA_H

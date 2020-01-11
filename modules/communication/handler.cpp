@@ -141,7 +141,7 @@ int Handler::BroastEgoVehicleGpsInfo() {
     const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
 
     //init header and data
-    int header_len = 36;
+    int header_len = 24;
     inbound_communication_header send_header;
     int data_len = 80;
     inbound_gnss_data send_data;
@@ -191,7 +191,7 @@ int Handler::BroastEgoVehicleVcuInfo() {
     const VehicleVcuData &ego_vehicle_vcu_data = DataContainer::GetInstance()->ego_vehicle_vcu_data_.getData();
 
     //assign send header/send data
-    int header_len = 36;
+    int header_len = 24;
     inbound_communication_header send_header;
     int data_len = 64;
     inbound_can_data send_data;
@@ -211,15 +211,15 @@ int Handler::BroastEgoVehicleVcuInfo() {
     //assignment
     send_data.speed = (uint16_t)(ego_vehicle_vcu_data.fSpeed * 1000);
     send_data.steering_wheel_angle = (int16_t)(ego_vehicle_vcu_data.fSteeringAngle * 10);
-    send_data.gyro_z = (int32_t)(ego_vehicle_vcu_data.fYawRate * 1000);
-    send_data.acc_x = (int32_t)(ego_vehicle_vcu_data.fLongituAccel * 1000);
+    //send_data.gyro_z = (int32_t)(ego_vehicle_vcu_data.fYawRate * 1000);
+    send_data.longitudinal_acceleration = (int32_t)(ego_vehicle_vcu_data.fLongituAccel * 1000);
 
 
     //display
     std::cout << "ego vehicle speed is : " << ego_vehicle_vcu_data.fSpeed << std::endl;
     std::cout << "ego_vehicle steering wheel angle is : " << ego_vehicle_vcu_data.fSteeringAngle << std::endl;
     std::cout << "ego vehicle longtitude acc is : " << ego_vehicle_vcu_data.fLongituAccel << std::endl;
-    std::cout << "ego vehilce yaw rate is :" << ego_vehicle_vcu_data.fYawRate << std::endl;
+    //std::cout << "ego vehilce yaw rate is :" << ego_vehicle_vcu_data.fYawRate << std::endl;
 
     // udp send
     Udp sudp(send_ip,send_port);
