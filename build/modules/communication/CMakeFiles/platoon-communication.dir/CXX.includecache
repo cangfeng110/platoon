@@ -6,24 +6,6 @@
 
 #IncludeRegexTransform: 
 
-/home/igs/zsworkspace/platoon/modules/communication/communication.cpp
-modules/communication/communication.h
-/home/igs/zsworkspace/platoon/modules/communication/modules/communication/communication.h
-string
--
-iostream
--
-protocol/ProtocolChannel.h
-/home/igs/zsworkspace/platoon/modules/communication/protocol/ProtocolChannel.h
-include/base/EventLoop.h
-/home/igs/zsworkspace/platoon/modules/communication/include/base/EventLoop.h
-include/base/Channel.h
-/home/igs/zsworkspace/platoon/modules/communication/include/base/Channel.h
-
-/home/igs/zsworkspace/platoon/modules/communication/datacontainer.cpp
-modules/communication/datacontainer.h
-/home/igs/zsworkspace/platoon/modules/communication/modules/communication/datacontainer.h
-
 /home/igs/zsworkspace/platoon/modules/communication/handler.cpp
 modules/communication/handler.h
 /home/igs/zsworkspace/platoon/modules/communication/modules/communication/handler.h
@@ -47,16 +29,4 @@ modules/communication/inbound_can_data.h
 /home/igs/zsworkspace/platoon/modules/communication/modules/communication/inbound_can_data.h
 modules/communication/udp.h
 /home/igs/zsworkspace/platoon/modules/communication/modules/communication/udp.h
-
-/home/igs/zsworkspace/platoon/modules/communication/main.cpp
-modules/main.h
-/home/igs/zsworkspace/platoon/modules/communication/modules/main.h
-modules/communication/communication.h
-/home/igs/zsworkspace/platoon/modules/communication/modules/communication/communication.h
-
-/home/igs/zsworkspace/platoon/modules/communication/udp.cpp
-modules/communication/udp.h
-/home/igs/zsworkspace/platoon/modules/communication/modules/communication/udp.h
-string.h
--
 

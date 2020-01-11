@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <iostream>
 #include <string.h>
+#include <fstream>
 
 #include "include/base/Timestamp.h"
 #include "include/base/Logging.h"
@@ -31,7 +32,7 @@ Handler::Handler() {
     remote_sockaddr_.sin_addr.s_addr = inet_addr("10.42.0.30");  //change 50->30
 
     local_sockaddr_.sin_family = AF_INET;
-    local_sockaddr_.sin_port = htons(15803);  //15803 ibox  10001 v2x
+    local_sockaddr_.sin_port = htons(16818);  //16818 ibox  10001 v2x
     local_sockaddr_.sin_addr.s_addr = htonl(INADDR_ANY);
 
 
@@ -59,9 +60,14 @@ int Handler::DecodeV2xVechileInfo() {
     LINFO << "receive length is : " << len;
 
     outbound_communication_header outbound_header;
-   
-    memcpy(&outbound_header, buffer_, 36);
-   
+    int header_len = 36;
+    memcpy(&outbound_header, buffer_, header_len);
+    // recoder opcode
+    std::ofstream opcode_out;
+    opcode_out.open("./opcode_id_out.txt");
+    opcode_out << outbound_header.op_code << std::endl;
+    opcode_out.close;
+
     if (outbound_header.proto_id != 0xAFEE2468 || outbound_header.ver != 3 
         || outbound_header.op_type != 2 || outbound_header.op_code != 1) {
         LDEBUG << "header type error!";
@@ -70,7 +76,7 @@ int Handler::DecodeV2xVechileInfo() {
         LINFO << "header type right!";
 
         char * buffer_temp;
-        buffer_temp = &buffer_[36]; // skip outbound header
+        buffer_temp = &buffer_[header_len]; // skip outbound header
 
         uint8_t other_vehicle_num = (*reinterpret_cast<uint8_t *>(buffer_temp + 40));
         printf("remote num=%d\n", other_vehicle_num);
@@ -207,14 +213,25 @@ int Handler::BroastEgoVehicleVcuInfo() {
     send_header.op_code = 200; // 
     send_header.op_sn = 0;
     send_header.msg_len = data_len; //
+    
 
     //assignment
     send_data.speed = (uint16_t)(ego_vehicle_vcu_data.fSpeed * 1000);
     send_data.steering_wheel_angle = (int16_t)(ego_vehicle_vcu_data.fSteeringAngle * 10);
     //send_data.gyro_z = (int32_t)(ego_vehicle_vcu_data.fYawRate * 1000);
     send_data.longitudinal_acceleration = (int32_t)(ego_vehicle_vcu_data.fLongituAccel * 1000);
-
-
+    //default
+    send_data.rear_wheel_tick = 65535;
+    send_data.transmisn = 7;
+    send_data.light = 65535;
+    send_data.ESP_status = 0;
+    send_data.TCS_status = 0;
+    send_data.ABS_status = 0;
+    send_data.LDW_status = 0;
+    send_data.brake_pedal = 0;
+    send_data.pedal_status = 101;
+    send_data.lose_contorl = 0;
+    send_data.tire_pressure = 0;
     //display
     std::cout << "ego vehicle speed is : " << ego_vehicle_vcu_data.fSpeed << std::endl;
     std::cout << "ego_vehicle steering wheel angle is : " << ego_vehicle_vcu_data.fSteeringAngle << std::endl;
