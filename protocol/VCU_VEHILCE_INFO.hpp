@@ -24,9 +24,9 @@ class VCU_VEHILCE_INFO
 
         uint8_t    gb560[8];
 
-        float      fSteeringAngle;
+        float      fSteeringAngle;//degree
 
-        float      fSpeed;
+        float      fSpeed;//m/s
 
         float      fYawRate;
 

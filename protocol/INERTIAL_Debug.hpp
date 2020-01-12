@@ -20,23 +20,23 @@ class INERTIAL_Debug
     public:
         HEADER     header;
 
-        double     fLatitude;
+        double     fLatitude;//degree
 
-        double     fLongitude;
+        double     fLongitude;//degree
 
-        float      fAltitude;
+        float      fAltitude;//degree
 
-        float      fAccX;
+        float      fAccX; //m/s2
 
-        float      fAccY;
+        float      fAccY;//m/s2
 
-        float      fAccZ;
+        float      fAccZ;//m/s2
 
-        float      fAngRateX;
+        float      fAngRateX;//rad/s
 
-        float      fAngRateY;
+        float      fAngRateY;//rad/s
 
-        float      fAngRateZ;
+        float      fAngRateZ;//rad/s
 
         float      fVelNorth;
 
@@ -44,7 +44,7 @@ class INERTIAL_Debug
 
         float      fVelUp;
 
-        float      fHeading;
+        float      fHeading;//degree,0-360
 
         float      fPitch;
 

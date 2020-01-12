@@ -41,7 +41,7 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     loop_.runEvery(100, std::bind(&DataContainer::DecreaseTtl, DataContainer::GetInstance()));
 
     // broad ego vehicle vcu info to ibox, 50Hz
-    //loop_.runEvery(20, std::bind(&communication::BroastEgoVehicleVcuInfo, this));
+    loop_.runEvery(20, std::bind(&communication::BroastEgoVehicleVcuInfo, this));
     
     //broad ego vehicle vcu info to ibox, 100Hz
     //loop_.runEvery(10, std::bind(&communication::BroastEgoVehicleGpsInfo, this));
@@ -144,8 +144,19 @@ void communication::ReceiveV2xOtherVehicleInfo() {
 //
 void communication::PublishWorldmodelInfo() {
     if (DataContainer::GetInstance()->worldmodle_other_vehicle_data_.isUpToDate()) {
-        LINFO << "publish worldmodle vehicle info to lcm";
+        //LINFO << "publish worldmodle vehicle info to lcm";
+        // WorldModelObjects temp = handler_.GetWorldmodleVehiles();
+        // std::cout << "###########Publish publish worldmodle vehicle info to lcm#######" << std::endl
+        //           <<"remote vehilce number is : " << temp.nVehicleNum << std::endl;
+        // if(temp.nVehicleNum > 0){
+        //     std::cout <<"last vehicle frenet dis is: " << temp.vehicles.back().frenet_lon_distance << std::endl
+        //           <<"last vehicle speed is :" << temp.vehicles.back().hisTrajectory.back().speed << std::endl
+        //           << "last vehicle relative heading is: " << temp.vehicles.back().hisTrajectory.back().relative_heading << std::endl
+        //           << "last vehicle relative x is: " << temp.vehicles.back().hisTrajectory.back().relative_x << std::endl;
+        // }        
         lcm_.publish("WORLDMODEL_OTHER_OBJECTS_INFO", &handler_.GetWorldmodleVehiles());
+    } else {
+        LDEBUG << "publish worldmodel info is not update";
     }
         
 }

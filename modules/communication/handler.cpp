@@ -27,12 +27,12 @@ Handler::Handler() {
         LDIE << "v2x socket create failed.";
     }
 
-    remote_sockaddr_.sin_family = AF_INET;
-    remote_sockaddr_.sin_port = htons(15803);  //15803 ibox  10001 v2x
-    remote_sockaddr_.sin_addr.s_addr = inet_addr("10.42.0.30");  //change 50->30
+    // /remote_sockaddr_.sin_family = AF_INET;
+    // remote_sockaddr_.sin_port = htons(15803);  //15803 ibox  10001 v2x
+    // remote_sockaddr_.sin_addr.s_addr = inet_addr("10.42.0.30");  //change 50->30
 
     local_sockaddr_.sin_family = AF_INET;
-    local_sockaddr_.sin_port = htons(16818);  //16818 ibox  10001 v2x
+    local_sockaddr_.sin_port = htons(16820);  
     local_sockaddr_.sin_addr.s_addr = htonl(INADDR_ANY);
 
 
@@ -63,14 +63,16 @@ int Handler::DecodeV2xVechileInfo() {
     int header_len = 36;
     memcpy(&outbound_header, buffer_, header_len);
     // recoder opcode
-    std::ofstream opcode_out;
-    opcode_out.open("./opcode_id_out.txt");
-    opcode_out << outbound_header.op_code << std::endl;
-    opcode_out.close();
+    // std::ofstream opcode_out;
+    // opcode_out.open("./opcode_id_out.txt");
+    // opcode_out << outbound_header.op_code << std::endl;
+    // opcode_out.close();
 
     if (outbound_header.proto_id != 0xAFEE2468 || outbound_header.ver != 3 
         || outbound_header.op_type != 2 || outbound_header.op_code != 1) {
         LDEBUG << "header type error!";
+        printf("%x\n\n",outbound_header.op_code);
+        std::cout << outbound_header.op_code << std::endl;
         return -1;
     } else {
         LINFO << "header type right!";
@@ -110,26 +112,45 @@ int Handler::DecodeV2xVechileInfo() {
             v2x_other_vehicle_data.fSteeringAngle = (float)other_vehicle_data.SteeringWheel * 1.5;  
             v2x_other_vehicle_data.fLateralAcc = (float)other_vehicle_data.acc_y / 100.0;
             v2x_other_vehicle_data.fLongituAcc = (float)other_vehicle_data.acc_x /  100.0;
-            v2x_other_vehicle_data.fVehicleLength = (float)other_vehicle_data.length/ 100.0;
+            //v2x_other_vehicle_data.fVehicleLength = (float)other_vehicle_data.length/ 100.0;
+            v2x_other_vehicle_data.fVehicleLength = (float)other_vehicle_data.distance / 10.0;
             v2x_other_vehicle_data.fVehicleWidth = (float)other_vehicle_data.width / 100.0;
+            // std::cout << "+++++++++++display raw data++++++++++++" << std::endl;
+            // std::cout <<"distance" << other_vehicle_data.distance << std::endl;
+            // std::cout << "iVehicleID       : " << v2x_other_vehicle_data.iVehicleID    << std::endl
+            //               << "fVehicleLength   : " << v2x_other_vehicle_data.fVehicleLength << std::endl
+            //               << "fVehicleWidth    : " << v2x_other_vehicle_data.fVehicleWidth << std::endl
+            //               << "iDriveModeStatus : " << (int)v2x_other_vehicle_data.iDriveModeStatus << std::endl
+            //               << "fBrakePedalAngle : " << v2x_other_vehicle_data.fBrakePedalAngle    << std::endl
+            //               << "dLongitude       : " << v2x_other_vehicle_data.dLongitude          << std::endl
+            //               << "dLatitude        : " << v2x_other_vehicle_data.dLatitude           << std::endl
+            //               << "fLongituAcc      : " << v2x_other_vehicle_data.fLongituAcc         << std::endl
+            //               << "fLateralAcc      : " << v2x_other_vehicle_data.fLateralAcc         << std::endl
+            //               << "fHeading         : " << v2x_other_vehicle_data.fHeading            << std::endl
+            //               << "fSpeed           : " << v2x_other_vehicle_data.fSpeed              << std::endl
+            //               << "fSteeringAngle   : " << v2x_other_vehicle_data.fSteeringAngle      << std::endl
+            //               << "fYawRate         : " << v2x_other_vehicle_data.fYawRate            << std::endl
+            //               << "iGpsState        : " << (int)v2x_other_vehicle_data.iGpsState      << std::endl
+            //               << "iGpsTime         : " << v2x_other_vehicle_data.iGpsTime            << std::endl
+            //               << "iShiftPosition   : " << (int)v2x_other_vehicle_data.iShiftPosition << std::endl;
 
             // tramsfrom GPS coordination to ego vehicle coordination
-            if (DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) {
-                const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
-                platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(v2x_other_vehicle_data.dRelativeX, v2x_other_vehicle_data.dRelativeY,
-                                                                    ego_vehicle_gps_data.fHeading,
-                                                                    ego_vehicle_gps_data.fLongitude,ego_vehicle_gps_data.fLatitude,
-                                                                    ego_vehicle_gps_data.fAltitude,
-                                                                    v2x_other_vehicle_data.dLongitude, v2x_other_vehicle_data.dLatitude,
-                                                                    v2x_other_vehicle_data.fAltitude);
-                platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(v2x_other_vehicle_data.dRelativeHeading, 
-                                                                        ego_vehicle_gps_data.fHeading, v2x_other_vehicle_data.fHeading);
-                std::cout<<"ego vehicle heading:" << ego_vehicle_gps_data.fHeading << std::endl;
-                std::cout<<"v2x other vehicle heading: "<< v2x_other_vehicle_data.fHeading << std::endl;
-            } else {
-                v2x_other_vehicle_data.dRelativeX = 0.0;
-                v2x_other_vehicle_data.dRelativeY = 0.0;
-            }
+            // if (DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) {
+            //     const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
+            //     platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(v2x_other_vehicle_data.dRelativeX, v2x_other_vehicle_data.dRelativeY,
+            //                                                         ego_vehicle_gps_data.fHeading,
+            //                                                         ego_vehicle_gps_data.fLongitude,ego_vehicle_gps_data.fLatitude,
+            //                                                         ego_vehicle_gps_data.fAltitude,
+            //                                                         v2x_other_vehicle_data.dLongitude, v2x_other_vehicle_data.dLatitude,
+            //                                                         v2x_other_vehicle_data.fAltitude);
+            //     platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(v2x_other_vehicle_data.dRelativeHeading, 
+            //                                                             ego_vehicle_gps_data.fHeading, v2x_other_vehicle_data.fHeading);
+            //     std::cout<<"ego vehicle heading:" << ego_vehicle_gps_data.fHeading << std::endl;
+            //     std::cout<<"v2x other vehicle heading: "<< v2x_other_vehicle_data.fHeading << std::endl;
+            // } else {
+            //     v2x_other_vehicle_data.dRelativeX = 0.0;
+            //     v2x_other_vehicle_data.dRelativeY = 0.0;
+            // }
             DataContainer::GetInstance()->v2x_other_vehicle_data_.setData(v2x_other_vehicle_data.iVehicleID, v2x_other_vehicle_data);
             buffer_temp += 72;   //locate next vehicle info
         }
@@ -217,7 +238,7 @@ int Handler::BroastEgoVehicleVcuInfo() {
 
     //assignment
     send_data.speed = (uint16_t)(ego_vehicle_vcu_data.fSpeed * 1000);
-    send_data.steering_wheel_angle = (int16_t)(ego_vehicle_vcu_data.fSteeringAngle * 10);
+    send_data.steering_wheel_angle = (int16_t)(ego_vehicle_vcu_data.fSteeringAngle * 3600 / (2 * PI));
     //send_data.gyro_z = (int32_t)(ego_vehicle_vcu_data.fYawRate * 1000);
     send_data.longitudinal_acceleration = (int32_t)(ego_vehicle_vcu_data.fLongituAccel * 1000);
     //default
@@ -234,7 +255,7 @@ int Handler::BroastEgoVehicleVcuInfo() {
     send_data.tire_pressure = 0;
     //display
     std::cout << "ego vehicle speed is : " << ego_vehicle_vcu_data.fSpeed << std::endl;
-    std::cout << "ego_vehicle steering wheel angle is : " << ego_vehicle_vcu_data.fSteeringAngle << std::endl;
+    std::cout << "ego_vehicle steering wheel angle is : " << ego_vehicle_vcu_data.fSteeringAngle * 360 / (2 * PI) << std::endl;
     std::cout << "ego vehicle longtitude acc is : " << ego_vehicle_vcu_data.fLongituAccel << std::endl;
     //std::cout << "ego vehilce yaw rate is :" << ego_vehicle_vcu_data.fYawRate << std::endl;
 
