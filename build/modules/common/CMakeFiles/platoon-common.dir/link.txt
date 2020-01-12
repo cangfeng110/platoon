@@ -1,0 +1,2 @@
+/home/igs/zsworkspace/atd_environment/nvidia/nvidia_sdk/DRIVE/Linux/5.0.13.2/SW/DriveSDK/toolchains/tegra-4.9-nv/usr/bin/aarch64-gnu-linux/aarch64-gnu-linux-ar qc libplatoon-common.a  CMakeFiles/platoon-common.dir/functiontool.cpp.o
+/home/igs/zsworkspace/atd_environment/nvidia/nvidia_sdk/DRIVE/Linux/5.0.13.2/SW/DriveSDK/toolchains/tegra-4.9-nv/usr/bin/aarch64-gnu-linux/aarch64-gnu-linux-ranlib libplatoon-common.a
