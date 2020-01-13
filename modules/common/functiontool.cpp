@@ -52,9 +52,10 @@ void TransfromGpsAbsoluteToEgoRelaCoord(double &oRelativeX, double &oRelativeY,
     double remote_ytemp = (remote_v + Remote_Alti) * cos(remote_lati) * sin(remote_long);
     double remote_ztemp = (remote_v * (1 - e * e) + Remote_Alti) * sin(remote_lati);
     // trans wgs_84 to enu coordinate system , left_hand
-    double enu_x = -sin(remote_long) * (remote_xtemp -ego_xtemp) + cos(remote_long) * (remote_ytemp - ego_xtemp);
+    double enu_x = -sin(remote_long) * (remote_xtemp -ego_xtemp) 
+                    + cos(remote_long) * (remote_ytemp - ego_ytemp);
     double enu_y = -sin(remote_lati) * cos(remote_long) * (remote_xtemp -ego_xtemp) 
-                    - sin(remote_lati) * sin(remote_long) * (remote_ytemp -ego_xtemp) 
+                    - sin(remote_lati) * sin(remote_long) * (remote_ytemp -ego_ytemp) 
                     + cos(remote_lati) * (remote_ztemp - ego_ztemp);
     double enu_z = cos(remote_lati) * cos(remote_long) * (remote_xtemp - ego_xtemp)
                     + sin(remote_long) * (remote_ytemp - ego_ytemp)

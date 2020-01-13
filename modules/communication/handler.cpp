@@ -115,25 +115,6 @@ int Handler::DecodeV2xVechileInfo() {
             //v2x_other_vehicle_data.fVehicleLength = (float)other_vehicle_data.length/ 100.0;
             v2x_other_vehicle_data.fVehicleLength = (float)other_vehicle_data.distance / 10.0;
             v2x_other_vehicle_data.fVehicleWidth = (float)other_vehicle_data.width / 100.0;
-            // std::cout << "+++++++++++display raw data++++++++++++" << std::endl;
-            // std::cout <<"distance" << other_vehicle_data.distance << std::endl;
-            // std::cout << "iVehicleID       : " << v2x_other_vehicle_data.iVehicleID    << std::endl
-            //               << "fVehicleLength   : " << v2x_other_vehicle_data.fVehicleLength << std::endl
-            //               << "fVehicleWidth    : " << v2x_other_vehicle_data.fVehicleWidth << std::endl
-            //               << "iDriveModeStatus : " << (int)v2x_other_vehicle_data.iDriveModeStatus << std::endl
-            //               << "fBrakePedalAngle : " << v2x_other_vehicle_data.fBrakePedalAngle    << std::endl
-            //               << "dLongitude       : " << v2x_other_vehicle_data.dLongitude          << std::endl
-            //               << "dLatitude        : " << v2x_other_vehicle_data.dLatitude           << std::endl
-            //               << "fLongituAcc      : " << v2x_other_vehicle_data.fLongituAcc         << std::endl
-            //               << "fLateralAcc      : " << v2x_other_vehicle_data.fLateralAcc         << std::endl
-            //               << "fHeading         : " << v2x_other_vehicle_data.fHeading            << std::endl
-            //               << "fSpeed           : " << v2x_other_vehicle_data.fSpeed              << std::endl
-            //               << "fSteeringAngle   : " << v2x_other_vehicle_data.fSteeringAngle      << std::endl
-            //               << "fYawRate         : " << v2x_other_vehicle_data.fYawRate            << std::endl
-            //               << "iGpsState        : " << (int)v2x_other_vehicle_data.iGpsState      << std::endl
-            //               << "iGpsTime         : " << v2x_other_vehicle_data.iGpsTime            << std::endl
-            //               << "iShiftPosition   : " << (int)v2x_other_vehicle_data.iShiftPosition << std::endl;
-
             // tramsfrom GPS coordination to ego vehicle coordination
             // if (DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) {
             //     const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
@@ -353,16 +334,16 @@ void Handler::ProcessTrajectory(std::vector<Location> &trajectory) {
     int index_near = -1;
     for (int i = 0; i < trajectory.size(); i++) {
         //Update relative info
-        // platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(trajectory[i].relative_x, trajectory[i].relative_y,
-        //                                                     ego_vehicle_location.fHeading,
-        //                                                     ego_vehicle_location.fLongitude, ego_vehicle_location.fLatitude,
-        //                                                     ego_vehicle_location.fAltitude,
-        //                                                     trajectory[i].Longitude, trajectory[i].Latitude,
-        //                                                     trajectory[i].Altitude);
-        platoon::common::transfromGpsAbsoluteToEgoRelaCoord(trajectory[i].relative_x, trajectory[i].relative_y,
+        platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(trajectory[i].relative_x, trajectory[i].relative_y,
                                                             ego_vehicle_location.fHeading,
                                                             ego_vehicle_location.fLongitude, ego_vehicle_location.fLatitude,
-                                                            trajectory[i].Longitude, trajectory[i].Latitude);
+                                                            ego_vehicle_location.fAltitude,
+                                                            trajectory[i].Longitude, trajectory[i].Latitude,
+                                                            trajectory[i].Altitude);
+        // platoon::common::transfromGpsAbsoluteToEgoRelaCoord(trajectory[i].relative_x, trajectory[i].relative_y,
+        //                                                     ego_vehicle_location.fHeading,
+        //                                                     ego_vehicle_location.fLongitude, ego_vehicle_location.fLatitude,
+        //                                                     trajectory[i].Longitude, trajectory[i].Latitude);
         platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(trajectory[i].relative_heading, 
                                                             ego_vehicle_location.fHeading, trajectory[i].heading);
     }
