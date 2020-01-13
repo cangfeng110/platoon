@@ -311,19 +311,18 @@ WorldModelObjects & Handler::GetWorldmodleVehiles() {
     temp.relative_heading = v2x_vehicle_data.dRelativeHeading;
     temp.relative_x = v2x_vehicle_data.dRelativeX;
     temp.relative_y = v2x_vehicle_data.dRelativeY;
-
-    int long_error = fabs(worldmodel_vehicle_data.hisTrajectory.back().Longitude - temp.Longitude);
-    int lat_error = fabs(worldmodel_vehicle_data.hisTrajectory.back().Latitude - temp.Latitude);
-    
     // insert new location info if other vehicle speed is not zero 
     // and new location is far from the previous location
     if(worldmodel_vehicle_data.hisTrajectory.size() == 0)
         worldmodel_vehicle_data.hisTrajectory.push_back(temp);
-    else if ((temp.speed > 0.001) && (long_error > 0.0000001 || lat_error > 0.0000001))
-        worldmodel_vehicle_data.hisTrajectory.push_back(temp);
-    else 
-        worldmodel_vehicle_data.hisTrajectory.back() = temp;
-
+    else {
+        double long_error = fabs(worldmodel_vehicle_data.hisTrajectory.back().Longitude - temp.Longitude);
+        double lat_error = fabs(worldmodel_vehicle_data.hisTrajectory.back().Latitude - temp.Latitude);
+        if ((temp.speed > 0.001) && (long_error > 0.0000001 || lat_error > 0.0000001))
+            worldmodel_vehicle_data.hisTrajectory.push_back(temp);
+        else 
+            worldmodel_vehicle_data.hisTrajectory.back() = temp;
+    }
     ProcessTrajectory(worldmodel_vehicle_data.hisTrajectory);
     worldmodel_vehicle_data.pointNum = worldmodel_vehicle_data.hisTrajectory.size();
 
@@ -354,12 +353,16 @@ void Handler::ProcessTrajectory(std::vector<Location> &trajectory) {
     int index_near = -1;
     for (int i = 0; i < trajectory.size(); i++) {
         //Update relative info
-        platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(trajectory[i].relative_x, trajectory[i].relative_y,
+        // platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(trajectory[i].relative_x, trajectory[i].relative_y,
+        //                                                     ego_vehicle_location.fHeading,
+        //                                                     ego_vehicle_location.fLongitude, ego_vehicle_location.fLatitude,
+        //                                                     ego_vehicle_location.fAltitude,
+        //                                                     trajectory[i].Longitude, trajectory[i].Latitude,
+        //                                                     trajectory[i].Altitude);
+        platoon::common::transfromGpsAbsoluteToEgoRelaCoord(trajectory[i].relative_x, trajectory[i].relative_y,
                                                             ego_vehicle_location.fHeading,
                                                             ego_vehicle_location.fLongitude, ego_vehicle_location.fLatitude,
-                                                            ego_vehicle_location.fAltitude,
-                                                            trajectory[i].Longitude, trajectory[i].Latitude,
-                                                            trajectory[i].Altitude);
+                                                            trajectory[i].Longitude, trajectory[i].Latitude);
         platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(trajectory[i].relative_heading, 
                                                             ego_vehicle_location.fHeading, trajectory[i].heading);
     }

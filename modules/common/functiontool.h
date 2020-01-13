@@ -23,7 +23,11 @@ void TransfromGpsAbsoluteToEgoRelaCoord(double &oRelativeX, double &oRelativeY,
 
 double GpsDistance(double longi1, double lati1,
                    double longi2, double lati2);
-
+                   
+void transfromGpsAbsoluteToEgoRelaCoord(double &oRelativeX, double &oRelativeY,
+                                        double Heading,
+                                        double sLong, double sLati,
+                                        double oLong, double oLati);
 } // namespace common
 
 } // namespace platoon

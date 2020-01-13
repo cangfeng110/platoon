@@ -69,6 +69,34 @@ void TransfromGpsAbsoluteToEgoRelaCoord(double &oRelativeX, double &oRelativeY,
     oRelativeX = right_x * cos(Ego_Heading) + right_y * sin(Ego_Heading);
     oRelativeY = right_y * cos(Ego_Heading) - right_x * sin(Ego_Heading);       
 }
+
+void transfromGpsAbsoluteToEgoRelaCoord(double &oRelativeX, double &oRelativeY,
+                                        double Heading,
+                                        double sLong, double sLati,
+                                        double oLong, double oLati)
+{
+    //r = 6371.004km (earth)
+    //ratios of longitude and latitude
+    double LatiRatio = 111712.69150641056;   //6371004*PI/180
+    double LonRatio = LatiRatio*cos(sLati/180.0*PI);
+
+    double gps_x = (oLong  - sLong) * LonRatio;
+    double gps_y = (oLati - sLati) * LatiRatio;
+
+    double angle = - (PI/2 - Heading);
+
+    /// Rotate center is (0, 0)
+    oRelativeX = gps_x * cos(angle) - gps_y * sin(angle);
+    oRelativeY = gps_x * sin(angle) + gps_y * cos(angle);
+
+//    std::cout << std::setiosflags(std::ios::fixed);
+//    std::cout << "To relative, LatiRatio: " << std::setprecision(10) << LatiRatio << std::endl;
+//    std::cout << "To relative, LonRatio:  " << std::setprecision(10) << LonRatio << std::endl;
+//    std::cout << "To relative, gps_x:     " << std::setprecision(10) << gps_x << std::endl;
+//    std::cout << "To relative, gps_y:     " << std::setprecision(10) << gps_y << std::endl;
+//    std::cout << "To relative, cos():     " << std::setprecision(10) << cos(angle) << std::endl;
+//    std::cout << "To relative, sin():     " << std::setprecision(10) << sin(angle) << std::endl;
+}
                                   
 double GpsDistance(double longi1, double lati1,
                    double longi2, double lati2)

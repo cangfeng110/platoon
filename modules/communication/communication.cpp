@@ -150,8 +150,8 @@ void communication::PublishWorldmodelInfo() {
                   <<"remote vehilce number is : " << temp.nVehicleNum << std::endl;
         if(temp.nVehicleNum > 0){
             std::cout <<"last vehicle frenet dis is: " << temp.vehicles.back().frenet_lon_distance << std::endl
-                  <<"last vehicle speed is :" << temp.vehicles.back().hisTrajectory.back().speed << std::endl
-                  << "last vehicle relative heading is: " << temp.vehicles.back().hisTrajectory.back().relative_heading << std::endl
+                  <<"last vehicle speed is :" << temp.vehicles.back().hisTrajectory.back().speed * 3.6 << std::endl
+                  << "last vehicle relative heading is: " << temp.vehicles.back().hisTrajectory.back().relative_heading * 180 / 3.14 << std::endl
                   << "last vehicle relative x is: " << temp.vehicles.back().hisTrajectory.back().relative_x << std::endl;
         }        
         lcm_.publish("WORLDMODEL_OTHER_OBJECTS_INFO", &handler_.GetWorldmodleVehiles());
