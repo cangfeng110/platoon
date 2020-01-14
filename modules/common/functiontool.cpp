@@ -60,15 +60,15 @@ void TransfromGpsAbsoluteToEgoRelaCoord(double &oRelativeX, double &oRelativeY,
     double enu_z = cos(remote_lati) * cos(remote_long) * (remote_xtemp - ego_xtemp)
                     + sin(remote_long) * (remote_ytemp - ego_ytemp)
                     + sin(remote_lati) * (remote_ztemp - ego_ztemp);
-    // trans enu to vehicle coordinate system
-    /*if(Ego_Heading <= 0) 
-        Ego_Heading = fabs(Ego_Heading);
-    else  
-        Ego_Heading = 2 * PI - Ego_Heading;*/
-    double right_x = enu_y; // left hand system to right hand system 
-    double right_y = enu_x;
-    oRelativeX = right_x * cos(Ego_Heading) + right_y * sin(Ego_Heading);
-    oRelativeY = right_y * cos(Ego_Heading) - right_x * sin(Ego_Heading);       
+    // trans enu to relative coordinate system
+    double left_hand_x = enu_x * cos(Ego_Heading) + enu_y * sin(Ego_Heading);
+    double left_hand_y = enu_y * cos(Ego_Heading) - enu_x * sin(Ego_Heading);
+
+    // left hand(x, y) system to right hand (x', y')system
+    // y' = -x 
+    // x' = y
+    oRelativeX = left_hand_y;
+    oRelativeY = 0 - left_hand_x;
 }
 
 void transfromGpsAbsoluteToEgoRelaCoord(double &oRelativeX, double &oRelativeY,

@@ -57,16 +57,11 @@ int Handler::DecodeV2xVechileInfo() {
         return -1;
     }
 
-    LINFO << "receive length is : " << len;
+    std::cout << "receive length is : " << len << std::endl;
 
     outbound_communication_header outbound_header;
     int header_len = 36;
     memcpy(&outbound_header, buffer_, header_len);
-    // recoder opcode
-    // std::ofstream opcode_out;
-    // opcode_out.open("./opcode_id_out.txt");
-    // opcode_out << outbound_header.op_code << std::endl;
-    // opcode_out.close();
 
     if (outbound_header.proto_id != 0xAFEE2468 || outbound_header.ver != 3 
         || outbound_header.op_type != 2 || outbound_header.op_code != 1) {
@@ -75,7 +70,7 @@ int Handler::DecodeV2xVechileInfo() {
         std::cout << outbound_header.op_code << std::endl;
         return -1;
     } else {
-        LINFO << "header type right!";
+        std::cout << "header type right!" << std::endl;
 
         char * buffer_temp;
         buffer_temp = &buffer_[header_len]; // skip outbound header
@@ -89,11 +84,11 @@ int Handler::DecodeV2xVechileInfo() {
         LDEBUG << "packet length error!";
         return -1;
     } else {
-        LINFO << "packet length right";
+        std::cout << "packet length right" << std::endl;
 
         buffer_temp += 44;
 
-        for(int i=0; i < other_vehicle_num; i++) { 
+        for(int i = 0; i < other_vehicle_num; i++) { 
             memcpy(&other_vehicle_data, buffer_temp, 72);
             
             VehicleData v2x_other_vehicle_data;
@@ -110,32 +105,37 @@ int Handler::DecodeV2xVechileInfo() {
             v2x_other_vehicle_data.iShiftPosition = (int8_t)other_vehicle_data.transmisn_state;
             v2x_other_vehicle_data.fBrakePedalAngle = 0;
             v2x_other_vehicle_data.fSteeringAngle = (float)other_vehicle_data.SteeringWheel * 1.5;  
-            v2x_other_vehicle_data.fLateralAcc = (float)other_vehicle_data.acc_y / 100.0;
-            v2x_other_vehicle_data.fLongituAcc = (float)other_vehicle_data.acc_x /  100.0;
-            //v2x_other_vehicle_data.fVehicleLength = (float)other_vehicle_data.length/ 100.0;
-            v2x_other_vehicle_data.fVehicleLength = (float)other_vehicle_data.distance / 10.0;
+            v2x_other_vehicle_data.fLateralAcc = (float)other_vehicle_data.acc_x / 100.0;
+            v2x_other_vehicle_data.fLongituAcc = 0 - (float)other_vehicle_data.acc_y / 100.0;
+            v2x_other_vehicle_data.fVehicleLength = (float)other_vehicle_data.length/ 100.0;
+            //v2x_other_vehicle_data.fVehicleLength = (float)other_vehicle_data.distance / 10.0;
             v2x_other_vehicle_data.fVehicleWidth = (float)other_vehicle_data.width / 100.0;
+            
             // tramsfrom GPS coordination to ego vehicle coordination
-            // if (DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) {
-            //     const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
-            //     platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(v2x_other_vehicle_data.dRelativeX, v2x_other_vehicle_data.dRelativeY,
-            //                                                         ego_vehicle_gps_data.fHeading,
-            //                                                         ego_vehicle_gps_data.fLongitude,ego_vehicle_gps_data.fLatitude,
-            //                                                         ego_vehicle_gps_data.fAltitude,
-            //                                                         v2x_other_vehicle_data.dLongitude, v2x_other_vehicle_data.dLatitude,
-            //                                                         v2x_other_vehicle_data.fAltitude);
-            //     platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(v2x_other_vehicle_data.dRelativeHeading, 
-            //                                                             ego_vehicle_gps_data.fHeading, v2x_other_vehicle_data.fHeading);
-            //     std::cout<<"ego vehicle heading:" << ego_vehicle_gps_data.fHeading << std::endl;
-            //     std::cout<<"v2x other vehicle heading: "<< v2x_other_vehicle_data.fHeading << std::endl;
-            // } else {
-            //     v2x_other_vehicle_data.dRelativeX = 0.0;
-            //     v2x_other_vehicle_data.dRelativeY = 0.0;
-            // }
+            if (DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) {
+                const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
+                platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(v2x_other_vehicle_data.dRelativeX, v2x_other_vehicle_data.dRelativeY,
+                                                                    ego_vehicle_gps_data.fHeading,
+                                                                    ego_vehicle_gps_data.fLongitude,ego_vehicle_gps_data.fLatitude,
+                                                                    ego_vehicle_gps_data.fAltitude,
+                                                                    v2x_other_vehicle_data.dLongitude, v2x_other_vehicle_data.dLatitude,
+                                                                    v2x_other_vehicle_data.fAltitude);
+                platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(v2x_other_vehicle_data.dRelativeHeading, 
+                                                                        ego_vehicle_gps_data.fHeading, v2x_other_vehicle_data.fHeading);
+                std::cout<<"relative_x:" << v2x_other_vehicle_data.dRelativeX << std::endl;
+                std::cout<<"relative_y: "<< v2x_other_vehicle_data.dRelativeY << std::endl;
+            } else {
+                v2x_other_vehicle_data.dRelativeX = 1.0E10;
+                v2x_other_vehicle_data.dRelativeY = 1.0E10;
+                v2x_other_vehicle_data.dRelativeHeading = 1.0E10;
+                LDEBUG << "*****ego vehicle gps info is not update, relative info can not be calcauted***";
+            }
+            
+
             DataContainer::GetInstance()->v2x_other_vehicle_data_.setData(v2x_other_vehicle_data.iVehicleID, v2x_other_vehicle_data);
             buffer_temp += 72;   //locate next vehicle info
         }
-        return 1;
+            return 1;
         }
     }
 }
@@ -175,10 +175,10 @@ int Handler::BroastEgoVehicleGpsInfo() {
     send_data.timestamp_miliseconds = (uint32_t)(ego_vehicle_gps_data.header.nTimeStamp / 1000 - send_data.timestamp_seconds * 1000);
    
    //display
-    std::cout << "ego vehicle longitude is : " << ego_vehicle_gps_data.fLongitude << std::endl;
-    std::cout << "ego_vehicle latitude is : " << ego_vehicle_gps_data.fLatitude << std::endl;
-    std::cout << "ego vehilce altitude is :" << ego_vehicle_gps_data.fAltitude << std::endl;
-    std::cout << "ego vehicle heading is : " << ego_vehicle_gps_data.fHeading << std::endl;
+    // std::cout << "ego vehicle longitude is : " << ego_vehicle_gps_data.fLongitude << std::endl;
+    // std::cout << "ego_vehicle latitude is : " << ego_vehicle_gps_data.fLatitude << std::endl;
+    // std::cout << "ego vehilce altitude is :" << ego_vehicle_gps_data.fAltitude << std::endl;
+    // std::cout << "ego vehicle heading is : " << ego_vehicle_gps_data.fHeading << std::endl;
     
     // udp send
     Udp sudp(send_ip,send_port);
@@ -235,9 +235,10 @@ int Handler::BroastEgoVehicleVcuInfo() {
     send_data.lose_contorl = 0;
     send_data.tire_pressure = 0;
     //display
-    std::cout << "ego vehicle speed is : " << ego_vehicle_vcu_data.fSpeed << std::endl;
-    std::cout << "ego_vehicle steering wheel angle is : " << ego_vehicle_vcu_data.fSteeringAngle * 360 / (2 * PI) << std::endl;
-    std::cout << "ego vehicle longtitude acc is : " << ego_vehicle_vcu_data.fLongituAccel << std::endl;
+    // std::cout << "ego vehicle speed is : " << ego_vehicle_vcu_data.fSpeed << std::endl;
+    // std::cout << "ego_vehicle steering wheel angle is : " << ego_vehicle_vcu_data.fSteeringAngle * 360 / (2 * PI) << std::endl;
+    // std::cout << "ego vehicle longtitude acc is : " << ego_vehicle_vcu_data.fLongituAccel << std::endl;
+    // std::cout << "ego vehicle longtitude acc is : " << send_data.longitudinal_acceleration << std::endl;
     //std::cout << "ego vehilce yaw rate is :" << ego_vehicle_vcu_data.fYawRate << std::endl;
 
     // udp send
@@ -248,7 +249,7 @@ int Handler::BroastEgoVehicleVcuInfo() {
     memcpy(buffer + header_len, &send_data, data_len);
     sudp.send(buffer, header_len + data_len);
     delete []buffer;
-    LINFO << "broast ego vehicle vuc info over";
+    //LINFO << "broast ego vehicle vuc info over";
 }
 //
 //function: get other vehicles info in ego vehicle coordination 
@@ -261,16 +262,21 @@ WorldModelObjects & Handler::GetWorldmodleVehiles() {
             const int key = v2x_other_vehicle_data.iVehicleID;
             WorldModelObject worldmodel_vehicle_data =
                 DataContainer::GetInstance()->worldmodle_other_vehicle_data_.getData()[key].getData();
+            worldmodel_vehicle_data.nObjectID = v2x_other_vehicle_data.iVehicleID;
+            worldmodel_vehicle_data.nType = 127;
+            worldmodel_vehicle_data.iDriveMode = 127;
             TransV2xInfoToWorldmodelInfo(v2x_other_vehicle_data, worldmodel_vehicle_data);
             DataContainer::GetInstance()->worldmodle_other_vehicle_data_.getData()[key].setData(worldmodel_vehicle_data); 
         }
     }
     worldmodel_other_vehicles_data_.nVehicleNum = 0;
     worldmodel_other_vehicles_data_.vehicles.clear();
-    for (auto map_it : DataContainer::GetInstance()->worldmodle_other_vehicle_data_.getData()) {
-        WorldModelObject worldmodel_vehicle_data = map_it.second.getData();
-        worldmodel_other_vehicles_data_.vehicles.push_back(worldmodel_vehicle_data);
-    }
+    if (DataContainer::GetInstance()->worldmodle_other_vehicle_data_.isUpToDate()) {
+        for (auto map_it : DataContainer::GetInstance()->worldmodle_other_vehicle_data_.getData()) {    
+            WorldModelObject worldmodel_vehicle_data = map_it.second.getData();
+            worldmodel_other_vehicles_data_.vehicles.push_back(worldmodel_vehicle_data);
+        }
+    }  
     worldmodel_other_vehicles_data_.nVehicleNum = worldmodel_other_vehicles_data_.vehicles.size();
     return worldmodel_other_vehicles_data_;
 }
@@ -292,9 +298,10 @@ WorldModelObjects & Handler::GetWorldmodleVehiles() {
     temp.relative_heading = v2x_vehicle_data.dRelativeHeading;
     temp.relative_x = v2x_vehicle_data.dRelativeX;
     temp.relative_y = v2x_vehicle_data.dRelativeY;
+
     // insert new location info if other vehicle speed is not zero 
     // and new location is far from the previous location
-    if(worldmodel_vehicle_data.hisTrajectory.size() == 0)
+    if (worldmodel_vehicle_data.hisTrajectory.size() == 0)
         worldmodel_vehicle_data.hisTrajectory.push_back(temp);
     else {
         double long_error = fabs(worldmodel_vehicle_data.hisTrajectory.back().Longitude - temp.Longitude);
@@ -306,22 +313,28 @@ WorldModelObjects & Handler::GetWorldmodleVehiles() {
     }
     ProcessTrajectory(worldmodel_vehicle_data.hisTrajectory);
     worldmodel_vehicle_data.pointNum = worldmodel_vehicle_data.hisTrajectory.size();
+     
+    if (worldmodel_vehicle_data.hisTrajectory.size() > 0) {
+        Location nearest_point = worldmodel_vehicle_data.hisTrajectory.front();
+        worldmodel_vehicle_data.frenet_lat_distance = nearest_point.relative_y;
 
-    Location nearest_point = worldmodel_vehicle_data.hisTrajectory.front();
-    worldmodel_vehicle_data.frenet_lat_distance = nearest_point.relative_y;
-
-    double dis_temp = 0;
-    for (int i = 0; i < worldmodel_vehicle_data.hisTrajectory.size() - 1; i++) {
-        double x = worldmodel_vehicle_data.hisTrajectory[i].relative_x - 
-                    worldmodel_vehicle_data.hisTrajectory[i + 1].relative_x;
-        double y = worldmodel_vehicle_data.hisTrajectory[i].relative_y -
-                    worldmodel_vehicle_data.hisTrajectory[i + 1].relative_y;
-        dis_temp += sqrt(x * x + y * y);
-    }
-    dis_temp += sqrt(nearest_point.relative_x * nearest_point.relative_x + 
-                     nearest_point.relative_y * nearest_point.relative_y);
-    dis_temp -= 17; //subtract vehicle length
-    worldmodel_vehicle_data.frenet_lon_distance = dis_temp;
+        double dis_temp = 0;
+        for (int i = 0; i < worldmodel_vehicle_data.hisTrajectory.size() - 1; i++) {
+            double x = worldmodel_vehicle_data.hisTrajectory[i + 1].relative_x - 
+                        worldmodel_vehicle_data.hisTrajectory[i].relative_x;
+            double y = worldmodel_vehicle_data.hisTrajectory[i + 1].relative_y -
+                        worldmodel_vehicle_data.hisTrajectory[i].relative_y;
+            dis_temp += sqrt(x * x + y * y);
+        }
+        dis_temp += sqrt(nearest_point.relative_x * nearest_point.relative_x + 
+                        nearest_point.relative_y * nearest_point.relative_y);
+        dis_temp -= 17; //subtract vehicle length
+        worldmodel_vehicle_data.frenet_lon_distance = dis_temp;
+    } else {
+        std::cout << worldmodel_vehicle_data.nObjectID << "vehicle's history trajectory is all behind ego" << std::endl;
+        worldmodel_vehicle_data.frenet_lat_distance = 1.0e10; //invalid
+        worldmodel_vehicle_data.frenet_lon_distance = 1.0e10; //invalid
+    }   
 }
 
 //
@@ -330,8 +343,6 @@ WorldModelObjects & Handler::GetWorldmodleVehiles() {
 
 void Handler::ProcessTrajectory(std::vector<Location> &trajectory) {
     const  VehicleGpsData ego_vehicle_location = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
-    //double min_dis = 1000;
-    int index_near = -1;
     for (int i = 0; i < trajectory.size(); i++) {
         //Update relative info
         platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(trajectory[i].relative_x, trajectory[i].relative_y,
@@ -340,22 +351,22 @@ void Handler::ProcessTrajectory(std::vector<Location> &trajectory) {
                                                             ego_vehicle_location.fAltitude,
                                                             trajectory[i].Longitude, trajectory[i].Latitude,
                                                             trajectory[i].Altitude);
-        // platoon::common::transfromGpsAbsoluteToEgoRelaCoord(trajectory[i].relative_x, trajectory[i].relative_y,
-        //                                                     ego_vehicle_location.fHeading,
-        //                                                     ego_vehicle_location.fLongitude, ego_vehicle_location.fLatitude,
-        //                                                     trajectory[i].Longitude, trajectory[i].Latitude);
         platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(trajectory[i].relative_heading, 
                                                             ego_vehicle_location.fHeading, trajectory[i].heading);
     }
+
     // find the first point infront of ego vehicle
+    int index_near = -1;
     for (int i = 0; i < trajectory.size();i++) {
-        if(trajectory[i].relative_x > 0) {
+        if(trajectory[i].relative_x >= 0) {
             index_near = i;
             break;
         }        
     }
     if (index_near != -1) 
         trajectory.erase(trajectory.begin(), trajectory.begin() + index_near);
+    else if (index_near = -1)
+        trajectory.clear();
 }
 
 } // namespace communication

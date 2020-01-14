@@ -60,15 +60,15 @@ include modules/common/CMakeFiles/platoon-common.dir/flags.make
 modules/common/CMakeFiles/platoon-common.dir/functiontool.cpp.o: modules/common/CMakeFiles/platoon-common.dir/flags.make
 modules/common/CMakeFiles/platoon-common.dir/functiontool.cpp.o: ../modules/common/functiontool.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/igs/zsworkspace/platoon/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object modules/common/CMakeFiles/platoon-common.dir/functiontool.cpp.o"
-	cd /home/igs/zsworkspace/platoon/build/modules/common && /home/igs/zsworkspace/atd_environment/nvidia/nvidia_sdk/DRIVE/Linux/5.0.13.2/SW/DriveSDK/drive-t186ref-linux/../toolchains/tegra-4.9-nv/usr/bin/aarch64-gnu-linux/aarch64-gnu-linux-g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/platoon-common.dir/functiontool.cpp.o -c /home/igs/zsworkspace/platoon/modules/common/functiontool.cpp
+	cd /home/igs/zsworkspace/platoon/build/modules/common && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/platoon-common.dir/functiontool.cpp.o -c /home/igs/zsworkspace/platoon/modules/common/functiontool.cpp
 
 modules/common/CMakeFiles/platoon-common.dir/functiontool.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/platoon-common.dir/functiontool.cpp.i"
-	cd /home/igs/zsworkspace/platoon/build/modules/common && /home/igs/zsworkspace/atd_environment/nvidia/nvidia_sdk/DRIVE/Linux/5.0.13.2/SW/DriveSDK/drive-t186ref-linux/../toolchains/tegra-4.9-nv/usr/bin/aarch64-gnu-linux/aarch64-gnu-linux-g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/igs/zsworkspace/platoon/modules/common/functiontool.cpp > CMakeFiles/platoon-common.dir/functiontool.cpp.i
+	cd /home/igs/zsworkspace/platoon/build/modules/common && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/igs/zsworkspace/platoon/modules/common/functiontool.cpp > CMakeFiles/platoon-common.dir/functiontool.cpp.i
 
 modules/common/CMakeFiles/platoon-common.dir/functiontool.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/platoon-common.dir/functiontool.cpp.s"
-	cd /home/igs/zsworkspace/platoon/build/modules/common && /home/igs/zsworkspace/atd_environment/nvidia/nvidia_sdk/DRIVE/Linux/5.0.13.2/SW/DriveSDK/drive-t186ref-linux/../toolchains/tegra-4.9-nv/usr/bin/aarch64-gnu-linux/aarch64-gnu-linux-g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/igs/zsworkspace/platoon/modules/common/functiontool.cpp -o CMakeFiles/platoon-common.dir/functiontool.cpp.s
+	cd /home/igs/zsworkspace/platoon/build/modules/common && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/igs/zsworkspace/platoon/modules/common/functiontool.cpp -o CMakeFiles/platoon-common.dir/functiontool.cpp.s
 
 # Object files for target platoon-common
 platoon__common_OBJECTS = \
