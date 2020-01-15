@@ -27,14 +27,9 @@ Handler::Handler() {
         LDIE << "v2x socket create failed.";
     }
 
-    // /remote_sockaddr_.sin_family = AF_INET;
-    // remote_sockaddr_.sin_port = htons(15803);  //15803 ibox  10001 v2x
-    // remote_sockaddr_.sin_addr.s_addr = inet_addr("10.42.0.30");  //change 50->30
-
     local_sockaddr_.sin_family = AF_INET;
     local_sockaddr_.sin_port = htons(16820);  
     local_sockaddr_.sin_addr.s_addr = htonl(INADDR_ANY);
-
 
     if(::bind(sockfd_, (struct sockaddr *) & local_sockaddr_,
               sizeof(local_sockaddr_)) < 0){
@@ -43,8 +38,8 @@ Handler::Handler() {
         LINFO << "local port bind success.";
     }
 }
-//function: receive remote vehicle info from ibox
 //
+//function: receive remote vehicle info from ibox
 //
 int Handler::DecodeV2xVechileInfo() {
 
@@ -99,6 +94,7 @@ int Handler::DecodeV2xVechileInfo() {
             v2x_other_vehicle_data.iVehicleID = other_vehicle_data.remote_id;
             v2x_other_vehicle_data.dLatitude = (double)other_vehicle_data.lat / ACCURACY_7;
             v2x_other_vehicle_data.dLongitude = (double)other_vehicle_data.lon / ACCURACY_7;
+            v2x_other_vehicle_data.fAltitude = (float)other_vehicle_data.elevation / 10;
             v2x_other_vehicle_data.fHeading = (float)other_vehicle_data.heading * 2 * PI /3600;
             v2x_other_vehicle_data.fSpeed = (float)other_vehicle_data.speed / 1000;  
             v2x_other_vehicle_data.fYawRate = (float)other_vehicle_data.yaw_rate / (100 * 360) * 2 * PI;
@@ -108,7 +104,7 @@ int Handler::DecodeV2xVechileInfo() {
             v2x_other_vehicle_data.fLateralAcc = (float)other_vehicle_data.acc_x / 100.0;
             if(other_vehicle_data.acc_y < -600 || other_vehicle_data.acc_y > 400)
                 other_vehicle_data.acc_y = 0;
-            v2x_other_vehicle_data.fLongituAcc = 0 - (float)other_vehicle_data.acc_y / 100.0;
+            v2x_other_vehicle_data.fLongituAcc = (float)other_vehicle_data.acc_y / 100.0;
             v2x_other_vehicle_data.fVehicleLength = (float)other_vehicle_data.length/ 100.0;
             //v2x_other_vehicle_data.fVehicleLength = (float)other_vehicle_data.distance / 10.0;
             v2x_other_vehicle_data.fVehicleWidth = (float)other_vehicle_data.width / 100.0;
@@ -144,7 +140,6 @@ int Handler::DecodeV2xVechileInfo() {
 //function: send ego vehicle gps info to ibox
 //
 
-
 int Handler::BroastEgoVehicleGpsInfo() {
     // read gps data
     const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
@@ -175,7 +170,7 @@ int Handler::BroastEgoVehicleGpsInfo() {
     send_data.timestamp_seconds = (uint32_t)(ego_vehicle_gps_data.header.nTimeStamp / 1000000);
     send_data.timestamp_miliseconds = (uint32_t)(ego_vehicle_gps_data.header.nTimeStamp / 1000 - send_data.timestamp_seconds * 1000);
    
-   //display
+    //display
     // std::cout << "ego vehicle longitude is : " << ego_vehicle_gps_data.fLongitude << std::endl;
     // std::cout << "ego_vehicle latitude is : " << ego_vehicle_gps_data.fLatitude << std::endl;
     // std::cout << "ego vehilce altitude is :" << ego_vehicle_gps_data.fAltitude << std::endl;
@@ -189,7 +184,7 @@ int Handler::BroastEgoVehicleGpsInfo() {
     memcpy(buffer + header_len, &send_data, data_len);
     sudp.send(buffer, header_len + data_len);
     delete []buffer;
-    LINFO << "broast ego vehicle gps info over";
+    std::cout << "broast ego vehicle gps info over" << std::endl;
 }
 //
 //function: send ego vehicle vcu info to ibox
@@ -250,7 +245,7 @@ int Handler::BroastEgoVehicleVcuInfo() {
     memcpy(buffer + header_len, &send_data, data_len);
     sudp.send(buffer, header_len + data_len);
     delete []buffer;
-    //LINFO << "broast ego vehicle vuc info over";
+    //std::cout << "broast ego vehicle vuc info over" << std::endl;
 }
 //
 //function: get other vehicles info in ego vehicle coordination 

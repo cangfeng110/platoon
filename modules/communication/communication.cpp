@@ -137,11 +137,12 @@ void communication::ReceiveV2xOtherVehicleInfo() {
                 //           << "iGpsState        : " << (int)data.iGpsState      << std::endl
                 //           << "iGpsTime         : " << data.iGpsTime            << std::endl
                 //           << "iShiftPosition   : " << (int)data.iShiftPosition << std::endl;
-                 printf("long:%f\nlat:%f\nlong:%f\nlat:%f\n",data.dLongitude,data.dLatitude,DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fLongitude,
-                            DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fLatitude);
-                VehicleData v2x_other_vehicle_info = temp.second.getData();
-                //lcm_.publish("V2X_OTHER_VEHICLE_INFO", &(temp.second.getData()));
-                lcm_.publish("V2X_OTHER_VEHICLE_INFO", &v2x_other_vehicle_info);
+                 printf("long:%f\nlat:%f\nalt:%f\nlong:%f\nlat:%f\nalt%f\nheading%f\n",data.dLongitude,data.dLatitude,data.fAltitude,DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fLongitude,
+                            DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fLatitude,
+                            DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fAltitude,
+                            DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fHeading);
+                int publish_v2x_flag = lcm_.publish("V2X_OTHER_VEHICLE_INFO", &data);
+                std::cout << "publish v2x flag is : " << publish_v2x_flag << std::endl;
             }   
         }
     }
