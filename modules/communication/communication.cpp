@@ -46,8 +46,8 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     //broad ego vehicle gps info to ibox, 100Hz
     //loop_.runEvery(10, std::bind(&communication::BroastEgoVehicleGpsInfo, this));
 
-    //publish worldmodel vehilces info, 50Hz
-    loop_.runEvery(20, std::bind(&communication::PublishWorldmodelInfo, this));
+    //publish worldmodel vehilces info, 10Hz
+    loop_.runEvery(100, std::bind(&communication::PublishWorldmodelInfo, this));
 }
 
 //
@@ -73,7 +73,7 @@ void communication::HandleEgoVehicleGpsInfo(const lcm::ReceiveBuffer *rbuf,
                                     const VehicleGpsData *msg)
 {
     assert(channel == "INERTIAL_DEBUG");
-    std::cout << "receive ego vehicle gps info.";
+    //std::cout << "receive ego vehicle gps info.";
     DataContainer::GetInstance()->ego_vehicle_gps_data_.setData(*msg);
 }
 
@@ -137,8 +137,8 @@ void communication::ReceiveV2xOtherVehicleInfo() {
                 //           << "iGpsState        : " << (int)data.iGpsState      << std::endl
                 //           << "iGpsTime         : " << data.iGpsTime            << std::endl
                 //           << "iShiftPosition   : " << (int)data.iShiftPosition << std::endl;
-                // printf("%f\n%f\n%f\n%f\n",data.dLongitude,data.dLatitude,DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fLongitude,
-                //            DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fLatitude);
+                 printf("long:%f\nlat:%f\nlong:%f\nlat:%f\n",data.dLongitude,data.dLatitude,DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fLongitude,
+                            DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fLatitude);
                 lcm_.publish("V2X_OTHER_VEHICLE_INFO", &(temp.second.getData()));
             }   
         }
@@ -149,7 +149,7 @@ void communication::ReceiveV2xOtherVehicleInfo() {
 //
 void communication::PublishWorldmodelInfo() {
     if (DataContainer::GetInstance()->v2x_other_vehicle_data_.isUpToDate()) {
-        LINFO << "publish worldmodle vehicle info to lcm";
+        //LINFO << "publish worldmodle vehicle info to lcm";
         WorldModelObjects temp = handler_.GetWorldmodleVehiles();
         std::cout << "###########Publish publish worldmodle vehicle info to lcm#######" << std::endl
                   <<"remote vehilce number is : " << temp.nVehicleNum << std::endl;

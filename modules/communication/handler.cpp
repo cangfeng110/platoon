@@ -342,19 +342,20 @@ WorldModelObjects & Handler::GetWorldmodleVehiles() {
 //
 
 void Handler::ProcessTrajectory(std::vector<Location> &trajectory) {
-    const  VehicleGpsData ego_vehicle_location = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
-    for (int i = 0; i < trajectory.size(); i++) {
-        //Update relative info
-        platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(trajectory[i].relative_x, trajectory[i].relative_y,
-                                                            ego_vehicle_location.fHeading,
-                                                            ego_vehicle_location.fLongitude, ego_vehicle_location.fLatitude,
-                                                            ego_vehicle_location.fAltitude,
-                                                            trajectory[i].Longitude, trajectory[i].Latitude,
-                                                            trajectory[i].Altitude);
-        platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(trajectory[i].relative_heading, 
-                                                            ego_vehicle_location.fHeading, trajectory[i].heading);
+    //Update relative info
+    if(DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) {
+        const  VehicleGpsData ego_vehicle_location = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
+        for (int i = 0; i < trajectory.size(); i++) {
+            platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(trajectory[i].relative_x, trajectory[i].relative_y,
+                                                                ego_vehicle_location.fHeading,
+                                                                ego_vehicle_location.fLongitude, ego_vehicle_location.fLatitude,
+                                                                ego_vehicle_location.fAltitude,
+                                                                trajectory[i].Longitude, trajectory[i].Latitude,
+                                                                trajectory[i].Altitude);
+            platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(trajectory[i].relative_heading, 
+                                                                ego_vehicle_location.fHeading, trajectory[i].heading);
+        }
     }
-
     // find the first point infront of ego vehicle
     int index_near = -1;
     for (int i = 0; i < trajectory.size();i++) {
