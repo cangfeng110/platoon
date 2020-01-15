@@ -40,21 +40,21 @@ void Udp::send(const char *buf, const int len)
         }
         else
         {
-            printf("Udp send %d bytes to %s:%d.\n", len, sip_.c_str(), sport_);
+            //printf("Udp send %d bytes to %s:%d.\n", len, sip_.c_str(), sport_);
 
             int i = len;
 
             char *p = (char*)buf;
             while(i--) {
-                printf("%02x ", ( (unsigned char) (*p++) ));
+                //printf("%02x ", ( (unsigned char) (*p++) ));
             }
-            printf("\n");
+            //printf("\n");
         }
     }
     else
     {
-        printf("Socket isn't initialized. "
-               "Use init() before send.\n");
+        //printf("Socket isn't initialized. "
+               //"Use init() before send.\n");
     }
 }
 

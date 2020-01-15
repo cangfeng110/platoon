@@ -139,7 +139,9 @@ void communication::ReceiveV2xOtherVehicleInfo() {
                 //           << "iShiftPosition   : " << (int)data.iShiftPosition << std::endl;
                  printf("long:%f\nlat:%f\nlong:%f\nlat:%f\n",data.dLongitude,data.dLatitude,DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fLongitude,
                             DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fLatitude);
-                lcm_.publish("V2X_OTHER_VEHICLE_INFO", &(temp.second.getData()));
+                VehicleData v2x_other_vehicle_info = temp.second.getData();
+                //lcm_.publish("V2X_OTHER_VEHICLE_INFO", &(temp.second.getData()));
+                lcm_.publish("V2X_OTHER_VEHICLE_INFO", &v2x_other_vehicle_info);
             }   
         }
     }
@@ -157,9 +159,9 @@ void communication::PublishWorldmodelInfo() {
             for(auto it : temp.vehicles){
                 std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
                 for(int i = 0; i < it.hisTrajectory.size(); i++) {
-                    std::cout << "the i trajectory relative x is :" << it.hisTrajectory[i].relative_x;
-                    std::cout << "the i trajectory relative y is :" << it.hisTrajectory[i].relative_y;
-                    std::cout << "the i trajectory relative heading is" << it.hisTrajectory[i].relative_heading;
+                    std::cout << "the"  << i << "trajectory relative x is :" << it.hisTrajectory[i].relative_x << std::endl;
+                    std::cout << "the"  << i << "trajectory relative y is :" << it.hisTrajectory[i].relative_y << std::endl;
+                    std::cout << "the"  << i << "trajectory relative heading is :" << it.hisTrajectory[i].relative_heading << std::endl;
                 }
                 std::cout << "vehicle ID" << it.nObjectID << std::endl 
                           <<"vehicle frenet dis is: " << it.frenet_lon_distance << std::endl

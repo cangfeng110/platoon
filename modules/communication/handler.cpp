@@ -106,6 +106,8 @@ int Handler::DecodeV2xVechileInfo() {
             v2x_other_vehicle_data.fBrakePedalAngle = 0;
             v2x_other_vehicle_data.fSteeringAngle = (float)other_vehicle_data.SteeringWheel * 1.5;  
             v2x_other_vehicle_data.fLateralAcc = (float)other_vehicle_data.acc_x / 100.0;
+            if(other_vehicle_data.acc_y < -600 || other_vehicle_data.acc_y > 400)
+                other_vehicle_data.acc_y = 0;
             v2x_other_vehicle_data.fLongituAcc = 0 - (float)other_vehicle_data.acc_y / 100.0;
             v2x_other_vehicle_data.fVehicleLength = (float)other_vehicle_data.length/ 100.0;
             //v2x_other_vehicle_data.fVehicleLength = (float)other_vehicle_data.distance / 10.0;
@@ -131,7 +133,6 @@ int Handler::DecodeV2xVechileInfo() {
                 LDEBUG << "*****ego vehicle gps info is not update, relative info can not be calcauted***";
             }
             
-
             DataContainer::GetInstance()->v2x_other_vehicle_data_.setData(v2x_other_vehicle_data.iVehicleID, v2x_other_vehicle_data);
             buffer_temp += 72;   //locate next vehicle info
         }
@@ -359,14 +360,14 @@ void Handler::ProcessTrajectory(std::vector<Location> &trajectory) {
     // find the first point infront of ego vehicle
     int index_near = -1;
     for (int i = 0; i < trajectory.size();i++) {
-        if(trajectory[i].relative_x >= 0) {
+        if(trajectory[i].relative_x > 0) { ///if >=0,maybe occur error point,l
             index_near = i;
             break;
         }        
     }
     if (index_near != -1) 
         trajectory.erase(trajectory.begin(), trajectory.begin() + index_near);
-    else if (index_near = -1)
+    else if (index_near == -1)
         trajectory.clear();
 }
 
