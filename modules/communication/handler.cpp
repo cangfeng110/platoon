@@ -88,25 +88,33 @@ int Handler::DecodeV2xVechileInfo() {
             
             VehicleData v2x_other_vehicle_data;
 
-            //assign data
+            /******************** assign data ********************/
+            //default data
+            v2x_other_vehicle_data.header.nFrameID = 0;
+            v2x_other_vehicle_data.header.nTimeStamp = 0;
+            v2x_other_vehicle_data.iDriveModeStatus = 0;
+            v2x_other_vehicle_data.fBrakePedalAngle = 0;
+            v2x_other_vehicle_data.iGpsState = 4;
+            v2x_other_vehicle_data.iGpsTime = 0;
+            v2x_other_vehicle_data.iShiftPosition = 0;
+
+            // the date need to updata from v2x
             v2x_other_vehicle_data.header.nTimeStamp = 1000 * other_vehicle_data.tv_millisec 
-                                                        + 1000000 * other_vehicle_data.tv_sec;
+                                                        + 1000000 * other_vehicle_data.tv_sec;  
             v2x_other_vehicle_data.iVehicleID = other_vehicle_data.remote_id;
-            v2x_other_vehicle_data.dLatitude = (double)other_vehicle_data.lat / ACCURACY_7;
             v2x_other_vehicle_data.dLongitude = (double)other_vehicle_data.lon / ACCURACY_7;
+            v2x_other_vehicle_data.dLatitude = (double)other_vehicle_data.lat / ACCURACY_7;
             v2x_other_vehicle_data.fAltitude = (float)other_vehicle_data.elevation / 10;
             v2x_other_vehicle_data.fHeading = (float)other_vehicle_data.heading * 2 * PI /3600;
             v2x_other_vehicle_data.fSpeed = (float)other_vehicle_data.speed / 1000;  
-            v2x_other_vehicle_data.fYawRate = (float)other_vehicle_data.yaw_rate / (100 * 360) * 2 * PI;
-            v2x_other_vehicle_data.iShiftPosition = (int8_t)other_vehicle_data.transmisn_state;
-            v2x_other_vehicle_data.fBrakePedalAngle = 0;
-            v2x_other_vehicle_data.fSteeringAngle = (float)other_vehicle_data.SteeringWheel * 1.5;  
+            v2x_other_vehicle_data.fYawRate = (float)other_vehicle_data.yaw_rate / (100 * 360) * 2 * PI; 
+            v2x_other_vehicle_data.fSteeringAngle = (float)other_vehicle_data.SteeringWheel * 1.5; 
+            // coordiantion is different, so the (x,y) <---->(y,x) 
             v2x_other_vehicle_data.fLateralAcc = (float)other_vehicle_data.acc_x / 100.0;
             if(other_vehicle_data.acc_y < -600 || other_vehicle_data.acc_y > 400)
                 other_vehicle_data.acc_y = 0;
             v2x_other_vehicle_data.fLongituAcc = (float)other_vehicle_data.acc_y / 100.0;
             v2x_other_vehicle_data.fVehicleLength = (float)other_vehicle_data.length/ 100.0;
-            //v2x_other_vehicle_data.fVehicleLength = (float)other_vehicle_data.distance / 10.0;
             v2x_other_vehicle_data.fVehicleWidth = (float)other_vehicle_data.width / 100.0;
             
             // tramsfrom GPS coordination to ego vehicle coordination
@@ -127,8 +135,8 @@ int Handler::DecodeV2xVechileInfo() {
                 v2x_other_vehicle_data.dRelativeY = 1.0E10;
                 v2x_other_vehicle_data.dRelativeHeading = 1.0E10;
                 LDEBUG << "*****ego vehicle gps info is not update, relative info can not be calcauted***";
-            }
-            
+            } 
+
             DataContainer::GetInstance()->v2x_other_vehicle_data_.setData(v2x_other_vehicle_data.iVehicleID, v2x_other_vehicle_data);
             buffer_temp += 72;   //locate next vehicle info
         }
@@ -327,7 +335,7 @@ WorldModelObjects & Handler::GetWorldmodleVehiles() {
         dis_temp -= 17; //subtract vehicle length
         worldmodel_vehicle_data.frenet_lon_distance = dis_temp;
     } else {
-        std::cout << worldmodel_vehicle_data.nObjectID << "vehicle's history trajectory is all behind ego" << std::endl;
+        std::cout << worldmodel_vehicle_data.nObjectID << " vehicle's history trajectory is all behind ego" << std::endl;
         worldmodel_vehicle_data.frenet_lat_distance = 1.0e10; //invalid
         worldmodel_vehicle_data.frenet_lon_distance = 1.0e10; //invalid
     }   
@@ -355,7 +363,7 @@ void Handler::ProcessTrajectory(std::vector<Location> &trajectory) {
     // find the first point infront of ego vehicle
     int index_near = -1;
     for (int i = 0; i < trajectory.size();i++) {
-        if(trajectory[i].relative_x > 0) { ///if >=0,maybe occur error point,l
+        if(trajectory[i].relative_x > 0) { 
             index_near = i;
             break;
         }        

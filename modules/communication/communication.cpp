@@ -117,8 +117,8 @@ void communication::ReceiveV2xOtherVehicleInfo() {
     if(handler_.DecodeV2xVechileInfo() > 0) {
         if(DataContainer::GetInstance()->v2x_other_vehicle_data_.isUpToDate()) {
             for (auto temp : DataContainer::GetInstance()->v2x_other_vehicle_data_.getData()) {
-                //std::cout << "========= display ==========" << std::endl;
                 const VehicleData &data = temp.second.getData();
+                //std::cout << "========= display ==========" << std::endl;                
                 // std::cout << "iVehicleID       : " << data.iVehicleID    << std::endl
                 //           << "fVehicleLength   : " << data.fVehicleLength << std::endl
                 //           << "fVehicleWidth    : " << data.fVehicleWidth << std::endl
@@ -142,7 +142,7 @@ void communication::ReceiveV2xOtherVehicleInfo() {
                             DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fAltitude,
                             DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fHeading);
                 int publish_v2x_flag = lcm_.publish("V2X_OTHER_VEHICLE_INFO", &data);
-                std::cout << "publish v2x flag is : " << publish_v2x_flag << std::endl;
+                //std::cout << "publish v2x flag is : " << publish_v2x_flag << std::endl;
             }   
         }
     }
@@ -159,19 +159,20 @@ void communication::PublishWorldmodelInfo() {
         if(temp.nVehicleNum > 0){
             for(auto it : temp.vehicles){
                 std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-                for(int i = 0; i < it.hisTrajectory.size(); i++) {
-                    std::cout << "the"  << i << "trajectory relative x is :" << it.hisTrajectory[i].relative_x << std::endl;
-                    std::cout << "the"  << i << "trajectory relative y is :" << it.hisTrajectory[i].relative_y << std::endl;
-                    std::cout << "the"  << i << "trajectory relative heading is :" << it.hisTrajectory[i].relative_heading << std::endl;
-                }
-                std::cout << "vehicle ID" << it.nObjectID << std::endl 
-                          <<"vehicle frenet dis is: " << it.frenet_lon_distance << std::endl
+                std::cout << "vehicle ID : " << it.nObjectID << std::endl 
+                          <<"vehicle frenet dis is : " << it.frenet_lon_distance << std::endl
                           << "history trajectory point is : " << it.pointNum << std::endl;
+                // for(int i = 0; i < it.hisTrajectory.size(); i++) {
+                //     std::cout << "the "  << i << " trajectory relative x is :" << it.hisTrajectory[i].relative_x << std::endl;
+                //     std::cout << "the "  << i << " trajectory relative y is :" << it.hisTrajectory[i].relative_y << std::endl;
+                //     std::cout << "the "  << i << " trajectory relative heading is :" << it.hisTrajectory[i].relative_heading << std::endl;
+                // }
+                std::cout << "########################################################" << std::endl;
             } 
         }        
         lcm_.publish("WORLDMODEL_OTHER_OBJECTS_INFO", &handler_.GetWorldmodleVehiles());
     } else {
-        LDEBUG << "publish worldmodel info is not update";
+        LDEBUG << " worldmodel info is not update ";
     }
         
 }
