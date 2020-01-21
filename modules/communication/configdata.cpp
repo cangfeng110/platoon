@@ -23,7 +23,7 @@ ConfigData::ConfigData() {
     } catch (const libconfig::FileIOException& e) {
         DIE("can not open file %s \n", config_path);
     } catch (const libconfig::ParseException& e) {
-        DIE("can not parse file %s : %d %s \n",e.getFile, e.getLine, e.getError);
+        DIE("can not parse file %s : %d %s \n",e.getFile(), e.getLine(), e.getError());
     }
 
     try {
