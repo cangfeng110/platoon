@@ -3,6 +3,9 @@
 
 modules/communication/CMakeFiles/platoon-communication.dir/communication.cpp.o: ../modules/communication/communication.cpp
 
+modules/communication/CMakeFiles/platoon-communication.dir/configdata.cpp.o: ../modules/communication/configdata.cpp
+modules/communication/CMakeFiles/platoon-communication.dir/configdata.cpp.o: ../modules/communication/configdata.h
+
 modules/communication/CMakeFiles/platoon-communication.dir/datacontainer.cpp.o: ../modules/communication/datacontainer.cpp
 
 modules/communication/CMakeFiles/platoon-communication.dir/handler.cpp.o: ../modules/communication/handler.cpp

@@ -51,6 +51,7 @@
         "typeinfo": "cpp",
         "cstddef": "cpp",
         "algorithm": "cpp",
-        "memory": "cpp"
+        "memory": "cpp",
+        "*.h++": "cpp"
     }
 }

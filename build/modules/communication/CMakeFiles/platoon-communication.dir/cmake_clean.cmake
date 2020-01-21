@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/platoon-communication.dir/communication.cpp.o"
+  "CMakeFiles/platoon-communication.dir/configdata.cpp.o"
   "CMakeFiles/platoon-communication.dir/datacontainer.cpp.o"
   "CMakeFiles/platoon-communication.dir/handler.cpp.o"
   "CMakeFiles/platoon-communication.dir/main.cpp.o"

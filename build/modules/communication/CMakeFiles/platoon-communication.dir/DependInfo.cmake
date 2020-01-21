@@ -5,6 +5,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
   "/home/igs/zsworkspace/platoon/modules/communication/communication.cpp" "/home/igs/zsworkspace/platoon/build/modules/communication/CMakeFiles/platoon-communication.dir/communication.cpp.o"
+  "/home/igs/zsworkspace/platoon/modules/communication/configdata.cpp" "/home/igs/zsworkspace/platoon/build/modules/communication/CMakeFiles/platoon-communication.dir/configdata.cpp.o"
   "/home/igs/zsworkspace/platoon/modules/communication/datacontainer.cpp" "/home/igs/zsworkspace/platoon/build/modules/communication/CMakeFiles/platoon-communication.dir/datacontainer.cpp.o"
   "/home/igs/zsworkspace/platoon/modules/communication/handler.cpp" "/home/igs/zsworkspace/platoon/build/modules/communication/CMakeFiles/platoon-communication.dir/handler.cpp.o"
   "/home/igs/zsworkspace/platoon/modules/communication/main.cpp" "/home/igs/zsworkspace/platoon/build/modules/communication/CMakeFiles/platoon-communication.dir/main.cpp.o"

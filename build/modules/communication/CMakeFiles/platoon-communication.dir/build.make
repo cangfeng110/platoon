@@ -70,9 +70,22 @@ modules/communication/CMakeFiles/platoon-communication.dir/communication.cpp.s: 
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/platoon-communication.dir/communication.cpp.s"
 	cd /home/igs/zsworkspace/platoon/build/modules/communication && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/igs/zsworkspace/platoon/modules/communication/communication.cpp -o CMakeFiles/platoon-communication.dir/communication.cpp.s
 
+modules/communication/CMakeFiles/platoon-communication.dir/configdata.cpp.o: modules/communication/CMakeFiles/platoon-communication.dir/flags.make
+modules/communication/CMakeFiles/platoon-communication.dir/configdata.cpp.o: ../modules/communication/configdata.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/igs/zsworkspace/platoon/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object modules/communication/CMakeFiles/platoon-communication.dir/configdata.cpp.o"
+	cd /home/igs/zsworkspace/platoon/build/modules/communication && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/platoon-communication.dir/configdata.cpp.o -c /home/igs/zsworkspace/platoon/modules/communication/configdata.cpp
+
+modules/communication/CMakeFiles/platoon-communication.dir/configdata.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/platoon-communication.dir/configdata.cpp.i"
+	cd /home/igs/zsworkspace/platoon/build/modules/communication && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/igs/zsworkspace/platoon/modules/communication/configdata.cpp > CMakeFiles/platoon-communication.dir/configdata.cpp.i
+
+modules/communication/CMakeFiles/platoon-communication.dir/configdata.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/platoon-communication.dir/configdata.cpp.s"
+	cd /home/igs/zsworkspace/platoon/build/modules/communication && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/igs/zsworkspace/platoon/modules/communication/configdata.cpp -o CMakeFiles/platoon-communication.dir/configdata.cpp.s
+
 modules/communication/CMakeFiles/platoon-communication.dir/datacontainer.cpp.o: modules/communication/CMakeFiles/platoon-communication.dir/flags.make
 modules/communication/CMakeFiles/platoon-communication.dir/datacontainer.cpp.o: ../modules/communication/datacontainer.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/igs/zsworkspace/platoon/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object modules/communication/CMakeFiles/platoon-communication.dir/datacontainer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/igs/zsworkspace/platoon/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object modules/communication/CMakeFiles/platoon-communication.dir/datacontainer.cpp.o"
 	cd /home/igs/zsworkspace/platoon/build/modules/communication && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/platoon-communication.dir/datacontainer.cpp.o -c /home/igs/zsworkspace/platoon/modules/communication/datacontainer.cpp
 
 modules/communication/CMakeFiles/platoon-communication.dir/datacontainer.cpp.i: cmake_force
@@ -85,7 +98,7 @@ modules/communication/CMakeFiles/platoon-communication.dir/datacontainer.cpp.s: 
 
 modules/communication/CMakeFiles/platoon-communication.dir/handler.cpp.o: modules/communication/CMakeFiles/platoon-communication.dir/flags.make
 modules/communication/CMakeFiles/platoon-communication.dir/handler.cpp.o: ../modules/communication/handler.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/igs/zsworkspace/platoon/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object modules/communication/CMakeFiles/platoon-communication.dir/handler.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/igs/zsworkspace/platoon/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object modules/communication/CMakeFiles/platoon-communication.dir/handler.cpp.o"
 	cd /home/igs/zsworkspace/platoon/build/modules/communication && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/platoon-communication.dir/handler.cpp.o -c /home/igs/zsworkspace/platoon/modules/communication/handler.cpp
 
 modules/communication/CMakeFiles/platoon-communication.dir/handler.cpp.i: cmake_force
@@ -98,7 +111,7 @@ modules/communication/CMakeFiles/platoon-communication.dir/handler.cpp.s: cmake_
 
 modules/communication/CMakeFiles/platoon-communication.dir/main.cpp.o: modules/communication/CMakeFiles/platoon-communication.dir/flags.make
 modules/communication/CMakeFiles/platoon-communication.dir/main.cpp.o: ../modules/communication/main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/igs/zsworkspace/platoon/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object modules/communication/CMakeFiles/platoon-communication.dir/main.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/igs/zsworkspace/platoon/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object modules/communication/CMakeFiles/platoon-communication.dir/main.cpp.o"
 	cd /home/igs/zsworkspace/platoon/build/modules/communication && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/platoon-communication.dir/main.cpp.o -c /home/igs/zsworkspace/platoon/modules/communication/main.cpp
 
 modules/communication/CMakeFiles/platoon-communication.dir/main.cpp.i: cmake_force
@@ -111,7 +124,7 @@ modules/communication/CMakeFiles/platoon-communication.dir/main.cpp.s: cmake_for
 
 modules/communication/CMakeFiles/platoon-communication.dir/udp.cpp.o: modules/communication/CMakeFiles/platoon-communication.dir/flags.make
 modules/communication/CMakeFiles/platoon-communication.dir/udp.cpp.o: ../modules/communication/udp.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/igs/zsworkspace/platoon/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object modules/communication/CMakeFiles/platoon-communication.dir/udp.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/igs/zsworkspace/platoon/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object modules/communication/CMakeFiles/platoon-communication.dir/udp.cpp.o"
 	cd /home/igs/zsworkspace/platoon/build/modules/communication && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/platoon-communication.dir/udp.cpp.o -c /home/igs/zsworkspace/platoon/modules/communication/udp.cpp
 
 modules/communication/CMakeFiles/platoon-communication.dir/udp.cpp.i: cmake_force
@@ -125,6 +138,7 @@ modules/communication/CMakeFiles/platoon-communication.dir/udp.cpp.s: cmake_forc
 # Object files for target platoon-communication
 platoon__communication_OBJECTS = \
 "CMakeFiles/platoon-communication.dir/communication.cpp.o" \
+"CMakeFiles/platoon-communication.dir/configdata.cpp.o" \
 "CMakeFiles/platoon-communication.dir/datacontainer.cpp.o" \
 "CMakeFiles/platoon-communication.dir/handler.cpp.o" \
 "CMakeFiles/platoon-communication.dir/main.cpp.o" \
@@ -134,6 +148,7 @@ platoon__communication_OBJECTS = \
 platoon__communication_EXTERNAL_OBJECTS =
 
 modules/communication/platoon-communication: modules/communication/CMakeFiles/platoon-communication.dir/communication.cpp.o
+modules/communication/platoon-communication: modules/communication/CMakeFiles/platoon-communication.dir/configdata.cpp.o
 modules/communication/platoon-communication: modules/communication/CMakeFiles/platoon-communication.dir/datacontainer.cpp.o
 modules/communication/platoon-communication: modules/communication/CMakeFiles/platoon-communication.dir/handler.cpp.o
 modules/communication/platoon-communication: modules/communication/CMakeFiles/platoon-communication.dir/main.cpp.o
@@ -142,7 +157,7 @@ modules/communication/platoon-communication: modules/communication/CMakeFiles/pl
 modules/communication/platoon-communication: modules/common/libplatoon-common.a
 modules/communication/platoon-communication: include/base/libplatoon-base.a
 modules/communication/platoon-communication: modules/communication/CMakeFiles/platoon-communication.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/igs/zsworkspace/platoon/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable platoon-communication"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/igs/zsworkspace/platoon/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable platoon-communication"
 	cd /home/igs/zsworkspace/platoon/build/modules/communication && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/platoon-communication.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
