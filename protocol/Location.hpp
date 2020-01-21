@@ -18,27 +18,35 @@ namespace protocol
 class Location
 {
     public:
-        int64_t    timestamp;
+        double     longitude;
 
-        double     speed;
+        double     latitude;
 
-        double     acceleration;
+        float      altitude;
 
-        double     wheelAngle;
+        float      heading;
 
-        double     heading;
+        int8_t     gps_status;
 
-        double     Longitude;
-
-        double     Latitude;
-
-        float      Altitude;
+        int64_t    gps_time;
 
         double     relative_x;
 
         double     relative_y;
 
         double     relative_heading;
+
+        float      longtitude_acc;
+
+        float      lateral_acc;
+
+        float      speed;
+
+        float      steering_wheel_angle;
+
+        float      yaw_rate;
+
+        float      desire_long_acc;
 
     public:
         /**
@@ -136,28 +144,22 @@ int Location::_encodeNoHash(void *buf, int offset, int maxlen) const
 {
     int pos = 0, tlen;
 
-    tlen = __int64_t_encode_array(buf, offset + pos, maxlen - pos, &this->timestamp, 1);
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->longitude, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->speed, 1);
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->latitude, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->acceleration, 1);
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->altitude, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->wheelAngle, 1);
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->heading, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->heading, 1);
+    tlen = __int8_t_encode_array(buf, offset + pos, maxlen - pos, &this->gps_status, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->Longitude, 1);
-    if(tlen < 0) return tlen; else pos += tlen;
-
-    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->Latitude, 1);
-    if(tlen < 0) return tlen; else pos += tlen;
-
-    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->Altitude, 1);
+    tlen = __int64_t_encode_array(buf, offset + pos, maxlen - pos, &this->gps_time, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->relative_x, 1);
@@ -169,6 +171,24 @@ int Location::_encodeNoHash(void *buf, int offset, int maxlen) const
     tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->relative_heading, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->longtitude_acc, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->lateral_acc, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->speed, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->steering_wheel_angle, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->yaw_rate, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->desire_long_acc, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
     return pos;
 }
 
@@ -176,28 +196,22 @@ int Location::_decodeNoHash(const void *buf, int offset, int maxlen)
 {
     int pos = 0, tlen;
 
-    tlen = __int64_t_decode_array(buf, offset + pos, maxlen - pos, &this->timestamp, 1);
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->longitude, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->speed, 1);
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->latitude, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->acceleration, 1);
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->altitude, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->wheelAngle, 1);
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->heading, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->heading, 1);
+    tlen = __int8_t_decode_array(buf, offset + pos, maxlen - pos, &this->gps_status, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->Longitude, 1);
-    if(tlen < 0) return tlen; else pos += tlen;
-
-    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->Latitude, 1);
-    if(tlen < 0) return tlen; else pos += tlen;
-
-    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->Altitude, 1);
+    tlen = __int64_t_decode_array(buf, offset + pos, maxlen - pos, &this->gps_time, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->relative_x, 1);
@@ -209,29 +223,51 @@ int Location::_decodeNoHash(const void *buf, int offset, int maxlen)
     tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->relative_heading, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->longtitude_acc, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->lateral_acc, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->speed, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->steering_wheel_angle, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->yaw_rate, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->desire_long_acc, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
     return pos;
 }
 
 int Location::_getEncodedSizeNoHash() const
 {
     int enc_size = 0;
+    enc_size += __double_encoded_array_size(NULL, 1);
+    enc_size += __double_encoded_array_size(NULL, 1);
+    enc_size += __float_encoded_array_size(NULL, 1);
+    enc_size += __float_encoded_array_size(NULL, 1);
+    enc_size += __int8_t_encoded_array_size(NULL, 1);
     enc_size += __int64_t_encoded_array_size(NULL, 1);
     enc_size += __double_encoded_array_size(NULL, 1);
     enc_size += __double_encoded_array_size(NULL, 1);
     enc_size += __double_encoded_array_size(NULL, 1);
-    enc_size += __double_encoded_array_size(NULL, 1);
-    enc_size += __double_encoded_array_size(NULL, 1);
-    enc_size += __double_encoded_array_size(NULL, 1);
     enc_size += __float_encoded_array_size(NULL, 1);
-    enc_size += __double_encoded_array_size(NULL, 1);
-    enc_size += __double_encoded_array_size(NULL, 1);
-    enc_size += __double_encoded_array_size(NULL, 1);
+    enc_size += __float_encoded_array_size(NULL, 1);
+    enc_size += __float_encoded_array_size(NULL, 1);
+    enc_size += __float_encoded_array_size(NULL, 1);
+    enc_size += __float_encoded_array_size(NULL, 1);
+    enc_size += __float_encoded_array_size(NULL, 1);
     return enc_size;
 }
 
 uint64_t Location::_computeHash(const __lcm_hash_ptr *)
 {
-    uint64_t hash = 0x40cce1f3383312e9LL;
+    uint64_t hash = 0x1c56f7329aa2cab7LL;
     return (hash<<1) + ((hash>>63)&1);
 }
 

@@ -6,8 +6,8 @@
 
 #include <lcm/lcm_coretypes.h>
 
-#ifndef __platoon_protocol_EgoVehicleInfo_hpp__
-#define __platoon_protocol_EgoVehicleInfo_hpp__
+#ifndef __platoon_protocol_VehicleInfo_hpp__
+#define __platoon_protocol_VehicleInfo_hpp__
 
 #include "protocol/HEADER.hpp"
 
@@ -16,50 +16,52 @@ namespace platoon
 namespace protocol
 {
 
-class EgoVehicleInfo
+class VehicleInfo
 {
     public:
         platoon::protocol::HEADER header;
 
-        int32_t    iVehicleID;
+        int32_t    vehicle_id;
 
-        float      fVehicleLength;
+        float      vehicle_length;
 
-        float      fVehicleWidth;
+        float      vehicle_width;
 
-        int8_t     iDriveModeStatus;
+        float      vehicle_height;
 
-        double     dLongitude;
+        int8_t     actual_drive_mode;
 
-        double     dLatitude;
+        int8_t     desire_drive_mode;
 
-        float      fAltitude;
+        double     longitude;
 
-        double     dRelativeX;
+        double     latitude;
 
-        double     dRelativeY;
+        float      altitude;
 
-        double     dRelativeHeading;
+        float      heading;
 
-        float      fLongituAcc;
+        int8_t     gps_status;
 
-        float      fLateralAcc;
+        int64_t    gps_time;
 
-        float      fHeading;
+        double     relative_x;
 
-        float      fSpeed;
+        double     relative_y;
 
-        float      fSteeringAngle;
+        double     relative_heading;
 
-        float      fYawRate;
+        float      longtitude_acc;
 
-        float      fBrakePedalAngle;
+        float      lateral_acc;
 
-        int8_t     iGpsState;
+        float      speed;
 
-        int64_t    iGpsTime;
+        float      steering_wheel_angle;
 
-        int8_t     iShiftPosition;
+        float      yaw_rate;
+
+        float      desire_long_acc;
 
     public:
         /**
@@ -97,7 +99,7 @@ class EgoVehicleInfo
         inline static int64_t getHash();
 
         /**
-         * Returns "EgoVehicleInfo"
+         * Returns "VehicleInfo"
          */
         inline static const char* getTypeName();
 
@@ -108,7 +110,7 @@ class EgoVehicleInfo
         inline static uint64_t _computeHash(const __lcm_hash_ptr *p);
 };
 
-int EgoVehicleInfo::encode(void *buf, int offset, int maxlen) const
+int VehicleInfo::encode(void *buf, int offset, int maxlen) const
 {
     int pos = 0, tlen;
     int64_t hash = (int64_t)getHash();
@@ -122,7 +124,7 @@ int EgoVehicleInfo::encode(void *buf, int offset, int maxlen) const
     return pos;
 }
 
-int EgoVehicleInfo::decode(const void *buf, int offset, int maxlen)
+int VehicleInfo::decode(const void *buf, int offset, int maxlen)
 {
     int pos = 0, thislen;
 
@@ -137,198 +139,205 @@ int EgoVehicleInfo::decode(const void *buf, int offset, int maxlen)
     return pos;
 }
 
-int EgoVehicleInfo::getEncodedSize() const
+int VehicleInfo::getEncodedSize() const
 {
     return 8 + _getEncodedSizeNoHash();
 }
 
-int64_t EgoVehicleInfo::getHash()
+int64_t VehicleInfo::getHash()
 {
     static int64_t hash = _computeHash(NULL);
     return hash;
 }
 
-const char* EgoVehicleInfo::getTypeName()
+const char* VehicleInfo::getTypeName()
 {
-    return "EgoVehicleInfo";
+    return "VehicleInfo";
 }
 
-int EgoVehicleInfo::_encodeNoHash(void *buf, int offset, int maxlen) const
+int VehicleInfo::_encodeNoHash(void *buf, int offset, int maxlen) const
 {
     int pos = 0, tlen;
 
     tlen = this->header._encodeNoHash(buf, offset + pos, maxlen - pos);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __int32_t_encode_array(buf, offset + pos, maxlen - pos, &this->iVehicleID, 1);
+    tlen = __int32_t_encode_array(buf, offset + pos, maxlen - pos, &this->vehicle_id, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->fVehicleLength, 1);
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->vehicle_length, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->fVehicleWidth, 1);
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->vehicle_width, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __int8_t_encode_array(buf, offset + pos, maxlen - pos, &this->iDriveModeStatus, 1);
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->vehicle_height, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->dLongitude, 1);
+    tlen = __int8_t_encode_array(buf, offset + pos, maxlen - pos, &this->actual_drive_mode, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->dLatitude, 1);
+    tlen = __int8_t_encode_array(buf, offset + pos, maxlen - pos, &this->desire_drive_mode, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->fAltitude, 1);
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->longitude, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->dRelativeX, 1);
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->latitude, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->dRelativeY, 1);
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->altitude, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->dRelativeHeading, 1);
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->heading, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->fLongituAcc, 1);
+    tlen = __int8_t_encode_array(buf, offset + pos, maxlen - pos, &this->gps_status, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->fLateralAcc, 1);
+    tlen = __int64_t_encode_array(buf, offset + pos, maxlen - pos, &this->gps_time, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->fHeading, 1);
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->relative_x, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->fSpeed, 1);
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->relative_y, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->fSteeringAngle, 1);
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->relative_heading, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->fYawRate, 1);
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->longtitude_acc, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->fBrakePedalAngle, 1);
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->lateral_acc, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __int8_t_encode_array(buf, offset + pos, maxlen - pos, &this->iGpsState, 1);
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->speed, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __int64_t_encode_array(buf, offset + pos, maxlen - pos, &this->iGpsTime, 1);
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->steering_wheel_angle, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __int8_t_encode_array(buf, offset + pos, maxlen - pos, &this->iShiftPosition, 1);
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->yaw_rate, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->desire_long_acc, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
     return pos;
 }
 
-int EgoVehicleInfo::_decodeNoHash(const void *buf, int offset, int maxlen)
+int VehicleInfo::_decodeNoHash(const void *buf, int offset, int maxlen)
 {
     int pos = 0, tlen;
 
     tlen = this->header._decodeNoHash(buf, offset + pos, maxlen - pos);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __int32_t_decode_array(buf, offset + pos, maxlen - pos, &this->iVehicleID, 1);
+    tlen = __int32_t_decode_array(buf, offset + pos, maxlen - pos, &this->vehicle_id, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->fVehicleLength, 1);
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->vehicle_length, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->fVehicleWidth, 1);
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->vehicle_width, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __int8_t_decode_array(buf, offset + pos, maxlen - pos, &this->iDriveModeStatus, 1);
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->vehicle_height, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->dLongitude, 1);
+    tlen = __int8_t_decode_array(buf, offset + pos, maxlen - pos, &this->actual_drive_mode, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->dLatitude, 1);
+    tlen = __int8_t_decode_array(buf, offset + pos, maxlen - pos, &this->desire_drive_mode, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->fAltitude, 1);
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->longitude, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->dRelativeX, 1);
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->latitude, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->dRelativeY, 1);
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->altitude, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->dRelativeHeading, 1);
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->heading, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->fLongituAcc, 1);
+    tlen = __int8_t_decode_array(buf, offset + pos, maxlen - pos, &this->gps_status, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->fLateralAcc, 1);
+    tlen = __int64_t_decode_array(buf, offset + pos, maxlen - pos, &this->gps_time, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->fHeading, 1);
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->relative_x, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->fSpeed, 1);
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->relative_y, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->fSteeringAngle, 1);
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->relative_heading, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->fYawRate, 1);
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->longtitude_acc, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->fBrakePedalAngle, 1);
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->lateral_acc, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __int8_t_decode_array(buf, offset + pos, maxlen - pos, &this->iGpsState, 1);
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->speed, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __int64_t_decode_array(buf, offset + pos, maxlen - pos, &this->iGpsTime, 1);
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->steering_wheel_angle, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __int8_t_decode_array(buf, offset + pos, maxlen - pos, &this->iShiftPosition, 1);
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->yaw_rate, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->desire_long_acc, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
     return pos;
 }
 
-int EgoVehicleInfo::_getEncodedSizeNoHash() const
+int VehicleInfo::_getEncodedSizeNoHash() const
 {
     int enc_size = 0;
     enc_size += this->header._getEncodedSizeNoHash();
     enc_size += __int32_t_encoded_array_size(NULL, 1);
     enc_size += __float_encoded_array_size(NULL, 1);
     enc_size += __float_encoded_array_size(NULL, 1);
+    enc_size += __float_encoded_array_size(NULL, 1);
+    enc_size += __int8_t_encoded_array_size(NULL, 1);
     enc_size += __int8_t_encoded_array_size(NULL, 1);
     enc_size += __double_encoded_array_size(NULL, 1);
     enc_size += __double_encoded_array_size(NULL, 1);
-    enc_size += __float_encoded_array_size(NULL, 1);
-    enc_size += __double_encoded_array_size(NULL, 1);
-    enc_size += __double_encoded_array_size(NULL, 1);
-    enc_size += __double_encoded_array_size(NULL, 1);
-    enc_size += __float_encoded_array_size(NULL, 1);
-    enc_size += __float_encoded_array_size(NULL, 1);
-    enc_size += __float_encoded_array_size(NULL, 1);
-    enc_size += __float_encoded_array_size(NULL, 1);
-    enc_size += __float_encoded_array_size(NULL, 1);
     enc_size += __float_encoded_array_size(NULL, 1);
     enc_size += __float_encoded_array_size(NULL, 1);
     enc_size += __int8_t_encoded_array_size(NULL, 1);
     enc_size += __int64_t_encoded_array_size(NULL, 1);
-    enc_size += __int8_t_encoded_array_size(NULL, 1);
+    enc_size += __double_encoded_array_size(NULL, 1);
+    enc_size += __double_encoded_array_size(NULL, 1);
+    enc_size += __double_encoded_array_size(NULL, 1);
+    enc_size += __float_encoded_array_size(NULL, 1);
+    enc_size += __float_encoded_array_size(NULL, 1);
+    enc_size += __float_encoded_array_size(NULL, 1);
+    enc_size += __float_encoded_array_size(NULL, 1);
+    enc_size += __float_encoded_array_size(NULL, 1);
+    enc_size += __float_encoded_array_size(NULL, 1);
     return enc_size;
 }
 
-uint64_t EgoVehicleInfo::_computeHash(const __lcm_hash_ptr *p)
+uint64_t VehicleInfo::_computeHash(const __lcm_hash_ptr *p)
 {
     const __lcm_hash_ptr *fp;
     for(fp = p; fp != NULL; fp = fp->parent)
-        if(fp->v == EgoVehicleInfo::getHash)
+        if(fp->v == VehicleInfo::getHash)
             return 0;
-    const __lcm_hash_ptr cp = { p, (void*)EgoVehicleInfo::getHash };
+    const __lcm_hash_ptr cp = { p, (void*)VehicleInfo::getHash };
 
-    uint64_t hash = 0xa4c9f06b57691299LL +
+    uint64_t hash = 0x5a4c82ffa55ef14aLL +
          platoon::protocol::HEADER::_computeHash(&cp);
 
     return (hash<<1) + ((hash>>63)&1);

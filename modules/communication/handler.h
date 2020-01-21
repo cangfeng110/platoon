@@ -32,12 +32,10 @@ public:
         return sockfd_;
     }
 
-    // 
-    int BroastEgoVehicleVcuInfo();
+    // broast ego vehicle info
+    int BroastEgoVehicleInfo();
 
-    int BroastEgoVehicleGpsInfo();
-
-    // 
+    // receive v2x other info from ibox
     int DecodeV2xVechileInfo();
 
     //

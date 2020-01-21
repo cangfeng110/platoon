@@ -41,10 +41,7 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     loop_.runEvery(100, std::bind(&DataContainer::DecreaseTtl, DataContainer::GetInstance()));
 
     // broad ego vehicle vcu info to ibox, 50Hz
-    loop_.runEvery(20, std::bind(&communication::BroastEgoVehicleVcuInfo, this));
-    
-    //broad ego vehicle gps info to ibox, 100Hz
-    //loop_.runEvery(10, std::bind(&communication::BroastEgoVehicleGpsInfo, this));
+    loop_.runEvery(20, std::bind(&communication::BroastEgoVehicleInfo, this));
 
     //publish worldmodel vehilces info, 10Hz
     loop_.runEvery(100, std::bind(&communication::PublishWorldmodelInfo, this));
@@ -91,25 +88,15 @@ void communication::HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
 //
 //function: broast ego vehicle gps info to ibox
 //
-void communication::BroastEgoVehicleGpsInfo() {
+void communication::BroastEgoVehicleInfo() {
     if(DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()){
         //std::cout << " broast ego vehicle gps info to ibox";
-        handler_.BroastEgoVehicleGpsInfo();
+        handler_.BroastEgoVehicleInfo();
     } else {
-        LDEBUG <<"ego vehicle gps out of date";
+        LDEBUG <<"ego vehicle out of date";
     }
 }
-//
-//function: broast ego vehicle vcu info to ibox
-//
-void communication::BroastEgoVehicleVcuInfo() {
-    if(DataContainer::GetInstance()->ego_vehicle_vcu_data_.isUpToDate()){
-        //std::cout << " broast ego vehicle vcu info to ibox";
-        handler_.BroastEgoVehicleVcuInfo();
-    } else {
-        LDEBUG <<"ego vehicle vcu out of date";
-    }
-}
+
 //
 //function: receive other vehicle info from ibox
 //
@@ -137,7 +124,8 @@ void communication::ReceiveV2xOtherVehicleInfo() {
                 //           << "iGpsState        : " << (int)data.iGpsState      << std::endl
                 //           << "iGpsTime         : " << data.iGpsTime            << std::endl
                 //           << "iShiftPosition   : " << (int)data.iShiftPosition << std::endl;
-                 printf("long:%f\nlat:%f\nalt:%f\nlong:%f\nlat:%f\nalt%f\nheading%f\n",data.dLongitude,data.dLatitude,data.fAltitude,DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fLongitude,
+                 printf("long:%f\nlat:%f\nalt:%f\nlong:%f\nlat:%f\nalt%f\nheading%f\n",data.longitude,data.latitude,data.altitude,
+                            DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fLongitude,
                             DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fLatitude,
                             DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fAltitude,
                             DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fHeading);
@@ -155,13 +143,13 @@ void communication::PublishWorldmodelInfo() {
         //LINFO << "publish worldmodle vehicle info to lcm";
         WorldModelObjects temp = handler_.GetWorldmodleVehiles();
         std::cout << "###########Publish publish worldmodle vehicle info to lcm#######" << std::endl
-                  <<"remote vehilce number is : " << temp.nVehicleNum << std::endl;
-        if(temp.nVehicleNum > 0){
+                  <<"remote vehilce number is : " << temp.vehicle_num << std::endl;
+        if(temp.vehicle_num > 0){
             for(auto it : temp.vehicles){
                 std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-                std::cout << "vehicle ID : " << it.nObjectID << std::endl 
+                std::cout << "vehicle ID : " << it.vehicle_id << std::endl 
                           <<"vehicle frenet dis is : " << it.frenet_lon_distance << std::endl
-                          << "history trajectory point is : " << it.pointNum << std::endl;
+                          << "history trajectory point is : " << it.point_num << std::endl;
                 // for(int i = 0; i < it.hisTrajectory.size(); i++) {
                 //     std::cout << "the "  << i << " trajectory relative x is :" << it.hisTrajectory[i].relative_x << std::endl;
                 //     std::cout << "the "  << i << " trajectory relative y is :" << it.hisTrajectory[i].relative_y << std::endl;

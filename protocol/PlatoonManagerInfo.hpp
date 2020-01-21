@@ -6,36 +6,29 @@
 
 #include <lcm/lcm_coretypes.h>
 
-#ifndef __platoon_protocol_WorldmodelVehicle_hpp__
-#define __platoon_protocol_WorldmodelVehicle_hpp__
+#ifndef __platoon_protocol_PlatoonManagerInfo_hpp__
+#define __platoon_protocol_PlatoonManagerInfo_hpp__
 
-#include <vector>
-#include "protocol/HEADER.hpp"
-#include "protocol/Location.hpp"
+#include "protocol/VehicleInfo.hpp"
+#include "protocol/VehicleInfo.hpp"
 
 namespace platoon
 {
 namespace protocol
 {
 
-class WorldmodelVehicle
+class PlatoonManagerInfo
 {
     public:
-        platoon::protocol::HEADER header;
-
-        int32_t    vehicle_id;
-
-        int8_t     actual_drive_mode;
-
         int8_t     desire_drive_mode;
 
-        double     frenet_lon_distance;
+        platoon::protocol::VehicleInfo leader_vehicle;
 
-        double     frenet_lat_distance;
+        platoon::protocol::VehicleInfo frenet_vehicle;
 
-        int32_t    point_num;
+        double     leader_frenet_dis;
 
-        std::vector< platoon::protocol::Location > trajectory;
+        double     front_frenet_dis;
 
     public:
         /**
@@ -73,7 +66,7 @@ class WorldmodelVehicle
         inline static int64_t getHash();
 
         /**
-         * Returns "WorldmodelVehicle"
+         * Returns "PlatoonManagerInfo"
          */
         inline static const char* getTypeName();
 
@@ -84,7 +77,7 @@ class WorldmodelVehicle
         inline static uint64_t _computeHash(const __lcm_hash_ptr *p);
 };
 
-int WorldmodelVehicle::encode(void *buf, int offset, int maxlen) const
+int PlatoonManagerInfo::encode(void *buf, int offset, int maxlen) const
 {
     int pos = 0, tlen;
     int64_t hash = (int64_t)getHash();
@@ -98,7 +91,7 @@ int WorldmodelVehicle::encode(void *buf, int offset, int maxlen) const
     return pos;
 }
 
-int WorldmodelVehicle::decode(const void *buf, int offset, int maxlen)
+int PlatoonManagerInfo::decode(const void *buf, int offset, int maxlen)
 {
     int pos = 0, thislen;
 
@@ -113,116 +106,88 @@ int WorldmodelVehicle::decode(const void *buf, int offset, int maxlen)
     return pos;
 }
 
-int WorldmodelVehicle::getEncodedSize() const
+int PlatoonManagerInfo::getEncodedSize() const
 {
     return 8 + _getEncodedSizeNoHash();
 }
 
-int64_t WorldmodelVehicle::getHash()
+int64_t PlatoonManagerInfo::getHash()
 {
     static int64_t hash = _computeHash(NULL);
     return hash;
 }
 
-const char* WorldmodelVehicle::getTypeName()
+const char* PlatoonManagerInfo::getTypeName()
 {
-    return "WorldmodelVehicle";
+    return "PlatoonManagerInfo";
 }
 
-int WorldmodelVehicle::_encodeNoHash(void *buf, int offset, int maxlen) const
+int PlatoonManagerInfo::_encodeNoHash(void *buf, int offset, int maxlen) const
 {
     int pos = 0, tlen;
-
-    tlen = this->header._encodeNoHash(buf, offset + pos, maxlen - pos);
-    if(tlen < 0) return tlen; else pos += tlen;
-
-    tlen = __int32_t_encode_array(buf, offset + pos, maxlen - pos, &this->vehicle_id, 1);
-    if(tlen < 0) return tlen; else pos += tlen;
-
-    tlen = __int8_t_encode_array(buf, offset + pos, maxlen - pos, &this->actual_drive_mode, 1);
-    if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __int8_t_encode_array(buf, offset + pos, maxlen - pos, &this->desire_drive_mode, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->frenet_lon_distance, 1);
+    tlen = this->leader_vehicle._encodeNoHash(buf, offset + pos, maxlen - pos);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->frenet_lat_distance, 1);
+    tlen = this->frenet_vehicle._encodeNoHash(buf, offset + pos, maxlen - pos);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __int32_t_encode_array(buf, offset + pos, maxlen - pos, &this->point_num, 1);
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->leader_frenet_dis, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    for (int a0 = 0; a0 < this->point_num; a0++) {
-        tlen = this->trajectory[a0]._encodeNoHash(buf, offset + pos, maxlen - pos);
-        if(tlen < 0) return tlen; else pos += tlen;
-    }
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->front_frenet_dis, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
 
     return pos;
 }
 
-int WorldmodelVehicle::_decodeNoHash(const void *buf, int offset, int maxlen)
+int PlatoonManagerInfo::_decodeNoHash(const void *buf, int offset, int maxlen)
 {
     int pos = 0, tlen;
-
-    tlen = this->header._decodeNoHash(buf, offset + pos, maxlen - pos);
-    if(tlen < 0) return tlen; else pos += tlen;
-
-    tlen = __int32_t_decode_array(buf, offset + pos, maxlen - pos, &this->vehicle_id, 1);
-    if(tlen < 0) return tlen; else pos += tlen;
-
-    tlen = __int8_t_decode_array(buf, offset + pos, maxlen - pos, &this->actual_drive_mode, 1);
-    if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __int8_t_decode_array(buf, offset + pos, maxlen - pos, &this->desire_drive_mode, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->frenet_lon_distance, 1);
+    tlen = this->leader_vehicle._decodeNoHash(buf, offset + pos, maxlen - pos);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->frenet_lat_distance, 1);
+    tlen = this->frenet_vehicle._decodeNoHash(buf, offset + pos, maxlen - pos);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __int32_t_decode_array(buf, offset + pos, maxlen - pos, &this->point_num, 1);
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->leader_frenet_dis, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    this->trajectory.resize(this->point_num);
-    for (int a0 = 0; a0 < this->point_num; a0++) {
-        tlen = this->trajectory[a0]._decodeNoHash(buf, offset + pos, maxlen - pos);
-        if(tlen < 0) return tlen; else pos += tlen;
-    }
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->front_frenet_dis, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
 
     return pos;
 }
 
-int WorldmodelVehicle::_getEncodedSizeNoHash() const
+int PlatoonManagerInfo::_getEncodedSizeNoHash() const
 {
     int enc_size = 0;
-    enc_size += this->header._getEncodedSizeNoHash();
-    enc_size += __int32_t_encoded_array_size(NULL, 1);
     enc_size += __int8_t_encoded_array_size(NULL, 1);
-    enc_size += __int8_t_encoded_array_size(NULL, 1);
+    enc_size += this->leader_vehicle._getEncodedSizeNoHash();
+    enc_size += this->frenet_vehicle._getEncodedSizeNoHash();
     enc_size += __double_encoded_array_size(NULL, 1);
     enc_size += __double_encoded_array_size(NULL, 1);
-    enc_size += __int32_t_encoded_array_size(NULL, 1);
-    for (int a0 = 0; a0 < this->point_num; a0++) {
-        enc_size += this->trajectory[a0]._getEncodedSizeNoHash();
-    }
     return enc_size;
 }
 
-uint64_t WorldmodelVehicle::_computeHash(const __lcm_hash_ptr *p)
+uint64_t PlatoonManagerInfo::_computeHash(const __lcm_hash_ptr *p)
 {
     const __lcm_hash_ptr *fp;
     for(fp = p; fp != NULL; fp = fp->parent)
-        if(fp->v == WorldmodelVehicle::getHash)
+        if(fp->v == PlatoonManagerInfo::getHash)
             return 0;
-    const __lcm_hash_ptr cp = { p, (void*)WorldmodelVehicle::getHash };
+    const __lcm_hash_ptr cp = { p, (void*)PlatoonManagerInfo::getHash };
 
-    uint64_t hash = 0xe2c65bbc258ce5a4LL +
-         platoon::protocol::HEADER::_computeHash(&cp) +
-         platoon::protocol::Location::_computeHash(&cp);
+    uint64_t hash = 0xd50b9bf1d0bc8a93LL +
+         platoon::protocol::VehicleInfo::_computeHash(&cp) +
+         platoon::protocol::VehicleInfo::_computeHash(&cp);
 
     return (hash<<1) + ((hash>>63)&1);
 }

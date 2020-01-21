@@ -6,23 +6,21 @@
 
 #include <lcm/lcm_coretypes.h>
 
-#ifndef __platoon_protocol_WorldmodelVehicles_hpp__
-#define __platoon_protocol_WorldmodelVehicles_hpp__
+#ifndef __platoon_protocol_ExpireAcc_hpp__
+#define __platoon_protocol_ExpireAcc_hpp__
 
-#include <vector>
-#include "protocol/WorldmodelVehicle.hpp"
 
 namespace platoon
 {
 namespace protocol
 {
 
-class WorldmodelVehicles
+class ExpireAcc
 {
     public:
-        int32_t    vehicle_num;
+        int64_t    timestamp;
 
-        std::vector< platoon::protocol::WorldmodelVehicle > vehicles;
+        double     expire_acc;
 
     public:
         /**
@@ -60,7 +58,7 @@ class WorldmodelVehicles
         inline static int64_t getHash();
 
         /**
-         * Returns "WorldmodelVehicles"
+         * Returns "ExpireAcc"
          */
         inline static const char* getTypeName();
 
@@ -71,7 +69,7 @@ class WorldmodelVehicles
         inline static uint64_t _computeHash(const __lcm_hash_ptr *p);
 };
 
-int WorldmodelVehicles::encode(void *buf, int offset, int maxlen) const
+int ExpireAcc::encode(void *buf, int offset, int maxlen) const
 {
     int pos = 0, tlen;
     int64_t hash = (int64_t)getHash();
@@ -85,7 +83,7 @@ int WorldmodelVehicles::encode(void *buf, int offset, int maxlen) const
     return pos;
 }
 
-int WorldmodelVehicles::decode(const void *buf, int offset, int maxlen)
+int ExpireAcc::decode(const void *buf, int offset, int maxlen)
 {
     int pos = 0, thislen;
 
@@ -100,74 +98,59 @@ int WorldmodelVehicles::decode(const void *buf, int offset, int maxlen)
     return pos;
 }
 
-int WorldmodelVehicles::getEncodedSize() const
+int ExpireAcc::getEncodedSize() const
 {
     return 8 + _getEncodedSizeNoHash();
 }
 
-int64_t WorldmodelVehicles::getHash()
+int64_t ExpireAcc::getHash()
 {
     static int64_t hash = _computeHash(NULL);
     return hash;
 }
 
-const char* WorldmodelVehicles::getTypeName()
+const char* ExpireAcc::getTypeName()
 {
-    return "WorldmodelVehicles";
+    return "ExpireAcc";
 }
 
-int WorldmodelVehicles::_encodeNoHash(void *buf, int offset, int maxlen) const
+int ExpireAcc::_encodeNoHash(void *buf, int offset, int maxlen) const
 {
     int pos = 0, tlen;
 
-    tlen = __int32_t_encode_array(buf, offset + pos, maxlen - pos, &this->vehicle_num, 1);
+    tlen = __int64_t_encode_array(buf, offset + pos, maxlen - pos, &this->timestamp, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    for (int a0 = 0; a0 < this->vehicle_num; a0++) {
-        tlen = this->vehicles[a0]._encodeNoHash(buf, offset + pos, maxlen - pos);
-        if(tlen < 0) return tlen; else pos += tlen;
-    }
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->expire_acc, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
 
     return pos;
 }
 
-int WorldmodelVehicles::_decodeNoHash(const void *buf, int offset, int maxlen)
+int ExpireAcc::_decodeNoHash(const void *buf, int offset, int maxlen)
 {
     int pos = 0, tlen;
 
-    tlen = __int32_t_decode_array(buf, offset + pos, maxlen - pos, &this->vehicle_num, 1);
+    tlen = __int64_t_decode_array(buf, offset + pos, maxlen - pos, &this->timestamp, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    this->vehicles.resize(this->vehicle_num);
-    for (int a0 = 0; a0 < this->vehicle_num; a0++) {
-        tlen = this->vehicles[a0]._decodeNoHash(buf, offset + pos, maxlen - pos);
-        if(tlen < 0) return tlen; else pos += tlen;
-    }
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->expire_acc, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
 
     return pos;
 }
 
-int WorldmodelVehicles::_getEncodedSizeNoHash() const
+int ExpireAcc::_getEncodedSizeNoHash() const
 {
     int enc_size = 0;
-    enc_size += __int32_t_encoded_array_size(NULL, 1);
-    for (int a0 = 0; a0 < this->vehicle_num; a0++) {
-        enc_size += this->vehicles[a0]._getEncodedSizeNoHash();
-    }
+    enc_size += __int64_t_encoded_array_size(NULL, 1);
+    enc_size += __double_encoded_array_size(NULL, 1);
     return enc_size;
 }
 
-uint64_t WorldmodelVehicles::_computeHash(const __lcm_hash_ptr *p)
+uint64_t ExpireAcc::_computeHash(const __lcm_hash_ptr *)
 {
-    const __lcm_hash_ptr *fp;
-    for(fp = p; fp != NULL; fp = fp->parent)
-        if(fp->v == WorldmodelVehicles::getHash)
-            return 0;
-    const __lcm_hash_ptr cp = { p, (void*)WorldmodelVehicles::getHash };
-
-    uint64_t hash = 0xe4e6dbd8e39730c3LL +
-         platoon::protocol::WorldmodelVehicle::_computeHash(&cp);
-
+    uint64_t hash = 0xa9d7f3350dc8d736LL;
     return (hash<<1) + ((hash>>63)&1);
 }
 

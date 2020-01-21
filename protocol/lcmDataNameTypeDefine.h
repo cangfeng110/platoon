@@ -3,7 +3,7 @@
 
 #include "protocol/VCU_VEHILCE_INFO.hpp"
 
-#include "protocol/EgoVehicleInfo.hpp"
+#include "protocol/VehicleInfo.hpp"
 
 #include "protocol/INERTIAL_Debug.hpp"
 
@@ -18,7 +18,7 @@
 
 typedef platoon::protocol::VCU_VEHILCE_INFO             VehicleVcuData;         
 typedef platoon::protocol::INERTIAL_Debug               VehicleGpsData;
-typedef platoon::protocol::EgoVehicleInfo               VehicleData;
+typedef platoon::protocol::VehicleInfo                  VehicleData;
 
 typedef platoon::protocol::Location                     Location;
 typedef platoon::protocol::WorldmodelVehicle            WorldModelObject;
