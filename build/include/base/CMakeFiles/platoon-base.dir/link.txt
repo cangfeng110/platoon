@@ -1,2 +1,0 @@
-/usr/bin/ar qc libplatoon-base.a  CMakeFiles/platoon-base.dir/Channel.cpp.o CMakeFiles/platoon-base.dir/CountDownLatch.cpp.o CMakeFiles/platoon-base.dir/EventLoop.cpp.o CMakeFiles/platoon-base.dir/FileLogger.cpp.o CMakeFiles/platoon-base.dir/Logging.cpp.o CMakeFiles/platoon-base.dir/Poller.cpp.o CMakeFiles/platoon-base.dir/TimerQueue.cpp.o CMakeFiles/platoon-base.dir/Timestamp.cpp.o CMakeFiles/platoon-base.dir/Utils.cpp.o
-/usr/bin/ranlib libplatoon-base.a

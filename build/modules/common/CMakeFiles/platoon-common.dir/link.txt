@@ -1,2 +1,0 @@
-/usr/bin/ar qc libplatoon-common.a  CMakeFiles/platoon-common.dir/functiontool.cpp.o
-/usr/bin/ranlib libplatoon-common.a
