@@ -59,12 +59,12 @@ int Handler::BroastEgoVehicleInfo() {
     ego_vehicle_info.actual_drive_mode = 0;
     ego_vehicle_info.desire_drive_mode = 0;
     //gps info
-    ego_vehicle_info.longitude = ego_vehicle_gps_data.fLongitude;
-    ego_vehicle_info.latitude = ego_vehicle_gps_data.fLatitude;
-    ego_vehicle_info.altitude = ego_vehicle_gps_data.fAltitude;
-    ego_vehicle_info.heading = ego_vehicle_gps_data.fHeading;
+    ego_vehicle_info.longitude = ego_vehicle_gps_data.longitude;
+    ego_vehicle_info.latitude = ego_vehicle_gps_data.latitude;
+    ego_vehicle_info.altitude = ego_vehicle_gps_data.height;
+    ego_vehicle_info.heading = ego_vehicle_gps_data.heading;
     ego_vehicle_info.gps_time = ego_vehicle_gps_data.header.nTimeStamp;
-    ego_vehicle_info.gps_status = ego_vehicle_gps_data.iGPSPositionMode;
+//    ego_vehicle_info.gps_status = ego_vehicle_gps_data.weight == 0.701 ? 0.602;//XXX TODO
     
     ego_vehicle_info.relative_x = 0;
     ego_vehicle_info.relative_y = 0;
@@ -98,10 +98,10 @@ int Handler::BroastEgoVehicleInfo() {
     send_header.msg_len = data_len;
 
     //display
-    // std::cout << "ego vehicle longitude is : " << ego_vehicle_gps_data.fLongitude << std::endl;
-    // std::cout << "ego_vehicle latitude is : " << ego_vehicle_gps_data.fLatitude << std::endl;
-    // std::cout << "ego vehilce altitude is :" << ego_vehicle_gps_data.fAltitude << std::endl;
-    // std::cout << "ego vehicle heading is : " << ego_vehicle_gps_data.fHeading << std::endl;
+    // std::cout << "ego vehicle longitude is : " << ego_vehicle_gps_data.longitude << std::endl;
+    // std::cout << "ego_vehicle latitude is : " << ego_vehicle_gps_data.latitude << std::endl;
+    // std::cout << "ego vehilce altitude is :" << ego_vehicle_gps_data.height << std::endl;
+    // std::cout << "ego vehicle heading is : " << ego_vehicle_gps_data.heading << std::endl;
     
     // udp send
     Udp sudp(send_ip,send_port);
@@ -254,13 +254,13 @@ void Handler::ProcessTrajectory(std::vector<Location> &trajectory) {
         const  VehicleGpsData ego_vehicle_location = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
         for (int i = 0; i < trajectory.size(); i++) {
             platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(trajectory[i].relative_x, trajectory[i].relative_y,
-                                                                ego_vehicle_location.fHeading,
-                                                                ego_vehicle_location.fLongitude, ego_vehicle_location.fLatitude,
-                                                                ego_vehicle_location.fAltitude,
+                                                                ego_vehicle_location.heading,
+                                                                ego_vehicle_location.longitude, ego_vehicle_location.latitude,
+                                                                ego_vehicle_location.height,
                                                                 trajectory[i].longitude, trajectory[i].latitude,
                                                                 trajectory[i].altitude);
             platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(trajectory[i].relative_heading, 
-                                                                ego_vehicle_location.fHeading, trajectory[i].heading);
+                                                                ego_vehicle_location.heading, trajectory[i].heading);
         }
     }
     // find the first point infront of ego vehicle

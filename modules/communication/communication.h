@@ -13,6 +13,7 @@
 // #include "modules/communication/communication_config.h"
 #include "modules/communication/datacontainer.h"
 #include "modules/communication/handler.h"
+#include "modules/communication/manager.h"
 
 namespace platoon {
 namespace communication {
@@ -31,6 +32,11 @@ private:
     void HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
                                   const std::string &string,
                                   const VehicleVcuData *msg);
+    void HandleFMS(const lcm::ReceiveBuffer *rbuf,
+                                  const std::string &string,
+                                  const void *msg);//XXX
+
+    void PublishManagerInfo();
     
     void BroastEgoVehicleInfo();
 
@@ -49,6 +55,7 @@ private:
 
     // handler
     Handler handler_;
+    Manager manager_;
 };
 
 } // namesapce communication

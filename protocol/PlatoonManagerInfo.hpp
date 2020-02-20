@@ -24,11 +24,13 @@ class PlatoonManagerInfo
 
         platoon::protocol::VehicleInfo leader_vehicle;
 
-        platoon::protocol::VehicleInfo frenet_vehicle;
+        platoon::protocol::VehicleInfo front_vehicle;
 
         double     leader_frenet_dis;
 
         double     front_frenet_dis;
+
+        int8_t     vehicle_num;
 
     public:
         /**
@@ -132,13 +134,16 @@ int PlatoonManagerInfo::_encodeNoHash(void *buf, int offset, int maxlen) const
     tlen = this->leader_vehicle._encodeNoHash(buf, offset + pos, maxlen - pos);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = this->frenet_vehicle._encodeNoHash(buf, offset + pos, maxlen - pos);
+    tlen = this->front_vehicle._encodeNoHash(buf, offset + pos, maxlen - pos);
     if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->leader_frenet_dis, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->front_frenet_dis, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __int8_t_encode_array(buf, offset + pos, maxlen - pos, &this->vehicle_num, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
     return pos;
@@ -154,13 +159,16 @@ int PlatoonManagerInfo::_decodeNoHash(const void *buf, int offset, int maxlen)
     tlen = this->leader_vehicle._decodeNoHash(buf, offset + pos, maxlen - pos);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = this->frenet_vehicle._decodeNoHash(buf, offset + pos, maxlen - pos);
+    tlen = this->front_vehicle._decodeNoHash(buf, offset + pos, maxlen - pos);
     if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->leader_frenet_dis, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->front_frenet_dis, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __int8_t_decode_array(buf, offset + pos, maxlen - pos, &this->vehicle_num, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
     return pos;
@@ -171,9 +179,10 @@ int PlatoonManagerInfo::_getEncodedSizeNoHash() const
     int enc_size = 0;
     enc_size += __int8_t_encoded_array_size(NULL, 1);
     enc_size += this->leader_vehicle._getEncodedSizeNoHash();
-    enc_size += this->frenet_vehicle._getEncodedSizeNoHash();
+    enc_size += this->front_vehicle._getEncodedSizeNoHash();
     enc_size += __double_encoded_array_size(NULL, 1);
     enc_size += __double_encoded_array_size(NULL, 1);
+    enc_size += __int8_t_encoded_array_size(NULL, 1);
     return enc_size;
 }
 
@@ -185,7 +194,7 @@ uint64_t PlatoonManagerInfo::_computeHash(const __lcm_hash_ptr *p)
             return 0;
     const __lcm_hash_ptr cp = { p, (void*)PlatoonManagerInfo::getHash };
 
-    uint64_t hash = 0xd50b9bf1d0bc8a93LL +
+    uint64_t hash = 0x5a4e2926bce960b5LL +
          platoon::protocol::VehicleInfo::_computeHash(&cp) +
          platoon::protocol::VehicleInfo::_computeHash(&cp);
 

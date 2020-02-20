@@ -25,7 +25,8 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     
     //receive ego gps/vcu information from lcm
     lcm_.subscribe("VCU_VEHICLE_INFO", &communication::HandleEgoVehicleVcuInfo, this);
-    lcm_.subscribe("INERTIAL_DEBUG", &communication::HandleEgoVehicleGpsInfo, this);
+    lcm_.subscribe("localization_out_2_map", &communication::HandleEgoVehicleGpsInfo, this);
+    //lcm_.subscribe("FMS", &communication::HandleFMS, this);//XXX
 
     // lcm channel
     lcm_channel_.reset(new platoon::base::Channel(&loop_, lcm_.getFileno(), "lcm"));
@@ -45,6 +46,8 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
 
     //publish worldmodel vehilces info, 10Hz
     loop_.runEvery(100, std::bind(&communication::PublishWorldmodelInfo, this));
+
+    loop_.runEvery(20, std::bind(&communication::PublishManagerInfo, this));
 }
 
 //
@@ -69,9 +72,10 @@ void communication::HandleEgoVehicleGpsInfo(const lcm::ReceiveBuffer *rbuf,
                                     const std::string &channel,
                                     const VehicleGpsData *msg)
 {
-    assert(channel == "INERTIAL_DEBUG");
+    assert(channel == "localization_out_2_map");
     //std::cout << "receive ego vehicle gps info.";
     DataContainer::GetInstance()->ego_vehicle_gps_data_.setData(*msg);
+    manager_.CalculateID();
 }
 
 //
@@ -85,6 +89,15 @@ void communication::HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
     //std::cout << "receive ego vcu info." << std::endl;
     DataContainer::GetInstance()->ego_vehicle_vcu_data_.setData(*msg);   
 }
+
+void communication::HandleFMS(const lcm::ReceiveBuffer *rbuf,
+                              const std::string &channel,
+                              const void *msg)
+{
+    assert(channel == "FMS");//XXX
+    manager_.ProcessCommand (msg);
+}
+
 //
 //function: broast ego vehicle gps info to ibox
 //
@@ -93,8 +106,13 @@ void communication::BroastEgoVehicleInfo() {
         //std::cout << " broast ego vehicle gps info to ibox";
         handler_.BroastEgoVehicleInfo();
     } else {
-        LDEBUG <<"ego vehicle out of date";
+//        LDEBUG <<"ego vehicle out of date";
     }
+}
+
+void communication::PublishManagerInfo() {
+    lcm_.publish ("PLATOON_MANAGER_INFO", &manager_.GetPlatoonManagerInfo());
+    lcm_.publish ("EGO_PLANNING_MSG", &manager_.GetEgoPlanningMsg());
 }
 
 //
@@ -113,8 +131,8 @@ void communication::ReceiveV2xOtherVehicleInfo() {
                 //           << "fBrakePedalAngle : " << data.fBrakePedalAngle    << std::endl
                 //           << "dLongitude       : " << data.dLongitude          << std::endl
                 //           << "dLatitude        : " << data.dLatitude           << std::endl
-                //           << "ego_longitude    :  "<< DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fLongitude <<std::endl
-                //           << "ego_latitude     :  "<< DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fLatitude << std::endl
+                //           << "ego_longitude    :  "<< DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().longitude <<std::endl
+                //           << "ego_latitude     :  "<< DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().latitude << std::endl
                 //           << "fLongituAcc      : " << data.fLongituAcc         << std::endl
                 //           << "fLateralAcc      : " << data.fLateralAcc         << std::endl
                 //           << "fHeading         : " << data.fHeading            << std::endl
@@ -125,13 +143,14 @@ void communication::ReceiveV2xOtherVehicleInfo() {
                 //           << "iGpsTime         : " << data.iGpsTime            << std::endl
                 //           << "iShiftPosition   : " << (int)data.iShiftPosition << std::endl;
                  printf("long:%f\nlat:%f\nalt:%f\nlong:%f\nlat:%f\nalt%f\nheading%f\n",data.longitude,data.latitude,data.altitude,
-                            DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fLongitude,
-                            DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fLatitude,
-                            DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fAltitude,
-                            DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().fHeading);
+                            DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().longitude,
+                            DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().latitude,
+                            DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().height,
+                            DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().heading);
                 int publish_v2x_flag = lcm_.publish("V2X_OTHER_VEHICLE_INFO", &data);
                 //std::cout << "publish v2x flag is : " << publish_v2x_flag << std::endl;
             }   
+            manager_.CalculateID();
         }
     }
 }
@@ -160,7 +179,7 @@ void communication::PublishWorldmodelInfo() {
         }        
         lcm_.publish("WORLDMODEL_OTHER_OBJECTS_INFO", &handler_.GetWorldmodleVehiles());
     } else {
-        LDEBUG << " worldmodel info is not update ";
+//        LDEBUG << " worldmodel info is not update ";
     }
         
 }
