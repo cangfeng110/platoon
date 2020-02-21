@@ -9,9 +9,10 @@
 #include "include/base/Logging.h"
 
 #include "modules/common/functiontool.h"
-#include "modules/communication/inbound_gnss_data.h"
+//#include "modules/communication/inbound_gnss_data.h"
 #include "modules/communication/inbound_communication_header.h"
-#include "modules/communication/inbound_can_data.h"
+#include "modules/communication/outbound_communication_header.h"
+//#include "modules/communication/inbound_can_data.h"
 #include "modules/communication/udp.h"
 
 namespace platoon {
@@ -46,25 +47,34 @@ int Handler::BroastEgoVehicleInfo() {
     const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
     // read vcu data
     const VehicleVcuData &ego_vehicle_vcu_data = DataContainer::GetInstance()->ego_vehicle_vcu_data_.getData();
-
+    // read manager data
+    const PlatoonManagerInfo &manager_data = DataContainer::GetInstance()->manager_data_.getData();
+    // read planning data 
+    const EgoPlanningMsg &planning_data = DataContainer::GetInstance()->planning_data_.getData();
+    
     //assign ego vehicle info
     VehicleData ego_vehicle_info;
-
+     
+    //  config info
     ego_vehicle_info.header = ego_vehicle_gps_data.header;
-    ego_vehicle_info.vehicle_id = 0;
-    ego_vehicle_info.vehicle_length = 0;
-    ego_vehicle_info.vehicle_width = 0;
-    ego_vehicle_info.vehicle_height = 0;
-    // fms info
-    ego_vehicle_info.actual_drive_mode = 0;
-    ego_vehicle_info.desire_drive_mode = 0;
-    //gps info
+    ego_vehicle_info.vehicle_id = ConfigData::GetInstance()->vehicle_id_;
+    ego_vehicle_info.vehicle_length = ConfigData::GetInstance()->vehicle_length_;
+    ego_vehicle_info.vehicle_width = ConfigData::GetInstance()->vehicle_width_;
+    ego_vehicle_info.vehicle_height = ConfigData::GetInstance()->vehicle_height_;
+    
+    // gps info
     ego_vehicle_info.longitude = ego_vehicle_gps_data.longitude;
     ego_vehicle_info.latitude = ego_vehicle_gps_data.latitude;
     ego_vehicle_info.altitude = ego_vehicle_gps_data.height;
     ego_vehicle_info.heading = ego_vehicle_gps_data.heading;
-    ego_vehicle_info.gps_time = ego_vehicle_gps_data.header.nTimeStamp;
-//    ego_vehicle_info.gps_status = ego_vehicle_gps_data.weight == 0.701 ? 0.602;//XXX TODO
+    ego_vehicle_info.gps_time = ego_vehicle_gps_data.time;
+
+    if (ego_vehicle_gps_data.weight - 0.701 < 0.00001)
+         ego_vehicle_info.gps_status = 2;
+    else if (ego_vehicle_gps_data.weight - 0.602 < 0.00001)
+        ego_vehicle_info.gps_status = 1;
+    else 
+        ego_vehicle_info.gps_status = 0;
     
     ego_vehicle_info.relative_x = 0;
     ego_vehicle_info.relative_y = 0;
@@ -77,8 +87,13 @@ int Handler::BroastEgoVehicleInfo() {
     ego_vehicle_info.steering_wheel_angle = ego_vehicle_vcu_data.fSteeringAngle;
     ego_vehicle_info.yaw_rate = ego_vehicle_vcu_data.fYawRate;
 
-    //control info
-    ego_vehicle_info.desire_long_acc = 0;
+    //  manager info
+    ego_vehicle_info.desire_drive_mode = manager_data.desire_drive_mode;
+
+    // platoon-planning info
+    ego_vehicle_info.actual_drive_mode = planning_data.actual_drive_mode;
+    ego_vehicle_info.cut_in_flag = planning_data.cut_in;
+    ego_vehicle_info.desire_long_acc = planning_data.expire_acc;
 
     // 
     int data_len = sizeof(ego_vehicle_info);

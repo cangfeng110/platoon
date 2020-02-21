@@ -25,6 +25,12 @@ public:
     // other vehicle information in ego vehicle coordination system
     templateDataContainer_Map<WorldModelObject> worldmodle_other_vehicle_data_;
 
+    // manager data
+    templateDataContainer<PlatoonManagerInfo> manager_data_;
+
+    // planning data
+    templateDataContainer<EgoPlanningMsg> planning_data_;
+
     static DataContainer *GetInstance();
     void DecreaseTtl();
 

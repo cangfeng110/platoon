@@ -10,7 +10,7 @@
 #include "include/base/Logging.h"
 #include "protocol/lcmDataNameTypeDefine.h"
 
-// #include "modules/communication/communication_config.h"
+#include "modules/communication/configdata.h"
 #include "modules/communication/datacontainer.h"
 #include "modules/communication/handler.h"
 #include "modules/communication/manager.h"
@@ -27,14 +27,17 @@ public:
 
 private:
     void HandleEgoVehicleGpsInfo(const lcm::ReceiveBuffer *rbuf,
-                                 const std::string &string,
+                                 const std::string &channel,
                                  const VehicleGpsData *msg);
     void HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
-                                  const std::string &string,
+                                  const std::string &channel,
                                   const VehicleVcuData *msg);
     void HandleFMS(const lcm::ReceiveBuffer *rbuf,
-                                  const std::string &string,
+                                  const std::string &channel,
                                   const void *msg);//XXX
+    void HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
+                            const std::string &channel,
+                            const EgoPlanningMsg *msg);
 
     void PublishManagerInfo();
     

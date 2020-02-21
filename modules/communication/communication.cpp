@@ -7,8 +7,6 @@
 #include "include/base/EventLoop.h"
 #include "include/base/Channel.h"
 
-
-
 namespace platoon {
 
 namespace communication {
@@ -27,7 +25,8 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     lcm_.subscribe("VCU_VEHICLE_INFO", &communication::HandleEgoVehicleVcuInfo, this);
     lcm_.subscribe("localization_out_2_map", &communication::HandleEgoVehicleGpsInfo, this);
     //lcm_.subscribe("FMS", &communication::HandleFMS, this);//XXX
-
+    lcm_.subscribe("EGO_PLANNINGMSG_FOR_PLATOON", &communication::HandlePlanningInfo, this);
+    
     // lcm channel
     lcm_channel_.reset(new platoon::base::Channel(&loop_, lcm_.getFileno(), "lcm"));
     lcm_channel_->setReadCallback(std::bind(&lcm::LCM::handle, &lcm_));
@@ -98,6 +97,13 @@ void communication::HandleFMS(const lcm::ReceiveBuffer *rbuf,
     manager_.ProcessCommand (msg);
 }
 
+void communication::HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
+                                        const std::string &channel,
+                                        const EgoPlanningMsg *msg) 
+{
+    assert(channel == "EGO_PLANNINGMSG_FOR_PLATOON");
+    DataContainer::GetInstance()->planning_data_.setData(*msg);
+}
 //
 //function: broast ego vehicle gps info to ibox
 //
