@@ -24,7 +24,7 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     //receive ego gps/vcu information from lcm
     lcm_.subscribe("VCU_VEHICLE_INFO", &communication::HandleEgoVehicleVcuInfo, this);
     lcm_.subscribe("localization_out_2_map", &communication::HandleEgoVehicleGpsInfo, this);
-    //lcm_.subscribe("FMS", &communication::HandleFMS, this);//XXX
+    lcm_.subscribe("FMS_INFO", &communication::HandleFmsInfo, this);
     lcm_.subscribe("EGO_PLANNINGMSG_FOR_PLATOON", &communication::HandlePlanningInfo, this);
     
     // lcm channel
@@ -89,11 +89,11 @@ void communication::HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
     DataContainer::GetInstance()->ego_vehicle_vcu_data_.setData(*msg);   
 }
 
-void communication::HandleFMS(const lcm::ReceiveBuffer *rbuf,
+void communication::HandleFmsInfo(const lcm::ReceiveBuffer *rbuf,
                               const std::string &channel,
-                              const void *msg)
+                              const FmsInfo *msg)
 {
-    assert(channel == "FMS");//XXX
+    assert(channel == "FMS_INFO");
     manager_.ProcessCommand (msg);
 }
 

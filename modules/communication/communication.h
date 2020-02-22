@@ -32,9 +32,9 @@ private:
     void HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
                                   const std::string &channel,
                                   const VehicleVcuData *msg);
-    void HandleFMS(const lcm::ReceiveBuffer *rbuf,
+    void HandleFmsInfo(const lcm::ReceiveBuffer *rbuf,
                                   const std::string &channel,
-                                  const void *msg);//XXX
+                                  const FmsInfo *msg);
     void HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
                             const std::string &channel,
                             const EgoPlanningMsg *msg);

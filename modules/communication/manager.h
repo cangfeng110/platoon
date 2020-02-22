@@ -3,6 +3,7 @@
 
 #include "include/base/NonCopyable.h"
 #include "protocol/lcmDataNameTypeDefine.h"
+#include "modules/communication/datacontainer.h"
 
 namespace platoon {
 namespace communication {
@@ -21,16 +22,26 @@ public:
         Queue = 4,
         Dequeue = 5,
         Abnormal = 6,
+        Notset = 7,
+    };
+
+    enum FmsOrder
+    {
+        F_Invalid = 0,
+        F_Leader = 1,
+        F_Enqueue = 2,
+        F_Dequeue = 3,
     };
 
     void CalculateID ();
-    void ProcessCommand (const void* msg);//XXX
+    void ProcessCommand (const FmsInfo* msg);
     PlatoonManagerInfo& GetPlatoonManagerInfo ();
     EgoPlanningMsg& GetEgoPlanningMsg ();
 
 private:
     DriveMode actual_drive_mode;
     DriveMode desire_drive_mode;
+    int _ID;
     PlatoonManagerInfo platoon_manager_info;
     EgoPlanningMsg ego_planning_msg;
     int following;//target
