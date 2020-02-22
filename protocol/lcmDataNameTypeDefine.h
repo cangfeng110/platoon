@@ -13,11 +13,11 @@
 
 #include "protocol/WorldmodelVehicles.hpp"
 
-#include "protocol/PlatoonManagerInfo.hpp"
+#include "protocol/FmsInfo.hpp"
 
 #include "protocol/EgoPlanningMsg.hpp"
 
-
+#include "protocol/PlatoonManagerInfo.hpp"
 
 
 typedef platoon::protocol::VCU_VEHILCE_INFO             VehicleVcuData;         
@@ -28,7 +28,8 @@ typedef platoon::protocol::Location                     Location;
 typedef platoon::protocol::WorldmodelVehicle            WorldModelObject;
 typedef platoon::protocol::WorldmodelVehicles           WorldModelObjects;
 
-typedef platoon::protocol::PlatoonManagerInfo           PlatoonManagerInfo;
+typedef platoon::protocol::FmsInfo                      FmsInfo;
 typedef platoon::protocol::EgoPlanningMsg               EgoPlanningMsg;
+typedef platoon::protocol::PlatoonManagerInfo           PlatoonManagerInfo;
 
 #endif // _LCM_DATA_NAME_TYPE_DEFINE_
