@@ -117,8 +117,11 @@ void communication::BroastEgoVehicleInfo() {
 }
 
 void communication::PublishManagerInfo() {
-    lcm_.publish ("PLATOON_MANAGER_INFO", &manager_.GetPlatoonManagerInfo());
-    lcm_.publish ("EGO_PLANNING_MSG", &manager_.GetEgoPlanningMsg());
+    manager_.UpdatePlatoonManagerInfo ();//XXX maybe choose another place to update. after CalculateID or HandlePlanningInfo
+    if (DataContainer::GetInstance ()->manager_data_.isUpToDate ()) {
+        const PlatoonManagerInfo& data = DataContainer::GetInstance ()->manager_data_.getData ();
+        lcm_.publish ("PLATOON_MANAGER_INFO", &data);
+    }
 }
 
 //

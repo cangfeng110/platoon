@@ -19,7 +19,7 @@ public:
         Auto = 1,
         Leader = 2,
         Enqueue = 3,
-        Queue = 4,
+        KeepQueue = 4,
         Dequeue = 5,
         Abnormal = 6,
         Notset = 7,
@@ -35,15 +35,14 @@ public:
 
     void CalculateID ();
     void ProcessCommand (const FmsInfo* msg);
-    PlatoonManagerInfo& GetPlatoonManagerInfo ();
-    EgoPlanningMsg& GetEgoPlanningMsg ();
+    void UpdatePlatoonManagerInfo ();
 
 private:
     DriveMode actual_drive_mode;
     DriveMode desire_drive_mode;
     int _ID;
-    PlatoonManagerInfo platoon_manager_info;
-    EgoPlanningMsg ego_planning_msg;
+    float THW ();
+    std::vector<VehicleData> other_vehicles;
     int following;//target
     int is_leader;//target
 };

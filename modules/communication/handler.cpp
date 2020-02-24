@@ -21,6 +21,7 @@ namespace communication {
 
 #define ACCURACY_10 1E10
 #define ACCURACY_7 1E7
+#define INVALID_FLOAT 1E10;
 const double PI = 3.1415926;
 
 Handler::Handler() {
@@ -45,13 +46,7 @@ Handler::Handler() {
 int Handler::BroastEgoVehicleInfo() {
     // read gps data
     const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
-    // read vcu data
-    const VehicleVcuData &ego_vehicle_vcu_data = DataContainer::GetInstance()->ego_vehicle_vcu_data_.getData();
-    // read manager data
-    const PlatoonManagerInfo &manager_data = DataContainer::GetInstance()->manager_data_.getData();
-    // read planning data 
-    const EgoPlanningMsg &planning_data = DataContainer::GetInstance()->planning_data_.getData();
-    
+   
     //assign ego vehicle info
     VehicleData ego_vehicle_info;
      
@@ -76,25 +71,47 @@ int Handler::BroastEgoVehicleInfo() {
     else 
         ego_vehicle_info.gps_status = 0;
     
-    ego_vehicle_info.relative_x = 0;
-    ego_vehicle_info.relative_y = 0;
-    ego_vehicle_info.relative_heading = 0;
+    ego_vehicle_info.relative_x = INVALID_FLOAT;
+    ego_vehicle_info.relative_y = INVALID_FLOAT;
+    ego_vehicle_info.relative_heading = INVALID_FLOAT;
 
     //vcu info
-    ego_vehicle_info.longtitude_acc = ego_vehicle_vcu_data.fLongituAccel;
-    ego_vehicle_info.lateral_acc = ego_vehicle_vcu_data.fLateralAccel;
-    ego_vehicle_info.speed = ego_vehicle_vcu_data.fSpeed;
-    ego_vehicle_info.steering_wheel_angle = ego_vehicle_vcu_data.fSteeringAngle;
-    ego_vehicle_info.yaw_rate = ego_vehicle_vcu_data.fYawRate;
+    if(DataContainer::GetInstance()->ego_vehicle_vcu_data_.isUpToDate()){
+        const VehicleVcuData &ego_vehicle_vcu_data = DataContainer::GetInstance()->ego_vehicle_vcu_data_.getData();
+        ego_vehicle_info.longtitude_acc = ego_vehicle_vcu_data.fLongituAccel;
+        ego_vehicle_info.lateral_acc = ego_vehicle_vcu_data.fLateralAccel;
+        ego_vehicle_info.speed = ego_vehicle_vcu_data.fSpeed;
+        ego_vehicle_info.steering_wheel_angle = ego_vehicle_vcu_data.fSteeringAngle;
+        ego_vehicle_info.yaw_rate = ego_vehicle_vcu_data.fYawRate;
+    } else {
+        ego_vehicle_info.longtitude_acc = INVALID_FLOAT;
+        ego_vehicle_info.lateral_acc = INVALID_FLOAT;
+        ego_vehicle_info.speed = INVALID_FLOAT;
+        ego_vehicle_info.steering_wheel_angle = INVALID_FLOAT;
+        ego_vehicle_info.yaw_rate = INVALID_FLOAT;
+    }
+    
 
     //  manager info
-    ego_vehicle_info.desire_drive_mode = manager_data.desire_drive_mode;
-
+    if(DataContainer::GetInstance()->manager_data_.isUpToDate()){
+        const PlatoonManagerInfo &manager_data = DataContainer::GetInstance()->manager_data_.getData();
+        ego_vehicle_info.desire_drive_mode = manager_data.desire_drive_mode;
+    } else {
+        ego_vehicle_info.desire_drive_mode = 7;
+    }
+   
     // platoon-planning info
-    ego_vehicle_info.actual_drive_mode = planning_data.actual_drive_mode;
-    ego_vehicle_info.cut_in_flag = planning_data.cut_in;
-    ego_vehicle_info.desire_long_acc = planning_data.expire_acc;
-
+    if(DataContainer::GetInstance()->planning_data_.isUpToDate()){
+        const EgoPlanningMsg &planning_data = DataContainer::GetInstance()->planning_data_.getData();
+        ego_vehicle_info.actual_drive_mode = planning_data.actual_drive_mode;
+        ego_vehicle_info.cut_in_flag = planning_data.cut_in;
+        ego_vehicle_info.desire_long_acc = planning_data.expire_acc;
+    } else {
+        ego_vehicle_info.actual_drive_mode = 7;
+        ego_vehicle_info.cut_in_flag = 2;
+        ego_vehicle_info.desire_long_acc = INVALID_FLOAT;
+    }
+    
     // 
     int data_len = sizeof(ego_vehicle_info);
 
