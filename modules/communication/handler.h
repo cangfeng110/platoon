@@ -39,22 +39,12 @@ public:
     // receive v2x other info from ibox
     int DecodeV2xVechileInfo();
 
-    //
-    WorldModelObjects &GetWorldmodleVehiles();
-
 private:
     // socket
     int sockfd_;
-    struct sockaddr_in remote_sockaddr_;
     struct sockaddr_in local_sockaddr_;
     
     char buffer_[MAX_RECV_LENGTH];
-    // 
-    WorldModelObjects worldmodel_other_vehicles_data_;
-
-    void TransV2xInfoToWorldmodelInfo(const VehicleData &v2x_vehicle_data, 
-                                        WorldModelObject &worldmodel_vehicle_data);
-    void ProcessTrajectory(std::vector<Location> &trajectory);
 };
 
 } // namespace communication

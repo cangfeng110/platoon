@@ -44,7 +44,7 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     loop_.runEvery(20, std::bind(&communication::BroastEgoVehicleInfo, this));
 
     //publish worldmodel vehilces info, 10Hz
-    loop_.runEvery(100, std::bind(&communication::PublishWorldmodelInfo, this));
+    //loop_.runEvery(100, std::bind(&communication::PublishWorldmodelInfo, this));
 
     loop_.runEvery(20, std::bind(&communication::PublishManagerInfo, this));
 }
@@ -74,7 +74,6 @@ void communication::HandleEgoVehicleGpsInfo(const lcm::ReceiveBuffer *rbuf,
     assert(channel == "localization_out_2_map");
     //std::cout << "receive ego vehicle gps info.";
     DataContainer::GetInstance()->ego_vehicle_gps_data_.setData(*msg);
-    manager_.CalculateID();
 }
 
 //
@@ -94,7 +93,7 @@ void communication::HandleFmsInfo(const lcm::ReceiveBuffer *rbuf,
                               const FmsInfo *msg)
 {
     assert(channel == "FMS_INFO");
-    manager_.ProcessCommand (msg);
+    manager_.SetFmsInfo (*msg);
 }
 
 void communication::HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
@@ -117,7 +116,7 @@ void communication::BroastEgoVehicleInfo() {
 }
 
 void communication::PublishManagerInfo() {
-    manager_.UpdatePlatoonManagerInfo ();//XXX maybe choose another place to update. after CalculateID or HandlePlanningInfo
+    manager_.UpdatePlatoonManagerInfo ();
     if (DataContainer::GetInstance ()->manager_data_.isUpToDate ()) {
         const PlatoonManagerInfo& data = DataContainer::GetInstance ()->manager_data_.getData ();
         lcm_.publish ("PLATOON_MANAGER_INFO", &data);
@@ -159,14 +158,13 @@ void communication::ReceiveV2xOtherVehicleInfo() {
                 int publish_v2x_flag = lcm_.publish("V2X_OTHER_VEHICLE_INFO", &data);
                 //std::cout << "publish v2x flag is : " << publish_v2x_flag << std::endl;
             }   
-            manager_.CalculateID();
         }
     }
 }
 //
 //function:publish worldmodel info to channel
 //
-void communication::PublishWorldmodelInfo() {
+/* void communication::PublishWorldmodelInfo() {
     if (DataContainer::GetInstance()->v2x_other_vehicle_data_.isUpToDate()) {
         //LINFO << "publish worldmodle vehicle info to lcm";
         WorldModelObjects temp = handler_.GetWorldmodleVehiles();
@@ -191,7 +189,7 @@ void communication::PublishWorldmodelInfo() {
 //        LDEBUG << " worldmodel info is not update ";
     }
         
-}
+} */
 
 } // namesapce communication
 

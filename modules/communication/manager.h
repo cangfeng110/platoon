@@ -4,6 +4,7 @@
 #include "include/base/NonCopyable.h"
 #include "protocol/lcmDataNameTypeDefine.h"
 #include "modules/communication/datacontainer.h"
+#include "modules/communication/worldmodle.h"
 
 namespace platoon {
 namespace communication {
@@ -31,20 +32,24 @@ public:
         F_Leader = 1,
         F_Enqueue = 2,
         F_Dequeue = 3,
+        F_DisBand = 4,
     };
 
-    void CalculateID ();
-    void ProcessCommand (const FmsInfo* msg);
+    void SetFmsInfo (const FmsInfo& fms_info);
     void UpdatePlatoonManagerInfo ();
 
 private:
     DriveMode actual_drive_mode;
     DriveMode desire_drive_mode;
     int _ID;
-    float THW ();
     std::vector<VehicleData> other_vehicles;
-    int following;//target
-    int is_leader;//target
+    WorldModle m_worldmodle_;
+    FmsInfo m_fms_info;
+
+    float THW ();
+    float TimeToFront ();
+    void CalculateID ();
+    void ProcessCommand ();
 };
 
 } // namespace communication
