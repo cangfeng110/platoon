@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string.h>
 #include <fstream>
+#include <math.h>
 
 #include "include/base/Timestamp.h"
 #include "include/base/Logging.h"
@@ -62,9 +63,9 @@ int Handler::BroastEgoVehicleInfo() {
     ego_vehicle_info.heading = ego_vehicle_gps_data.heading;
     ego_vehicle_info.gps_time = ego_vehicle_gps_data.time;
 
-    if (ego_vehicle_gps_data.weight - 0.701 < 0.00001)
+    if (fabs(ego_vehicle_gps_data.weight - 0.701) < 0.00001)
          ego_vehicle_info.gps_status = 2;
-    else if (ego_vehicle_gps_data.weight - 0.602 < 0.00001)
+    else if (fabs(ego_vehicle_gps_data.weight - 0.602) < 0.00001)
         ego_vehicle_info.gps_status = 1;
     else 
         ego_vehicle_info.gps_status = 0;

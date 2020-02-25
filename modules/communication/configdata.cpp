@@ -9,7 +9,7 @@
 namespace platoon {
 namespace communication {
 
-#define config_path "../../../config/platoon.conf"
+#define config_path "./config/platoon.conf"
 
 ConfigData *ConfigData::instance_ = new ConfigData();
 ConfigData *ConfigData::GetInstance() {

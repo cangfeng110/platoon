@@ -1,10 +1,13 @@
 #include "modules/communication/manager.h"
 #include <algorithm>
+#include <math.h>
 #include "modules/common/functiontool.h"
 
 namespace platoon {
 
 namespace communication {
+
+#define Epslion 1e-8
 
 Manager::Manager () {
     actual_drive_mode = Manual;
@@ -60,11 +63,14 @@ float Manager::TimeToFront ()
         return 0.0;//invalid
     }
     VehicleData front_vehicle = other_vehicles[_ID - 2];
-    if (front_vehicle.speed < 0.01)
+    const VehicleVcuData& ego_vehicle_vcu_data = DataContainer::GetInstance ()->ego_vehicle_vcu_data_.getData ();
+    float speed = ego_vehicle_vcu_data.fSpeed;
+    if (speed < 0.001)
     {
         return 0.0;
     }
-    return front_vehicle.relative_x / front_vehicle.speed;
+    
+    return fabs(front_vehicle.relative_x) / speed;
 }
 
 void Manager::ProcessCommand ()
@@ -73,7 +79,6 @@ void Manager::ProcessCommand ()
     {
         return;
     }
-    //PlatoonManagerInfo platoon_manager_info = DataContainer::GetInstance ()->manager_data_.getData ();//XXX check isUpToDate?
     EgoPlanningMsg ego_planning_msg = DataContainer::GetInstance ()->planning_data_.getData ();
     actual_drive_mode = (DriveMode)ego_planning_msg.actual_drive_mode;
     float thw = THW ();
@@ -90,14 +95,17 @@ void Manager::ProcessCommand ()
             }
             else if (m_fms_info.fms_order == F_Enqueue)
             {
-                DriveMode front_drive_mode = (DriveMode)ego_planning_msg.actual_drive_mode;
-                if (_ID > 1 && (front_drive_mode == Leader || front_drive_mode == KeepQueue))
+                if(_ID <= 1)
+                    break;
+                VehicleData front_vehicle = other_vehicles[_ID - 2];
+                DriveMode front_drive_mode = (DriveMode)front_vehicle.actual_drive_mode;
+                if (front_drive_mode == Leader || front_drive_mode == KeepQueue || front_drive_mode == Enqueue)
                 {
-                    if (thw == 0.0)
+                    if (fabs(thw - 0.0) < Epslion) 
                     {
                         break;//no speed data. ignore command
                     }
-                    if (thw <= 1.2)
+                    if (time_to_front <= 1.2 * thw)
                     {
                         desire_drive_mode = Enqueue;
                     }
@@ -105,7 +113,7 @@ void Manager::ProcessCommand ()
             }
             break;
         case Leader:
-            if (m_fms_info.fms_order == F_Dequeue)
+            if (m_fms_info.fms_order == F_Dequeue || m_fms_info.fms_order == F_DisBand)
             {
                 desire_drive_mode = Auto;
             }
@@ -119,7 +127,7 @@ void Manager::ProcessCommand ()
         case Dequeue:
             if (m_fms_info.fms_order == F_Dequeue)
             {
-                if (time_to_front - thw < 0.01)
+                if (time_to_front >= thw)
                 {
                     desire_drive_mode = Auto;
                 }
@@ -128,18 +136,16 @@ void Manager::ProcessCommand ()
         case KeepQueue:
             if (m_fms_info.fms_order == F_Dequeue)
             {
-                int i;
-                for (i = _ID; i < other_vehicles.size (); i++)
+                int i = _ID - 1;
+                if (i < other_vehicles.size ())
                 {
-                    if (other_vehicles[i].actual_drive_mode == KeepQueue || other_vehicles[i].actual_drive_mode == Enqueue)
-                    {
-                        break;
-                    }
-                }
-                if (i == other_vehicles.size ())//XXX at the end of platoon
-                {
+                    if(other_vehicles[i].actual_drive_mode == Manual ||
+                       other_vehicles[i].actual_drive_mode == Auto ||
+                       other_vehicles[i].actual_drive_mode == Leader)
+                       desire_drive_mode = Dequeue;
+                } 
+                else if(i == other_vehicles.size ()) 
                     desire_drive_mode = Dequeue;
-                }
             }
             else if (m_fms_info.fms_order == F_DisBand)
             {
