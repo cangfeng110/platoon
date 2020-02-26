@@ -172,15 +172,31 @@ int Handler::DecodeV2xVechileInfo() {
         char * buffer_temp;
         buffer_temp = &buffer_[header_len]; // skip outbound header
 
-        VehicleData v2x_other_vehicle_info;
+        VehicleData v2x_other_vehicle_data;
 
-        int data_len = sizeof(v2x_other_vehicle_info);
+        int data_len = sizeof(v2x_other_vehicle_data);
 
-        memcpy(&v2x_other_vehicle_info, buffer_temp, data_len);
+        memcpy(&v2x_other_vehicle_data, buffer_temp, data_len);
 
-        int key = v2x_other_vehicle_info.vehicle_id;
+        int key = v2x_other_vehicle_data.vehicle_id;
 
-        DataContainer::GetInstance()->v2x_other_vehicle_data_.setData(key, v2x_other_vehicle_info);
+        if (DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) {
+            const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
+            platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(v2x_other_vehicle_data.relative_x, v2x_other_vehicle_data.relative_y,
+                                                                ego_vehicle_gps_data.heading,
+                                                                ego_vehicle_gps_data.longitude,ego_vehicle_gps_data.latitude,
+                                                                ego_vehicle_gps_data.height,
+                                                                v2x_other_vehicle_data.longitude, v2x_other_vehicle_data.latitude,
+                                                                v2x_other_vehicle_data.altitude);
+            platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(v2x_other_vehicle_data.relative_heading,
+                                                                    ego_vehicle_gps_data.heading, v2x_other_vehicle_data.heading);
+            //std::cout<<"ego vehicle heading:" << ego_vehicle_gps_data.fHeading << std::endl;
+            //std::cout<<"v2x other vehicle heading: "<< v2x_other_vehicle_data.fHeading << std::endl;
+        } else {
+            v2x_other_vehicle_data.relative_x = 0.0;
+            v2x_other_vehicle_data.relative_y = 0.0;
+        }
+        DataContainer::GetInstance()->v2x_other_vehicle_data_.setData(key, v2x_other_vehicle_data);
 
         return 1;
     }
