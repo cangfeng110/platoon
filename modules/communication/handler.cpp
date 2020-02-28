@@ -28,8 +28,9 @@ Handler::Handler() {
         LDIE << "v2x socket create failed.";
     }
 
+    int port = ConfigData::GetInstance()->local_port_;
     local_sockaddr_.sin_family = AF_INET;
-    local_sockaddr_.sin_port = htons(16820);  
+    local_sockaddr_.sin_port = htons(port);  
     local_sockaddr_.sin_addr.s_addr = htonl(INADDR_ANY);
 
     if(::bind(sockfd_, (struct sockaddr *) & local_sockaddr_,
@@ -115,8 +116,8 @@ int Handler::BroastEgoVehicleInfo() {
     int data_len = sizeof(ego_vehicle_info);
 
     // assign ip port
-    std::string send_ip = "192.168.1.18";
-    int send_port = 20001;
+    std::string send_ip =  ConfigData::GetInstance()->remote_ip_;
+    int send_port =  ConfigData::GetInstance()->remote_port_;
 
     //assign header
     int header_len = 24;
@@ -193,8 +194,8 @@ int Handler::DecodeV2xVechileInfo() {
             //std::cout<<"ego vehicle heading:" << ego_vehicle_gps_data.fHeading << std::endl;
             //std::cout<<"v2x other vehicle heading: "<< v2x_other_vehicle_data.fHeading << std::endl;
         } else {
-            v2x_other_vehicle_data.relative_x = 0.0;
-            v2x_other_vehicle_data.relative_y = 0.0;
+            v2x_other_vehicle_data.relative_x = INVALID_FLOAT;
+            v2x_other_vehicle_data.relative_y = INVALID_FLOAT;
         }
         DataContainer::GetInstance()->v2x_other_vehicle_data_.setData(key, v2x_other_vehicle_data);
 

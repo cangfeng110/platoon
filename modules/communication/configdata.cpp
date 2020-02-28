@@ -34,6 +34,9 @@ ConfigData::ConfigData() {
         platoon_config.lookupValue("vehicle_height", vehicle_height_);
         platoon_config.lookupValue("vehicle_width", vehicle_width_);
         platoon_config.lookupValue("desire_distance", desire_distance_);
+        platoon_config.lookupValue("local_port", local_port_);
+        platoon_config.lookupValue("remote_ip", remote_ip_);
+        platoon_config.lookupValue("remote_port", remote_port_);
         std::cout << "read all config data" << std::endl;
     } catch(const libconfig::SettingNotFoundException& e) {
         DIE("can not read config data (%s) form file  \n", e.what());
