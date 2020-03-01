@@ -23,7 +23,7 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     
     //receive ego gps/vcu information from lcm
     lcm_.subscribe("VCU_VEHICLE_INFO", &communication::HandleEgoVehicleVcuInfo, this);
-    lcm_.subscribe("localization_out_2_map", &communication::HandleEgoVehicleGpsInfo, this);
+    lcm_.subscribe("Localization_Out_2_Map", &communication::HandleEgoVehicleGpsInfo, this);
     lcm_.subscribe("FMS_INFO", &communication::HandleFmsInfo, this);
     lcm_.subscribe("EGO_PLANNINGMSG_FOR_PLATOON", &communication::HandlePlanningInfo, this);
     
@@ -71,8 +71,14 @@ void communication::HandleEgoVehicleGpsInfo(const lcm::ReceiveBuffer *rbuf,
                                     const std::string &channel,
                                     const VehicleGpsData *msg)
 {
-    assert(channel == "localization_out_2_map");
-    //std::cout << "receive ego vehicle gps info.";
+    assert(channel == "Localization_Out_2_Map");
+    //std::cout << "receive ego vehicle gps info." << std::endl;
+    static int gps_count = 0;
+    gps_count++;
+    if (gps_count % 100 == 0)
+    {
+        printf ("Localization_Out_2_Map received %d\n", gps_count);
+    }
     DataContainer::GetInstance()->ego_vehicle_gps_data_.setData(*msg);
 }
 
@@ -85,6 +91,12 @@ void communication::HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
                                      const VehicleVcuData *msg) {
     assert(channel == "VCU_VEHICLE_INFO");
     //std::cout << "receive ego vcu info." << std::endl;
+    static int vcu_count = 0;
+    vcu_count++;
+    if (vcu_count % 100 == 0)
+    {
+        printf ("VCU_VEHICLE_INFO received %d\n", vcu_count);
+    }
     DataContainer::GetInstance()->ego_vehicle_vcu_data_.setData(*msg);   
 }
 
@@ -93,6 +105,7 @@ void communication::HandleFmsInfo(const lcm::ReceiveBuffer *rbuf,
                               const FmsInfo *msg)
 {
     assert(channel == "FMS_INFO");
+    printf ("FMS_INFO: %d\n", msg->fms_order);
     manager_.SetFmsInfo (*msg);
 }
 
@@ -116,10 +129,16 @@ void communication::BroastEgoVehicleInfo() {
 }
 
 void communication::PublishManagerInfo() {
+    static int pmi_count = 0;
     manager_.UpdatePlatoonManagerInfo ();
     if (DataContainer::GetInstance ()->manager_data_.isUpToDate ()) {
         const PlatoonManagerInfo& data = DataContainer::GetInstance ()->manager_data_.getData ();
         lcm_.publish ("PLATOON_MANAGER_INFO", &data);
+        pmi_count++;
+        if (pmi_count % 50 == 0)
+        {
+            printf ("PLATOON_MANAGER_INFO published %d\n", pmi_count);
+        }
     }
 }
 

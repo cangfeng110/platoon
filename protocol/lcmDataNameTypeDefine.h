@@ -1,7 +1,7 @@
 #ifndef _LCM_DATA_NAME_TYPE_DEFINE_
 #define _LCM_DATA_NAME_TYPE_DEFINE_
 
-#include "protocol/VCU_VEHILCE_INFO.hpp"
+#include "protocol/VCU_VEHICLE_INFO.hpp"
 
 #include "protocol/VehicleInfo.hpp"
 
@@ -20,7 +20,7 @@
 #include "protocol/PlatoonManagerInfo.hpp"
 
 
-typedef platoon::protocol::VCU_VEHILCE_INFO             VehicleVcuData;         
+typedef platoon::protocol::VCU_VEHICLE_INFO             VehicleVcuData;         
 typedef platoon::protocol::Localization_Out_2_Map       VehicleGpsData;
 typedef platoon::protocol::VehicleInfo                  VehicleData;
 

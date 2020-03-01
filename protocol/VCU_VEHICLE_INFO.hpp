@@ -6,8 +6,8 @@
 
 #include <lcm/lcm_coretypes.h>
 
-#ifndef __VCU_VEHILCE_INFO_hpp__
-#define __VCU_VEHILCE_INFO_hpp__
+#ifndef __VCU_VEHICLE_INFO_hpp__
+#define __VCU_VEHICLE_INFO_hpp__
 
 #include "protocol/HEADER.hpp"
 
@@ -17,7 +17,7 @@ namespace platoon
 namespace protocol
 {
 
-class VCU_VEHILCE_INFO
+class VCU_VEHICLE_INFO
 {
     public:
         HEADER     stHeader;
@@ -100,7 +100,7 @@ class VCU_VEHILCE_INFO
         inline static int64_t getHash();
 
         /**
-         * Returns "VCU_VEHILCE_INFO"
+         * Returns "VCU_VEHICLE_INFO"
          */
         inline static const char* getTypeName();
 
@@ -111,7 +111,7 @@ class VCU_VEHILCE_INFO
         inline static uint64_t _computeHash(const __lcm_hash_ptr *p);
 };
 
-int VCU_VEHILCE_INFO::encode(void *buf, int offset, int maxlen) const
+int VCU_VEHICLE_INFO::encode(void *buf, int offset, int maxlen) const
 {
     int pos = 0, tlen;
     int64_t hash = (int64_t)getHash();
@@ -125,7 +125,7 @@ int VCU_VEHILCE_INFO::encode(void *buf, int offset, int maxlen) const
     return pos;
 }
 
-int VCU_VEHILCE_INFO::decode(const void *buf, int offset, int maxlen)
+int VCU_VEHICLE_INFO::decode(const void *buf, int offset, int maxlen)
 {
     int pos = 0, thislen;
 
@@ -140,23 +140,23 @@ int VCU_VEHILCE_INFO::decode(const void *buf, int offset, int maxlen)
     return pos;
 }
 
-int VCU_VEHILCE_INFO::getEncodedSize() const
+int VCU_VEHICLE_INFO::getEncodedSize() const
 {
     return 8 + _getEncodedSizeNoHash();
 }
 
-int64_t VCU_VEHILCE_INFO::getHash()
+int64_t VCU_VEHICLE_INFO::getHash()
 {
     static int64_t hash = _computeHash(NULL);
     return hash;
 }
 
-const char* VCU_VEHILCE_INFO::getTypeName()
+const char* VCU_VEHICLE_INFO::getTypeName()
 {
-    return "VCU_VEHILCE_INFO";
+    return "VCU_VEHICLE_INFO";
 }
 
-int VCU_VEHILCE_INFO::_encodeNoHash(void *buf, int offset, int maxlen) const
+int VCU_VEHICLE_INFO::_encodeNoHash(void *buf, int offset, int maxlen) const
 {
     int pos = 0, tlen;
 
@@ -229,7 +229,7 @@ int VCU_VEHILCE_INFO::_encodeNoHash(void *buf, int offset, int maxlen) const
     return pos;
 }
 
-int VCU_VEHILCE_INFO::_decodeNoHash(const void *buf, int offset, int maxlen)
+int VCU_VEHICLE_INFO::_decodeNoHash(const void *buf, int offset, int maxlen)
 {
     int pos = 0, tlen;
 
@@ -302,7 +302,7 @@ int VCU_VEHILCE_INFO::_decodeNoHash(const void *buf, int offset, int maxlen)
     return pos;
 }
 
-int VCU_VEHILCE_INFO::_getEncodedSizeNoHash() const
+int VCU_VEHICLE_INFO::_getEncodedSizeNoHash() const
 {
     int enc_size = 0;
     enc_size += this->stHeader._getEncodedSizeNoHash();
@@ -330,13 +330,13 @@ int VCU_VEHILCE_INFO::_getEncodedSizeNoHash() const
     return enc_size;
 }
 
-uint64_t VCU_VEHILCE_INFO::_computeHash(const __lcm_hash_ptr *p)
+uint64_t VCU_VEHICLE_INFO::_computeHash(const __lcm_hash_ptr *p)
 {
     const __lcm_hash_ptr *fp;
     for(fp = p; fp != NULL; fp = fp->parent)
-        if(fp->v == VCU_VEHILCE_INFO::getHash)
+        if(fp->v == VCU_VEHICLE_INFO::getHash)
             return 0;
-    const __lcm_hash_ptr cp = { p, (void*)VCU_VEHILCE_INFO::getHash };
+    const __lcm_hash_ptr cp = { p, (void*)VCU_VEHICLE_INFO::getHash };
 
     uint64_t hash = 0x6d6272f5a59984daLL +
          HEADER::_computeHash(&cp);
