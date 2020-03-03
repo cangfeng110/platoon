@@ -14,6 +14,7 @@ Manager::Manager () {
     desire_drive_mode = Notset;
     _ID = 0;
     other_vehicles.reserve (100);
+    m_fms_info.fms_order = F_Invalid;
 }
 
 Manager::~Manager () {
@@ -21,6 +22,10 @@ Manager::~Manager () {
 
 void Manager::SetFmsInfo (const FmsInfo& msg)
 {
+    if (m_fms_info.fms_order != msg.fms_order)
+    {
+        printf ("FMS_INFO fms_order changed: %d\n", msg.fms_order);
+    }
     m_fms_info = msg;
 }
 
@@ -83,6 +88,7 @@ void Manager::ProcessCommand ()
     actual_drive_mode = (DriveMode)ego_planning_msg.actual_drive_mode;
     float thw = THW ();
     float time_to_front = TimeToFront ();
+//printf ("xxxxxxxxxxxxxxxxxxxxxxxxxxxx %f, %f\n", thw, time_to_front);
     switch (actual_drive_mode)
     {
         case Manual:
@@ -125,12 +131,9 @@ void Manager::ProcessCommand ()
             }
             break;
         case Dequeue:
-            if (m_fms_info.fms_order == F_Dequeue)
+            if (time_to_front >= thw)
             {
-                if (time_to_front >= thw)
-                {
-                    desire_drive_mode = Auto;
-                }
+                desire_drive_mode = Auto;
             }
             break;
         case KeepQueue:

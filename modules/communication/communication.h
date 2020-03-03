@@ -38,6 +38,9 @@ private:
     void HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
                             const std::string &channel,
                             const EgoPlanningMsg *msg);
+    void HandleTestVehicleInfo(const lcm::ReceiveBuffer *rbuf,
+                               const std::string &channel,
+                               const VehicleData *msg);
 
     void PublishManagerInfo();
     

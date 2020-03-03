@@ -6,6 +6,7 @@
 #include "protocol/ProtocolChannel.h"
 #include "include/base/EventLoop.h"
 #include "include/base/Channel.h"
+#include "modules/common/functiontool.h"
 
 namespace platoon {
 
@@ -23,9 +24,10 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     
     //receive ego gps/vcu information from lcm
     lcm_.subscribe("VCU_VEHICLE_INFO", &communication::HandleEgoVehicleVcuInfo, this);
-    lcm_.subscribe("Localization_Out_2_Map", &communication::HandleEgoVehicleGpsInfo, this);
+    lcm_.subscribe("localization_out_2_map", &communication::HandleEgoVehicleGpsInfo, this);
     lcm_.subscribe("FMS_INFO", &communication::HandleFmsInfo, this);
     lcm_.subscribe("EGO_PLANNINGMSG_FOR_PLATOON", &communication::HandlePlanningInfo, this);
+//    lcm_.subscribe("vehicle_info_for_test", &communication::HandleTestVehicleInfo, this);
     
     // lcm channel
     lcm_channel_.reset(new platoon::base::Channel(&loop_, lcm_.getFileno(), "lcm"));
@@ -71,15 +73,16 @@ void communication::HandleEgoVehicleGpsInfo(const lcm::ReceiveBuffer *rbuf,
                                     const std::string &channel,
                                     const VehicleGpsData *msg)
 {
-    assert(channel == "Localization_Out_2_Map");
+    assert(channel == "localization_out_2_map");
     //std::cout << "receive ego vehicle gps info." << std::endl;
     static int gps_count = 0;
     gps_count++;
     if (gps_count % 100 == 0)
     {
-        printf ("Localization_Out_2_Map received %d\n", gps_count);
+        printf ("localization_out_2_map received %d\n", gps_count);
     }
     DataContainer::GetInstance()->ego_vehicle_gps_data_.setData(*msg);
+    //printf ("%f, %f\n", msg->longitude, msg->latitude);
 }
 
 //
@@ -97,7 +100,8 @@ void communication::HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
     {
         printf ("VCU_VEHICLE_INFO received %d\n", vcu_count);
     }
-    DataContainer::GetInstance()->ego_vehicle_vcu_data_.setData(*msg);   
+    DataContainer::GetInstance()->ego_vehicle_vcu_data_.setData(*msg);
+    //printf ("%f\n", msg->fSpeed);
 }
 
 void communication::HandleFmsInfo(const lcm::ReceiveBuffer *rbuf,
@@ -105,7 +109,6 @@ void communication::HandleFmsInfo(const lcm::ReceiveBuffer *rbuf,
                               const FmsInfo *msg)
 {
     assert(channel == "FMS_INFO");
-    printf ("FMS_INFO: %d\n", msg->fms_order);
     manager_.SetFmsInfo (*msg);
 }
 
@@ -179,6 +182,57 @@ void communication::ReceiveV2xOtherVehicleInfo() {
             }   
         }
     }
+}
+
+#define INVALID_FLOAT 1E10;
+void communication::HandleTestVehicleInfo (const lcm::ReceiveBuffer *rbuf,
+                                           const std::string &channel,
+                                           const VehicleData *msg)
+{
+    VehicleData v2x_other_vehicle_data;
+    v2x_other_vehicle_data.header.nTimeStamp = msg->header.nTimeStamp;
+    v2x_other_vehicle_data.header.nFrameID = msg->header.nFrameID;
+    v2x_other_vehicle_data.header.nCounter = msg->header.nCounter;
+    v2x_other_vehicle_data.vehicle_id = msg->vehicle_id;
+    v2x_other_vehicle_data.vehicle_length = msg->vehicle_length;
+    v2x_other_vehicle_data.vehicle_width = msg->vehicle_width;
+    v2x_other_vehicle_data.vehicle_height = msg->vehicle_height;
+    v2x_other_vehicle_data.desire_drive_mode = msg->desire_drive_mode;
+    v2x_other_vehicle_data.actual_drive_mode = msg->actual_drive_mode;
+    v2x_other_vehicle_data.cut_in_flag = msg->cut_in_flag;
+    v2x_other_vehicle_data.longitude = msg->longitude;
+    v2x_other_vehicle_data.latitude = msg->latitude;
+    v2x_other_vehicle_data.altitude = msg->altitude;
+    v2x_other_vehicle_data.heading = msg->heading;
+    v2x_other_vehicle_data.gps_status = msg->gps_status;
+    v2x_other_vehicle_data.gps_time = msg->gps_time;
+    v2x_other_vehicle_data.relative_x = msg->relative_x;
+    v2x_other_vehicle_data.relative_y = msg->relative_y;
+    v2x_other_vehicle_data.relative_heading = msg->relative_heading;
+    v2x_other_vehicle_data.longtitude_acc = msg->longtitude_acc;
+    v2x_other_vehicle_data.lateral_acc = msg->lateral_acc;
+    v2x_other_vehicle_data.speed = msg->speed;
+    v2x_other_vehicle_data.steering_wheel_angle = msg->steering_wheel_angle;
+    v2x_other_vehicle_data.yaw_rate = msg->yaw_rate;
+    v2x_other_vehicle_data.desire_long_acc = msg->desire_long_acc;
+    
+    int key = v2x_other_vehicle_data.vehicle_id;
+
+    if (DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) {
+        const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
+        platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(v2x_other_vehicle_data.relative_x, v2x_other_vehicle_data.relative_y,
+                ego_vehicle_gps_data.heading,
+                ego_vehicle_gps_data.longitude,ego_vehicle_gps_data.latitude,
+                ego_vehicle_gps_data.height,
+                v2x_other_vehicle_data.longitude, v2x_other_vehicle_data.latitude,
+                v2x_other_vehicle_data.altitude);
+        platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(v2x_other_vehicle_data.relative_heading,
+                ego_vehicle_gps_data.heading, v2x_other_vehicle_data.heading);
+    } else {
+        v2x_other_vehicle_data.relative_x = INVALID_FLOAT;
+        v2x_other_vehicle_data.relative_y = INVALID_FLOAT;
+    }
+    DataContainer::GetInstance()->v2x_other_vehicle_data_.setData(key, v2x_other_vehicle_data);
 }
 //
 //function:publish worldmodel info to channel

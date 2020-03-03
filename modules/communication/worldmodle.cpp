@@ -86,7 +86,7 @@ void WorldModle::GetWorldmodleVehiles() {
         dis_temp -= v2x_vehicle_data.vehicle_length; //subtract vehicle length
         worldmodel_vehicle_data.frenet_lon_distance = dis_temp;
     } else {
-        std::cout << worldmodel_vehicle_data.vehicle_id << " vehicle's history trajectory is all behind ego" << std::endl;
+//        std::cout << worldmodel_vehicle_data.vehicle_id << " vehicle's history trajectory is all behind ego" << std::endl;
         worldmodel_vehicle_data.frenet_lat_distance = 1.0e10; //invalid
         worldmodel_vehicle_data.frenet_lon_distance = 1.0e10; //invalid
     }   
