@@ -24,7 +24,7 @@ void Manager::SetFmsInfo (const FmsInfo& msg)
 {
     if (m_fms_info.fms_order != msg.fms_order)
     {
-        printf ("FMS_INFO fms_order changed: %d\n", msg.fms_order);
+        printf ("asdf FMS_INFO fms_order changed: %d\n", msg.fms_order);
     }
     m_fms_info = msg;
 }
@@ -84,11 +84,17 @@ void Manager::ProcessCommand ()
     {
         return;
     }
+    DriveMode old = desire_drive_mode;
     EgoPlanningMsg ego_planning_msg = DataContainer::GetInstance ()->planning_data_.getData ();
     actual_drive_mode = (DriveMode)ego_planning_msg.actual_drive_mode;
     float thw = THW ();
     float time_to_front = TimeToFront ();
-//printf ("xxxxxxxxxxxxxxxxxxxxxxxxxxxx %f, %f\n", thw, time_to_front);
+    static int debug_count = 0;
+    debug_count++;
+    if (debug_count % 25 == 0)
+    {
+        printf ("asdf thw: %f, time_to_front: %f\n", thw, time_to_front);
+    }
     switch (actual_drive_mode)
     {
         case Manual:
@@ -159,6 +165,10 @@ void Manager::ProcessCommand ()
         default:
             //ignore command
             break;
+    }
+    if (desire_drive_mode != old)
+    {
+        printf ("asdf desire_drive_mode changed: %d\n", desire_drive_mode);
     }
 }
 

@@ -79,7 +79,7 @@ void communication::HandleEgoVehicleGpsInfo(const lcm::ReceiveBuffer *rbuf,
     gps_count++;
     if (gps_count % 100 == 0)
     {
-        printf ("localization_out_2_map received %d\n", gps_count);
+        printf ("asdf localization_out_2_map received %d\n", gps_count);
     }
     DataContainer::GetInstance()->ego_vehicle_gps_data_.setData(*msg);
     //printf ("%f, %f\n", msg->longitude, msg->latitude);
@@ -98,7 +98,7 @@ void communication::HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
     vcu_count++;
     if (vcu_count % 100 == 0)
     {
-        printf ("VCU_VEHICLE_INFO received %d\n", vcu_count);
+        printf ("asdf VCU_VEHICLE_INFO received %d\n", vcu_count);
     }
     DataContainer::GetInstance()->ego_vehicle_vcu_data_.setData(*msg);
     //printf ("%f\n", msg->fSpeed);
@@ -140,7 +140,7 @@ void communication::PublishManagerInfo() {
         pmi_count++;
         if (pmi_count % 50 == 0)
         {
-            printf ("PLATOON_MANAGER_INFO published %d\n", pmi_count);
+            printf ("asdf PLATOON_MANAGER_INFO published %d\n", pmi_count);
         }
     }
 }
