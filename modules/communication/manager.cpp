@@ -173,7 +173,7 @@ void Manager::ProcessCommand ()
 }
 
 static bool
-compare_relative_x (VehicleData& a, VehicleData& b)
+compare_relative_x (const VehicleData& a,  const VehicleData& b)
 {
     return (a.relative_x > b.relative_x);
 }

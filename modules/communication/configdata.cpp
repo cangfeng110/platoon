@@ -28,15 +28,26 @@ ConfigData::ConfigData() {
 
     try {
         const libconfig::Setting& platoon_config = cfg.lookup("platoon");
-        platoon_config.lookupValue("debug", debug_);
-        platoon_config.lookupValue("log_path",log_path_);
-        platoon_config.lookupValue("vehicle_id", vehicle_id_);
-        platoon_config.lookupValue("vehicle_height", vehicle_height_);
-        platoon_config.lookupValue("vehicle_width", vehicle_width_);
-        platoon_config.lookupValue("desire_distance", desire_distance_);
-        platoon_config.lookupValue("local_port", local_port_);
-        platoon_config.lookupValue("remote_ip", remote_ip_);
-        platoon_config.lookupValue("remote_port", remote_port_);
+        //because GCC 4.8 auto trans string to cosnt string
+        const char* debug = "debug"; 
+        const char* log_path = "log_path";
+        const char* vehicle_id = "vehicle_id";
+        const char* vehicle_height = "vehicle_height";
+        const char* vehicle_width = "vehicle_width";
+        const char* desire_distance = "desire_distance";
+        const char* local_port = "local_port";
+        const char* remote_ip = "remote_ip";
+        const char* remote_port = "remote_port";
+        platoon_config.lookupValue(debug, debug_);
+        platoon_config.lookupValue(log_path,log_path_);
+        platoon_config.lookupValue(vehicle_id, vehicle_id_);
+        platoon_config.lookupValue(vehicle_height, vehicle_height_);
+        platoon_config.lookupValue(vehicle_width, vehicle_width_);
+        platoon_config.lookupValue(desire_distance, desire_distance_);
+        platoon_config.lookupValue(local_port, local_port_);
+        platoon_config.lookupValue(remote_ip, remote_ip_);
+        platoon_config.lookupValue(remote_port, remote_port_);
+
         std::cout << "read all config data" << std::endl;
     } catch(const libconfig::SettingNotFoundException& e) {
         DIE("can not read config data (%s) form file  \n", e.what());
