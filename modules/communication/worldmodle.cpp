@@ -1,5 +1,7 @@
 #include "worldmodle.h"
 
+#include <math.h>
+
 #include "modules/common/functiontool.h"
 
 namespace platoon
