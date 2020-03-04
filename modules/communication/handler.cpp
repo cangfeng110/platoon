@@ -143,7 +143,7 @@ int Handler::BroastEgoVehicleInfo() {
     memcpy(buffer + header_len, &ego_vehicle_info, data_len);
     sudp.send(buffer, header_len + data_len);
     delete []buffer;
-    //std::cout << "broast ego vehicle gps info over" << std::endl;
+    std::cout << "broast ego vehicle gps info over" << std::endl;
     return 1;
 }
 //
