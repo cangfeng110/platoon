@@ -37,12 +37,63 @@ ConfigData::ConfigData() {
         platoon_config.lookupValue("local_port", local_port_);
         platoon_config.lookupValue("remote_ip", remote_ip_);
         platoon_config.lookupValue("remote_port", remote_port_);
+
+        const libconfig::Setting& platoon_debug = cfg.lookup("debug");
+        platoon_debug.lookupValue("debug_TimeToFront", debug_TimeToFront_);
+        platoon_debug.lookupValue("debug_CalculateID", debug_CalculateID_);
+        platoon_debug.lookupValue("debug_V2xVehicleInfo", debug_V2xVehicleInfo_);
+        platoon_debug.lookupValue("debug_BroadcastEgoVehicleInfo", debug_BroadcastEgoVehicleInfo_);
+        debug_flags_ = 0;
+        if (debug_TimeToFront_)
+            debug_flags_ |= DEBUG_TimeToFront;
+        if (debug_CalculateID_)
+            debug_flags_ |= DEBUG_CalculateID;
+        if (debug_V2xVehicleInfo_)
+            debug_flags_ |= DEBUG_V2xVehicleInfo;
+        if (debug_BroadcastEgoVehicleInfo_)
+            debug_flags_ |= DEBUG_BroadcastEgoVehicleInfo;
+
+        platoon_debug.lookupValue("debug_thw_HZ", debug_thw_HZ_);
+        platoon_debug.lookupValue("debug_gps_HZ", debug_gps_HZ_);
+        platoon_debug.lookupValue("debug_vcu_HZ", debug_vcu_HZ_);
+        platoon_debug.lookupValue("debug_pmi_HZ", debug_pmi_HZ_);
+
         std::cout << "read all config data" << std::endl;
     } catch(const libconfig::SettingNotFoundException& e) {
         DIE("can not read config data (%s) form file  \n", e.what());
 
     }
 
+}
+
+const int
+ConfigData::GetDebugFlags ()
+{
+    return debug_flags_;
+}
+
+const int
+ConfigData::GetDebugThwHZ ()
+{
+    return debug_thw_HZ_;
+}
+
+const int
+ConfigData::GetDebugGpsHZ ()
+{
+    return debug_gps_HZ_;
+}
+
+const int
+ConfigData::GetDebugVcuHZ ()
+{
+    return debug_vcu_HZ_;
+}
+
+const int
+ConfigData::GetDebugPmiHZ ()
+{
+    return debug_pmi_HZ_;
 }
 
 } //namespace communication

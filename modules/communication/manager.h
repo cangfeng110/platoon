@@ -5,6 +5,7 @@
 #include "protocol/lcmDataNameTypeDefine.h"
 #include "modules/communication/datacontainer.h"
 #include "modules/communication/worldmodle.h"
+#include "modules/communication/configdata.h"
 
 namespace platoon {
 namespace communication {
@@ -50,6 +51,9 @@ private:
     float TimeToFront ();
     void CalculateID ();
     void ProcessCommand ();
+
+    int m_debug_flags;
+    int m_debug_thw_HZ;
 };
 
 } // namespace communication
