@@ -130,12 +130,14 @@ int Handler::BroastEgoVehicleInfo() {
     send_header.op_sn = 0;
     send_header.msg_len = data_len;
 
-    //display
-    // std::cout << "ego vehicle longitude is : " << ego_vehicle_gps_data.longitude << std::endl;
-    // std::cout << "ego_vehicle latitude is : " << ego_vehicle_gps_data.latitude << std::endl;
-    // std::cout << "ego vehilce altitude is :" << ego_vehicle_gps_data.height << std::endl;
-    // std::cout << "ego vehicle heading is : " << ego_vehicle_gps_data.heading << std::endl;
-    
+    if(m_debug_flags & DEBUG_BroadcastEgoVehicleInfo){
+        using namespace std;
+        cout << "++++Display ego vehicle info++++" << endl;
+        cout << "ego vehicle longitude is : "<< ego_vehicle_info.longitude << endl;
+        cout << "ego vehicle latitude is : " << ego_vehicle_info.latitude << endl;
+        cout << "ego vehicle heading is : " << ego_vehicle_info.heading << endl;
+        cout << "ego vehicle speed is(km/h) : " << ego_vehicle_info.speed * 3.6 << endl << endl;
+    }
     // udp send
     Udp sudp(send_ip,send_port);
     sudp.init();
@@ -144,7 +146,6 @@ int Handler::BroastEgoVehicleInfo() {
     memcpy(buffer + header_len, &ego_vehicle_info, data_len);
     sudp.send(buffer, header_len + data_len);
     delete []buffer;
-    //std::cout << "broast ego vehicle gps info over" << std::endl;
     return 1;
 }
 //
@@ -181,9 +182,7 @@ int Handler::DecodeV2xVechileInfo() {
         memcpy(&v2x_other_vehicle_data, buffer_temp, data_len);
 
         int key = v2x_other_vehicle_data.vehicle_id;
-        if (m_debug_flags & DEBUG_V2xVehicleInfo)
-            printf ("key: %d\n%f, %f\n", key, v2x_other_vehicle_data.longitude, v2x_other_vehicle_data.latitude);
-
+    
         if (DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) {
             const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
             platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(v2x_other_vehicle_data.relative_x, v2x_other_vehicle_data.relative_y,
@@ -194,12 +193,19 @@ int Handler::DecodeV2xVechileInfo() {
                                                                 v2x_other_vehicle_data.altitude);
             platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(v2x_other_vehicle_data.relative_heading,
                                                                     ego_vehicle_gps_data.heading, v2x_other_vehicle_data.heading);
-            //std::cout<<"ego vehicle heading:" << ego_vehicle_gps_data.fHeading << std::endl;
-            //std::cout<<"v2x other vehicle heading: "<< v2x_other_vehicle_data.fHeading << std::endl;
         } else {
             v2x_other_vehicle_data.relative_x = INVALID_FLOAT;
             v2x_other_vehicle_data.relative_y = INVALID_FLOAT;
         }
+         if (m_debug_flags & DEBUG_V2xVehicleInfo) {
+             using namespace std;
+             cout << "-----------Display other vehicle info--------------" << endl;
+             cout << "other vehicle id is : " << key << endl;
+             cout << "other vehicle longitude is : " << v2x_other_vehicle_data.longitude << endl;
+             cout << "other vehicle latitude is : " << v2x_other_vehicle_data.latitude << endl;
+             cout << "other vehicle speed is(km/h): " << v2x_other_vehicle_data.speed * 3.6 << endl;
+             cout << "other vehicle relative_x is : " << v2x_other_vehicle_data.relative_x << endl << endl;
+         }
         DataContainer::GetInstance()->v2x_other_vehicle_data_.setData(key, v2x_other_vehicle_data);
 
         return 1;
