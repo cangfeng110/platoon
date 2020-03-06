@@ -39,6 +39,7 @@ Handler::Handler() {
     } else {
         LINFO << "local port bind success.";
     }
+    m_debug_flags = ConfigData::GetInstance ()->GetDebugFlags ();
 }
 //
 //function: broast ego vehicle info to ibox
@@ -143,7 +144,7 @@ int Handler::BroastEgoVehicleInfo() {
     memcpy(buffer + header_len, &ego_vehicle_info, data_len);
     sudp.send(buffer, header_len + data_len);
     delete []buffer;
-    std::cout << "broast ego vehicle gps info over" << std::endl;
+    //std::cout << "broast ego vehicle gps info over" << std::endl;
     return 1;
 }
 //
@@ -155,7 +156,8 @@ int Handler::DecodeV2xVechileInfo() {
 
     int len = ::recvfrom(sockfd_, buffer_, MAX_RECV_LENGTH, 0, NULL, NULL);
 
-    std::cout << "receive length is : " << len << std::endl;
+    if (m_debug_flags & DEBUG_V2xVehicleInfo)
+        std::cout << "receive length is : " << len << std::endl;
 
     outbound_communication_header outbound_header;
     int header_len = 36;
@@ -163,12 +165,11 @@ int Handler::DecodeV2xVechileInfo() {
 
     if (outbound_header.proto_id != 0xAFEE2468 || outbound_header.ver != 3 
         || outbound_header.op_type != 2 || outbound_header.op_code != 98) {
-        LDEBUG << "header type error!";
-        printf("%x\n\n",outbound_header.op_code);
-        std::cout << outbound_header.op_code << std::endl;
+        if (m_debug_flags & DEBUG_V2xVehicleInfo)
+            printf("header type error: %x\n\n", outbound_header.op_code);
         return -1;
     } else {
-        std::cout << "header type right!" << std::endl;
+        //std::cout << "header type right!" << std::endl;
 
         char * buffer_temp;
         buffer_temp = &buffer_[header_len]; // skip outbound header
@@ -180,6 +181,8 @@ int Handler::DecodeV2xVechileInfo() {
         memcpy(&v2x_other_vehicle_data, buffer_temp, data_len);
 
         int key = v2x_other_vehicle_data.vehicle_id;
+        if (m_debug_flags & DEBUG_V2xVehicleInfo)
+            printf ("key: %d\n%f, %f\n", key, v2x_other_vehicle_data.longitude, v2x_other_vehicle_data.latitude);
 
         if (DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) {
             const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();

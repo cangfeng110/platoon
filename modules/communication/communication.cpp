@@ -27,7 +27,7 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     lcm_.subscribe("localization_out_2_map", &communication::HandleEgoVehicleGpsInfo, this);
     lcm_.subscribe("FMS_INFO", &communication::HandleFmsInfo, this);
     lcm_.subscribe("EGO_PLANNINGMSG_FOR_PLATOON", &communication::HandlePlanningInfo, this);
-//    lcm_.subscribe("vehicle_info_for_test", &communication::HandleTestVehicleInfo, this);
+    lcm_.subscribe("vehicle_info_for_test", &communication::HandleTestVehicleInfo, this);
     
     // lcm channel
     lcm_channel_.reset(new platoon::base::Channel(&loop_, lcm_.getFileno(), "lcm"));
@@ -49,6 +49,11 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     //loop_.runEvery(100, std::bind(&communication::PublishWorldmodelInfo, this));
 
     loop_.runEvery(20, std::bind(&communication::PublishManagerInfo, this));
+
+    m_debug_flags = ConfigData::GetInstance ()->GetDebugFlags ();
+    m_debug_gps_HZ = ConfigData::GetInstance ()->GetDebugGpsHZ ();
+    m_debug_vcu_HZ = ConfigData::GetInstance ()->GetDebugVcuHZ ();
+    m_debug_pmi_HZ = ConfigData::GetInstance ()->GetDebugPmiHZ ();
 }
 
 //
@@ -77,12 +82,11 @@ void communication::HandleEgoVehicleGpsInfo(const lcm::ReceiveBuffer *rbuf,
     //std::cout << "receive ego vehicle gps info." << std::endl;
     static int gps_count = 0;
     gps_count++;
-    if (gps_count % 100 == 0)
+    if (gps_count % m_debug_gps_HZ == 0)
     {
-        printf ("asdf localization_out_2_map received %d\n", gps_count);
+        printf ("asdf localization_out_2_map received %d\n\n", gps_count);
     }
     DataContainer::GetInstance()->ego_vehicle_gps_data_.setData(*msg);
-    //printf ("%f, %f\n", msg->longitude, msg->latitude);
 }
 
 //
@@ -96,12 +100,11 @@ void communication::HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
     //std::cout << "receive ego vcu info." << std::endl;
     static int vcu_count = 0;
     vcu_count++;
-    if (vcu_count % 100 == 0)
+    if (vcu_count % m_debug_vcu_HZ == 0)
     {
-        printf ("asdf VCU_VEHICLE_INFO received %d\n", vcu_count);
+        printf ("asdf VCU_VEHICLE_INFO received %d\n\n", vcu_count);
     }
     DataContainer::GetInstance()->ego_vehicle_vcu_data_.setData(*msg);
-    //printf ("%f\n", msg->fSpeed);
 }
 
 void communication::HandleFmsInfo(const lcm::ReceiveBuffer *rbuf,
@@ -117,6 +120,11 @@ void communication::HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
                                         const EgoPlanningMsg *msg) 
 {
     assert(channel == "EGO_PLANNINGMSG_FOR_PLATOON");
+    EgoPlanningMsg ego_planning_msg = DataContainer::GetInstance ()->planning_data_.getData ();
+    if (msg->actual_drive_mode != ego_planning_msg.actual_drive_mode)
+    {
+        printf ("asdf actual_drive_mode changed: %d\n", msg->actual_drive_mode);
+    }
     DataContainer::GetInstance()->planning_data_.setData(*msg);
 }
 //
@@ -124,10 +132,12 @@ void communication::HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
 //
 void communication::BroastEgoVehicleInfo() {
     if(DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()){
-        //std::cout << " broast ego vehicle gps info to ibox";
+        if (m_debug_flags & DEBUG_BroadcastEgoVehicleInfo)
+            printf ("broadcast ego vehicle gps info to ibox\n");
         handler_.BroastEgoVehicleInfo();
     } else {
-//        LDEBUG <<"ego vehicle out of date";
+        if (m_debug_flags & DEBUG_BroadcastEgoVehicleInfo)
+            printf ("ego vehicle out of date\n");
     }
 }
 
@@ -138,9 +148,9 @@ void communication::PublishManagerInfo() {
         const PlatoonManagerInfo& data = DataContainer::GetInstance ()->manager_data_.getData ();
         lcm_.publish ("PLATOON_MANAGER_INFO", &data);
         pmi_count++;
-        if (pmi_count % 50 == 0)
+        if (pmi_count % m_debug_pmi_HZ == 0)
         {
-            printf ("asdf PLATOON_MANAGER_INFO published %d\n", pmi_count);
+            printf ("asdf PLATOON_MANAGER_INFO published %d\n\n", pmi_count);
         }
     }
 }
@@ -172,11 +182,13 @@ void communication::ReceiveV2xOtherVehicleInfo() {
                 //           << "iGpsState        : " << (int)data.iGpsState      << std::endl
                 //           << "iGpsTime         : " << data.iGpsTime            << std::endl
                 //           << "iShiftPosition   : " << (int)data.iShiftPosition << std::endl;
+/*
                  printf("long:%f\nlat:%f\nalt:%f\nlong:%f\nlat:%f\nalt%f\nheading%f\n",data.longitude,data.latitude,data.altitude,
                             DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().longitude,
                             DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().latitude,
                             DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().height,
                             DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().heading);
+*/
                 int publish_v2x_flag = lcm_.publish("V2X_OTHER_VEHICLE_INFO", &data);
                 //std::cout << "publish v2x flag is : " << publish_v2x_flag << std::endl;
             }   

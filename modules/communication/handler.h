@@ -45,6 +45,8 @@ private:
     struct sockaddr_in local_sockaddr_;
     
     char buffer_[MAX_RECV_LENGTH];
+
+    int m_debug_flags;
 };
 
 } // namespace communication

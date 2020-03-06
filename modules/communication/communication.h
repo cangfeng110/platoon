@@ -62,6 +62,11 @@ private:
     // handler
     Handler handler_;
     Manager manager_;
+
+    int m_debug_flags;
+    int m_debug_gps_HZ;
+    int m_debug_vcu_HZ;
+    int m_debug_pmi_HZ;
 };
 
 } // namesapce communication

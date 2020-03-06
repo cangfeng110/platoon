@@ -15,6 +15,10 @@ Manager::Manager () {
     _ID = 0;
     other_vehicles.reserve (100);
     m_fms_info.fms_order = F_Invalid;
+    m_debug_flags = ConfigData::GetInstance ()->GetDebugFlags ();
+    m_debug_thw_HZ = ConfigData::GetInstance ()->GetDebugThwHZ ();
+    if (m_debug_thw_HZ <= 0)
+        m_debug_thw_HZ = 25;
 }
 
 Manager::~Manager () {
@@ -65,16 +69,22 @@ float Manager::TimeToFront ()
 {
     if(_ID <= 1)
     {
+        if (m_debug_flags & DEBUG_TimeToFront)
+            printf ("_ID : %d\n", _ID);
         return 0.0;//invalid
     }
     VehicleData front_vehicle = other_vehicles[_ID - 2];
     const VehicleVcuData& ego_vehicle_vcu_data = DataContainer::GetInstance ()->ego_vehicle_vcu_data_.getData ();
     float speed = ego_vehicle_vcu_data.fSpeed;
+    if (m_debug_flags & DEBUG_TimeToFront)
+        printf ("speed %f\n", speed);
     if (speed < 0.001)
     {
         return 0.0;
     }
-    
+
+    if (m_debug_flags & DEBUG_TimeToFront)
+        printf ("relative_x: %f\n", front_vehicle.relative_x);
     return fabs(front_vehicle.relative_x) / speed;
 }
 
@@ -91,7 +101,7 @@ void Manager::ProcessCommand ()
     float time_to_front = TimeToFront ();
     static int debug_count = 0;
     debug_count++;
-    if (debug_count % 25 == 0)
+    if (debug_count % m_debug_thw_HZ == 0)
     {
         printf ("asdf thw: %f, time_to_front: %f\n", thw, time_to_front);
     }
@@ -205,6 +215,8 @@ void Manager::CalculateID ()
             other_vehicles.push_back (v2x_other_vehicle_data);
         }
         std::sort (other_vehicles.begin (), other_vehicles.end (), compare_relative_x);
+        if (m_debug_flags & DEBUG_CalculateID)
+            printf ("other_vehicles: %ld\n", other_vehicles.size ());
         for (i = 0; i < other_vehicles.size (); i++)
         {
             if (other_vehicles[i].relative_x < 0.0)
@@ -231,8 +243,26 @@ void Manager::UpdatePlatoonManagerInfo ()
     platoon_manager_info.vehicle_num = 0;
     platoon_manager_info.leader_frenet_dis = 1.0e10;
     platoon_manager_info.front_frenet_dis = 1.0e10;
-    double x;
-    double y;
+#if 1
+    int i;
+    for (i = _ID - 2; i >= 0; i--)
+    {
+        if (other_vehicles[i].actual_drive_mode == Leader)
+        {
+            platoon_manager_info.leader_vehicle = other_vehicles[i];
+            int leader_id = other_vehicles[i].vehicle_id;
+            platoon_manager_info.leader_frenet_dis = m_worldmodle_.GetFrenetDis(leader_id);
+            platoon_manager_info.vehicle_num = _ID - (i + 1);
+            break;
+        }
+    }
+    if (_ID >= 2)
+    {
+        platoon_manager_info.front_vehicle = other_vehicles[_ID - 2];//_ID surely >= 2
+        int front_id = other_vehicles[_ID - 2].vehicle_id;
+        platoon_manager_info.front_frenet_dis = m_worldmodle_.GetFrenetDis(front_id);
+    }
+#else
     switch (desire_drive_mode)
     {
         case Manual:
@@ -271,6 +301,7 @@ void Manager::UpdatePlatoonManagerInfo ()
         default:
             break;
     }
+#endif
     DataContainer::GetInstance ()->manager_data_.setData (platoon_manager_info);
 }
 
