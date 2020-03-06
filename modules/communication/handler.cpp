@@ -120,16 +120,6 @@ int Handler::BroastEgoVehicleInfo() {
     std::string send_ip =  ConfigData::GetInstance()->remote_ip_;
     int send_port =  ConfigData::GetInstance()->remote_port_;
 
-    //assign header
-    int header_len = 24;
-    inbound_communication_header send_header;
-    send_header.proto_id = 0xADFF246C;
-    send_header.ver = 3;
-    send_header.op_type = 2;
-    send_header.op_code = 98;
-    send_header.op_sn = 0;
-    send_header.msg_len = data_len;
-
     if(m_debug_flags & DEBUG_BroadcastEgoVehicleInfo){
         using namespace std;
         cout << "++++Display ego vehicle info++++" << endl;
@@ -141,10 +131,9 @@ int Handler::BroastEgoVehicleInfo() {
     // udp send
     Udp sudp(send_ip,send_port);
     sudp.init();
-    char * buffer = new char[header_len + data_len];
-    memcpy(buffer, &send_header, header_len);
-    memcpy(buffer + header_len, &ego_vehicle_info, data_len);
-    sudp.send(buffer, header_len + data_len);
+    char* buffer = new char[data_len];
+    memcpy(buffer, &ego_vehicle_info, data_len);
+    sudp.send(buffer, data_len);
     delete []buffer;
     return 1;
 }
@@ -160,26 +149,11 @@ int Handler::DecodeV2xVechileInfo() {
     if (m_debug_flags & DEBUG_V2xVehicleInfo)
         std::cout << "receive length is : " << len << std::endl;
 
-    outbound_communication_header outbound_header;
-    int header_len = 36;
-    memcpy(&outbound_header, buffer_, header_len);
-
-    if (outbound_header.proto_id != 0xAFEE2468 || outbound_header.ver != 3 
-        || outbound_header.op_type != 2 || outbound_header.op_code != 98) {
-        if (m_debug_flags & DEBUG_V2xVehicleInfo)
-            printf("header type error: %x\n\n", outbound_header.op_code);
-        return -1;
-    } else {
-        //std::cout << "header type right!" << std::endl;
-
-        char * buffer_temp;
-        buffer_temp = &buffer_[header_len]; // skip outbound header
-
         VehicleData v2x_other_vehicle_data;
 
         int data_len = sizeof(v2x_other_vehicle_data);
 
-        memcpy(&v2x_other_vehicle_data, buffer_temp, data_len);
+        memcpy(&v2x_other_vehicle_data, buffer_, data_len);
 
         int key = v2x_other_vehicle_data.vehicle_id;
     
@@ -209,7 +183,7 @@ int Handler::DecodeV2xVechileInfo() {
         DataContainer::GetInstance()->v2x_other_vehicle_data_.setData(key, v2x_other_vehicle_data);
 
         return 1;
-    }
+    //}
 }
 
 } // namespace communication
