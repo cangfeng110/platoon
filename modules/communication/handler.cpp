@@ -146,40 +146,39 @@ int Handler::DecodeV2xVechileInfo() {
 
     int len = ::recvfrom(sockfd_, buffer_, MAX_RECV_LENGTH, 0, NULL, NULL);
 
-    if (m_debug_flags & DEBUG_V2xVehicleInfo)
-        std::cout << "receive length is : " << len << std::endl;
+    VehicleData v2x_other_vehicle_data;
 
-        VehicleData v2x_other_vehicle_data;
+    int data_len = sizeof(v2x_other_vehicle_data);
 
-        int data_len = sizeof(v2x_other_vehicle_data);
+    memcpy(&v2x_other_vehicle_data, buffer_, data_len);
 
-        memcpy(&v2x_other_vehicle_data, buffer_, data_len);
+    int key = v2x_other_vehicle_data.vehicle_id;
 
-        int key = v2x_other_vehicle_data.vehicle_id;
-    
-        if (DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) {
-            const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
-            platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(v2x_other_vehicle_data.relative_x, v2x_other_vehicle_data.relative_y,
-                                                                ego_vehicle_gps_data.heading,
-                                                                ego_vehicle_gps_data.longitude,ego_vehicle_gps_data.latitude,
-                                                                ego_vehicle_gps_data.height,
-                                                                v2x_other_vehicle_data.longitude, v2x_other_vehicle_data.latitude,
-                                                                v2x_other_vehicle_data.altitude);
-            platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(v2x_other_vehicle_data.relative_heading,
-                                                                    ego_vehicle_gps_data.heading, v2x_other_vehicle_data.heading);
-        } else {
-            v2x_other_vehicle_data.relative_x = INVALID_FLOAT;
-            v2x_other_vehicle_data.relative_y = INVALID_FLOAT;
-        }
-         if (m_debug_flags & DEBUG_V2xVehicleInfo) {
-             using namespace std;
-             cout << "-----------Display other vehicle info--------------" << endl;
-             cout << "other vehicle id is : " << key << endl;
-             cout << "other vehicle longitude is : " << v2x_other_vehicle_data.longitude << endl;
-             cout << "other vehicle latitude is : " << v2x_other_vehicle_data.latitude << endl;
-             cout << "other vehicle speed is(km/h): " << v2x_other_vehicle_data.speed * 3.6 << endl;
-             cout << "other vehicle relative_x is : " << v2x_other_vehicle_data.relative_x << endl << endl;
-         }
+    if (DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) {
+        const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
+        platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(v2x_other_vehicle_data.relative_x, v2x_other_vehicle_data.relative_y,
+                                                            ego_vehicle_gps_data.heading,
+                                                            ego_vehicle_gps_data.longitude,ego_vehicle_gps_data.latitude,
+                                                            ego_vehicle_gps_data.height,
+                                                            v2x_other_vehicle_data.longitude, v2x_other_vehicle_data.latitude,
+                                                            v2x_other_vehicle_data.altitude);
+        platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(v2x_other_vehicle_data.relative_heading,
+                                                                ego_vehicle_gps_data.heading, v2x_other_vehicle_data.heading);
+    } else {
+        v2x_other_vehicle_data.relative_x = INVALID_FLOAT;
+        v2x_other_vehicle_data.relative_y = INVALID_FLOAT;
+    }
+    if (m_debug_flags & DEBUG_V2xVehicleInfo) {
+        using namespace std;
+        cout << "-----------Display other vehicle info--------------" << endl;
+        cout << "receive length is : " << len << endl;
+        cout << "ego vehicle info length" << data_len << endl;
+        cout << "other vehicle id is : " << key << endl;
+        cout << "other vehicle longitude is : " << v2x_other_vehicle_data.longitude << endl;
+        cout << "other vehicle latitude is : " << v2x_other_vehicle_data.latitude << endl;
+        cout << "other vehicle speed is(km/h): " << v2x_other_vehicle_data.speed * 3.6 << endl;
+        cout << "other vehicle relative_x is : " << v2x_other_vehicle_data.relative_x << endl << endl;
+    }
         DataContainer::GetInstance()->v2x_other_vehicle_data_.setData(key, v2x_other_vehicle_data);
 
         return 1;
