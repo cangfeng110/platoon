@@ -141,7 +141,7 @@ void Manager::ProcessCommand ()
             }
             break;
         case Enqueue:
-            if (time_to_front <= 1.5)
+            if (time_to_front <= ConfigData::GetInstance ()->keep_mode_threshold_)
             {
                 desire_drive_mode = KeepQueue;
             }
@@ -243,6 +243,9 @@ void Manager::UpdatePlatoonManagerInfo ()
     platoon_manager_info.vehicle_num = 0;
     platoon_manager_info.leader_frenet_dis = 1.0e10;
     platoon_manager_info.front_frenet_dis = 1.0e10;
+    //assign leader/front vehicle id 
+    platoon_manager_info.leader_vehicle.vehicle_id = -1;
+    platoon_manager_info.front_vehicle.vehicle_id = -1;
 #if 1
     int i;
     for (i = _ID - 2; i >= 0; i--)
