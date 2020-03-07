@@ -198,7 +198,7 @@ int Handler::DecodeV2xVechileInfo() {
         using namespace std;
         cout << "-----------Display other vehicle info--------------" << endl;
         cout << "receive length is : " << len << endl;
-        cout << "ego vehicle info length" << data_len << endl;
+        cout << "ego vehicle info length : " << data_len << endl;
         cout << "other vehicle id is : " << key << endl;
         cout << "other vehicle longitude is : " << v2x_other_vehicle_data.longitude << endl;
         cout << "other vehicle latitude is : " << v2x_other_vehicle_data.latitude << endl;
