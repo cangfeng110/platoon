@@ -38,6 +38,7 @@ ConfigData::ConfigData() {
         platoon_config.lookupValue("local_port", local_port_);
         platoon_config.lookupValue("remote_ip", remote_ip_);
         platoon_config.lookupValue("remote_port", remote_port_);
+        platoon_config.lookupValue("keep_mode_threshold", keep_mode_threshold_);
 
         const libconfig::Setting& platoon_debug = cfg.lookup("debug");
         platoon_debug.lookupValue("debug_TimeToFront", debug_TimeToFront_);

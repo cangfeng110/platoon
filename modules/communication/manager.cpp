@@ -141,7 +141,7 @@ void Manager::ProcessCommand ()
             }
             break;
         case Enqueue:
-            if (time_to_front <= 1.5)
+            if (time_to_front <= ConfigData::GetInstance ()->keep_mode_threshold_)
             {
                 desire_drive_mode = KeepQueue;
             }

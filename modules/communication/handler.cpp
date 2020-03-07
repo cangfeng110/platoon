@@ -193,7 +193,7 @@ int Handler::DecodeV2xVechileInfo() {
         v2x_other_vehicle_data.desire_drive_mode = udp_other_vehicle_data.desire_drive_mode;
         v2x_other_vehicle_data.actual_drive_mode = udp_other_vehicle_data.actual_drive_mode;
         v2x_other_vehicle_data.cut_in_flag = udp_other_vehicle_data.cut_in_flag;
-        v2x_other_vehicle_data.longitude = udp_other_vehicle_data.cut_in_flag;
+        v2x_other_vehicle_data.longitude = udp_other_vehicle_data.longitude;
         v2x_other_vehicle_data.latitude = udp_other_vehicle_data.latitude;
         v2x_other_vehicle_data.altitude = udp_other_vehicle_data.altitude;
         v2x_other_vehicle_data.heading = udp_other_vehicle_data.heading;
@@ -204,7 +204,7 @@ int Handler::DecodeV2xVechileInfo() {
         v2x_other_vehicle_data.relative_heading = udp_other_vehicle_data.relative_heading;
         v2x_other_vehicle_data.longtitude_acc = udp_other_vehicle_data.longtitude_acc;
         v2x_other_vehicle_data.lateral_acc = udp_other_vehicle_data.lateral_acc;
-        v2x_other_vehicle_data.speed = v2x_other_vehicle_data.speed;
+        v2x_other_vehicle_data.speed = udp_other_vehicle_data.speed;
         v2x_other_vehicle_data.steering_wheel_angle = udp_other_vehicle_data.steering_wheel_angle;
         v2x_other_vehicle_data.yaw_rate = udp_other_vehicle_data.yaw_rate;
         v2x_other_vehicle_data.desire_long_acc = udp_other_vehicle_data.desire_long_acc;
