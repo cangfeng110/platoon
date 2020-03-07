@@ -9,7 +9,6 @@
 #ifndef __platoon_protocol_VehicleInfo_hpp__
 #define __platoon_protocol_VehicleInfo_hpp__
 
-#include "protocol/HEADER.hpp"
 
 namespace platoon
 {
@@ -19,8 +18,6 @@ namespace protocol
 class VehicleInfo
 {
     public:
-        platoon::protocol::HEADER header;
-
         int32_t    vehicle_id;
 
         float      vehicle_length;
@@ -45,7 +42,7 @@ class VehicleInfo
 
         int8_t     gps_status;
 
-        int64_t    gps_time;
+        double     gps_time;
 
         double     relative_x;
 
@@ -161,9 +158,6 @@ int VehicleInfo::_encodeNoHash(void *buf, int offset, int maxlen) const
 {
     int pos = 0, tlen;
 
-    tlen = this->header._encodeNoHash(buf, offset + pos, maxlen - pos);
-    if(tlen < 0) return tlen; else pos += tlen;
-
     tlen = __int32_t_encode_array(buf, offset + pos, maxlen - pos, &this->vehicle_id, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
@@ -200,7 +194,7 @@ int VehicleInfo::_encodeNoHash(void *buf, int offset, int maxlen) const
     tlen = __int8_t_encode_array(buf, offset + pos, maxlen - pos, &this->gps_status, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __int64_t_encode_array(buf, offset + pos, maxlen - pos, &this->gps_time, 1);
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->gps_time, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->relative_x, 1);
@@ -236,9 +230,6 @@ int VehicleInfo::_encodeNoHash(void *buf, int offset, int maxlen) const
 int VehicleInfo::_decodeNoHash(const void *buf, int offset, int maxlen)
 {
     int pos = 0, tlen;
-
-    tlen = this->header._decodeNoHash(buf, offset + pos, maxlen - pos);
-    if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __int32_t_decode_array(buf, offset + pos, maxlen - pos, &this->vehicle_id, 1);
     if(tlen < 0) return tlen; else pos += tlen;
@@ -276,7 +267,7 @@ int VehicleInfo::_decodeNoHash(const void *buf, int offset, int maxlen)
     tlen = __int8_t_decode_array(buf, offset + pos, maxlen - pos, &this->gps_status, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __int64_t_decode_array(buf, offset + pos, maxlen - pos, &this->gps_time, 1);
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->gps_time, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->relative_x, 1);
@@ -312,7 +303,6 @@ int VehicleInfo::_decodeNoHash(const void *buf, int offset, int maxlen)
 int VehicleInfo::_getEncodedSizeNoHash() const
 {
     int enc_size = 0;
-    enc_size += this->header._getEncodedSizeNoHash();
     enc_size += __int32_t_encoded_array_size(NULL, 1);
     enc_size += __float_encoded_array_size(NULL, 1);
     enc_size += __float_encoded_array_size(NULL, 1);
@@ -325,7 +315,7 @@ int VehicleInfo::_getEncodedSizeNoHash() const
     enc_size += __float_encoded_array_size(NULL, 1);
     enc_size += __float_encoded_array_size(NULL, 1);
     enc_size += __int8_t_encoded_array_size(NULL, 1);
-    enc_size += __int64_t_encoded_array_size(NULL, 1);
+    enc_size += __double_encoded_array_size(NULL, 1);
     enc_size += __double_encoded_array_size(NULL, 1);
     enc_size += __double_encoded_array_size(NULL, 1);
     enc_size += __double_encoded_array_size(NULL, 1);
@@ -338,17 +328,9 @@ int VehicleInfo::_getEncodedSizeNoHash() const
     return enc_size;
 }
 
-uint64_t VehicleInfo::_computeHash(const __lcm_hash_ptr *p)
+uint64_t VehicleInfo::_computeHash(const __lcm_hash_ptr *)
 {
-    const __lcm_hash_ptr *fp;
-    for(fp = p; fp != NULL; fp = fp->parent)
-        if(fp->v == VehicleInfo::getHash)
-            return 0;
-    const __lcm_hash_ptr cp = { p, (void*)VehicleInfo::getHash };
-
-    uint64_t hash = 0x04d20c951baa217cLL +
-         platoon::protocol::HEADER::_computeHash(&cp);
-
+    uint64_t hash = 0xe996e89ec263e471LL;
     return (hash<<1) + ((hash>>63)&1);
 }
 

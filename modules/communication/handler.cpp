@@ -13,6 +13,7 @@
 #include "modules/communication/inbound_communication_header.h"
 #include "modules/communication/outbound_communication_header.h"
 #include "modules/communication/udp.h"
+#include "modules/communication/UDPVehicle.hpp"
 
 namespace platoon {
 
@@ -32,7 +33,6 @@ Handler::Handler() {
     local_sockaddr_.sin_family = AF_INET;
     local_sockaddr_.sin_port = htons(port);  
     local_sockaddr_.sin_addr.s_addr = htonl(INADDR_ANY);
-
     if(::bind(sockfd_, (struct sockaddr *) & local_sockaddr_,
               sizeof(local_sockaddr_)) < 0){
         LDIE << "local port bind error.";
@@ -50,9 +50,10 @@ int Handler::BroastEgoVehicleInfo() {
    
     //assign ego vehicle info
     VehicleData ego_vehicle_info;
+    //UDPVehicle ego_vehicle_info;
      
     //  config info
-    ego_vehicle_info.header = ego_vehicle_gps_data.header;
+    //ego_vehicle_info.header = ego_vehicle_gps_data.header;
     ego_vehicle_info.vehicle_id = ConfigData::GetInstance()->vehicle_id_;
     ego_vehicle_info.vehicle_length = ConfigData::GetInstance()->vehicle_length_;
     ego_vehicle_info.vehicle_width = ConfigData::GetInstance()->vehicle_width_;
@@ -126,7 +127,8 @@ int Handler::BroastEgoVehicleInfo() {
         cout << "ego vehicle longitude is : "<< ego_vehicle_info.longitude << endl;
         cout << "ego vehicle latitude is : " << ego_vehicle_info.latitude << endl;
         cout << "ego vehicle heading is : " << ego_vehicle_info.heading << endl;
-        cout << "ego vehicle speed is(km/h) : " << ego_vehicle_info.speed * 3.6 << endl << endl;
+        cout << "ego vehicle speed is(km/h) : " << ego_vehicle_info.speed * 3.6 << endl;
+        cout << "udp send length is : " << data_len << endl << endl;
     }
     // udp send
     Udp sudp(send_ip,send_port);
@@ -148,9 +150,34 @@ int Handler::DecodeV2xVechileInfo() {
 
     VehicleData v2x_other_vehicle_data;
 
-    int data_len = sizeof(v2x_other_vehicle_data);
+    UDPVehicle udp_other_vehicle_data;
 
-    memcpy(&v2x_other_vehicle_data, buffer_, data_len);
+    int data_len = sizeof(udp_other_vehicle_data);
+
+    memcpy(&udp_other_vehicle_data, buffer_, len);
+
+    v2x_other_vehicle_data.vehicle_id = udp_other_vehicle_data.vehicle_id;
+    v2x_other_vehicle_data.vehicle_length = udp_other_vehicle_data.vehicle_length;
+    v2x_other_vehicle_data.vehicle_height = udp_other_vehicle_data.vehicle_height;
+    v2x_other_vehicle_data.vehicle_width = udp_other_vehicle_data.vehicle_width;
+    v2x_other_vehicle_data.desire_drive_mode = udp_other_vehicle_data.desire_drive_mode;
+    v2x_other_vehicle_data.actual_drive_mode = udp_other_vehicle_data.actual_drive_mode;
+    v2x_other_vehicle_data.cut_in_flag = udp_other_vehicle_data.cut_in_flag;
+    v2x_other_vehicle_data.longitude = udp_other_vehicle_data.cut_in_flag;
+    v2x_other_vehicle_data.latitude = udp_other_vehicle_data.latitude;
+    v2x_other_vehicle_data.altitude = udp_other_vehicle_data.altitude;
+    v2x_other_vehicle_data.heading = udp_other_vehicle_data.heading;
+    v2x_other_vehicle_data.gps_status = udp_other_vehicle_data.gps_status;
+    v2x_other_vehicle_data.gps_time = udp_other_vehicle_data.gps_time;
+    v2x_other_vehicle_data.relative_x = udp_other_vehicle_data.relative_x;
+    v2x_other_vehicle_data.relative_y = udp_other_vehicle_data.relative_y;
+    v2x_other_vehicle_data.relative_heading = udp_other_vehicle_data.relative_heading;
+    v2x_other_vehicle_data.longtitude_acc = udp_other_vehicle_data.longtitude_acc;
+    v2x_other_vehicle_data.lateral_acc = udp_other_vehicle_data.lateral_acc;
+    v2x_other_vehicle_data.speed = v2x_other_vehicle_data.speed;
+    v2x_other_vehicle_data.steering_wheel_angle = udp_other_vehicle_data.steering_wheel_angle;
+    v2x_other_vehicle_data.yaw_rate = udp_other_vehicle_data.yaw_rate;
+    v2x_other_vehicle_data.desire_long_acc = udp_other_vehicle_data.desire_long_acc;
 
     int key = v2x_other_vehicle_data.vehicle_id;
 

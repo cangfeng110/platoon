@@ -10,8 +10,6 @@
 #include "protocol/lcmDataNameTypeDefine.h"
 #include "modules/communication/datacontainer.h"
 #include "modules/communication/configdata.h"
-//#include "modules/communication/remote_info.h"
-//#include "modules/communication/outbound_communication_header.h"
 
 
 

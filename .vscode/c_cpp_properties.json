@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/modules",
                 "${workspaceFolder}/protocol",
-                "${workspaceFolder}/include"
+                "${workspaceFolder}/include",
+                "/home/zs/workspace"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

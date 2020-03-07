@@ -27,7 +27,7 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     lcm_.subscribe("localization_out_2_map", &communication::HandleEgoVehicleGpsInfo, this);
     lcm_.subscribe("FMS_INFO", &communication::HandleFmsInfo, this);
     lcm_.subscribe("EGO_PLANNINGMSG_FOR_PLATOON", &communication::HandlePlanningInfo, this);
-    lcm_.subscribe("vehicle_info_for_test", &communication::HandleTestVehicleInfo, this);
+    //lcm_.subscribe("vehicle_info_for_test", &communication::HandleTestVehicleInfo, this);
     
     // lcm channel
     lcm_channel_.reset(new platoon::base::Channel(&loop_, lcm_.getFileno(), "lcm"));
@@ -196,7 +196,7 @@ void communication::ReceiveV2xOtherVehicleInfo() {
     }
 }
 
-#define INVALID_FLOAT 1E10;
+/* #define INVALID_FLOAT 1E10;
 void communication::HandleTestVehicleInfo (const lcm::ReceiveBuffer *rbuf,
                                            const std::string &channel,
                                            const VehicleData *msg)
@@ -245,7 +245,7 @@ void communication::HandleTestVehicleInfo (const lcm::ReceiveBuffer *rbuf,
         v2x_other_vehicle_data.relative_y = INVALID_FLOAT;
     }
     DataContainer::GetInstance()->v2x_other_vehicle_data_.setData(key, v2x_other_vehicle_data);
-}
+} */
 //
 //function:publish worldmodel info to channel
 //

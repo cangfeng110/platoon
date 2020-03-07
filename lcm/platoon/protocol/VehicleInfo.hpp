@@ -6,8 +6,8 @@
 
 #include <lcm/lcm_coretypes.h>
 
-#ifndef __platoon_protocol_EgoVehicleInfo_hpp__
-#define __platoon_protocol_EgoVehicleInfo_hpp__
+#ifndef __platoon_protocol_VehicleInfo_hpp__
+#define __platoon_protocol_VehicleInfo_hpp__
 
 
 namespace platoon
@@ -15,7 +15,7 @@ namespace platoon
 namespace protocol
 {
 
-class EgoVehicleInfo
+class VehicleInfo
 {
     public:
         int32_t    iVehicleID;
@@ -94,7 +94,7 @@ class EgoVehicleInfo
         inline static int64_t getHash();
 
         /**
-         * Returns "EgoVehicleInfo"
+         * Returns "VehicleInfo"
          */
         inline static const char* getTypeName();
 
@@ -105,7 +105,7 @@ class EgoVehicleInfo
         inline static uint64_t _computeHash(const __lcm_hash_ptr *p);
 };
 
-int EgoVehicleInfo::encode(void *buf, int offset, int maxlen) const
+int VehicleInfo::encode(void *buf, int offset, int maxlen) const
 {
     int pos = 0, tlen;
     int64_t hash = (int64_t)getHash();
@@ -119,7 +119,7 @@ int EgoVehicleInfo::encode(void *buf, int offset, int maxlen) const
     return pos;
 }
 
-int EgoVehicleInfo::decode(const void *buf, int offset, int maxlen)
+int VehicleInfo::decode(const void *buf, int offset, int maxlen)
 {
     int pos = 0, thislen;
 
@@ -134,23 +134,23 @@ int EgoVehicleInfo::decode(const void *buf, int offset, int maxlen)
     return pos;
 }
 
-int EgoVehicleInfo::getEncodedSize() const
+int VehicleInfo::getEncodedSize() const
 {
     return 8 + _getEncodedSizeNoHash();
 }
 
-int64_t EgoVehicleInfo::getHash()
+int64_t VehicleInfo::getHash()
 {
     static int64_t hash = _computeHash(NULL);
     return hash;
 }
 
-const char* EgoVehicleInfo::getTypeName()
+const char* VehicleInfo::getTypeName()
 {
-    return "EgoVehicleInfo";
+    return "VehicleInfo";
 }
 
-int EgoVehicleInfo::_encodeNoHash(void *buf, int offset, int maxlen) const
+int VehicleInfo::_encodeNoHash(void *buf, int offset, int maxlen) const
 {
     int pos = 0, tlen;
 
@@ -217,7 +217,7 @@ int EgoVehicleInfo::_encodeNoHash(void *buf, int offset, int maxlen) const
     return pos;
 }
 
-int EgoVehicleInfo::_decodeNoHash(const void *buf, int offset, int maxlen)
+int VehicleInfo::_decodeNoHash(const void *buf, int offset, int maxlen)
 {
     int pos = 0, tlen;
 
@@ -284,7 +284,7 @@ int EgoVehicleInfo::_decodeNoHash(const void *buf, int offset, int maxlen)
     return pos;
 }
 
-int EgoVehicleInfo::_getEncodedSizeNoHash() const
+int VehicleInfo::_getEncodedSizeNoHash() const
 {
     int enc_size = 0;
     enc_size += __int32_t_encoded_array_size(NULL, 1);
@@ -310,7 +310,7 @@ int EgoVehicleInfo::_getEncodedSizeNoHash() const
     return enc_size;
 }
 
-uint64_t EgoVehicleInfo::_computeHash(const __lcm_hash_ptr *)
+uint64_t VehicleInfo::_computeHash(const __lcm_hash_ptr *)
 {
     uint64_t hash = 0x1977248b5a0fdb0eLL;
     return (hash<<1) + ((hash>>63)&1);

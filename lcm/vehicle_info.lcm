@@ -1,9 +1,7 @@
 package platoon.protocol;
 
-struct EgoVehicleInfo
+struct VehicleInfo
 {
-	HEADER header;
-
 	int32_t	 iVehicleID;
 
 	float    fVehicleLength;
@@ -20,7 +18,7 @@ struct EgoVehicleInfo
 
 	double   dRelativeX;
 
-    	double   dRelativeY;
+    double   dRelativeY;
 
 	double   dRelativeHeading;
 
