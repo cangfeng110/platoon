@@ -85,7 +85,7 @@ float Manager::TimeToFront ()
 
     if (m_debug_flags & DEBUG_TimeToFront)
         printf ("relative_x: %f\n", front_vehicle.relative_x);
-    return fabs(front_vehicle.relative_x) / speed;
+    return fabs(front_vehicle.relative_x - 17.0) / speed;
 }
 
 void Manager::ProcessCommand ()

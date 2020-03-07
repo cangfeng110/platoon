@@ -7,6 +7,7 @@
 #include "include/base/EventLoop.h"
 #include "include/base/Channel.h"
 #include "modules/common/functiontool.h"
+#include <sys/time.h>
 
 namespace platoon {
 
@@ -27,7 +28,7 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     lcm_.subscribe("localization_out_2_map", &communication::HandleEgoVehicleGpsInfo, this);
     lcm_.subscribe("FMS_INFO", &communication::HandleFmsInfo, this);
     lcm_.subscribe("EGO_PLANNINGMSG_FOR_PLATOON", &communication::HandlePlanningInfo, this);
-    lcm_.subscribe("vehicle_info_for_test", &communication::HandleTestVehicleInfo, this);
+//    lcm_.subscribe("vehicle_info_for_test", &communication::HandleTestVehicleInfo, this);
     
     // lcm channel
     lcm_channel_.reset(new platoon::base::Channel(&loop_, lcm_.getFileno(), "lcm"));
@@ -131,13 +132,16 @@ void communication::HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
 //function: broast ego vehicle gps info to ibox
 //
 void communication::BroastEgoVehicleInfo() {
+    struct timeval tv;
+    if (m_debug_flags & DEBUG_BroadcastEgoVehicleInfo)
+        gettimeofday (&tv, NULL);
     if(DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()){
         if (m_debug_flags & DEBUG_BroadcastEgoVehicleInfo)
-            printf ("broadcast ego vehicle gps info to ibox\n");
+            printf ("broadcast ego gps %ld.%ld\n", tv.tv_sec, tv.tv_usec);
         handler_.BroastEgoVehicleInfo();
     } else {
         if (m_debug_flags & DEBUG_BroadcastEgoVehicleInfo)
-            printf ("ego vehicle out of date\n");
+            printf ("ego gps gone %ld.%ld\n", tv.tv_sec, tv.tv_usec);
     }
 }
 
