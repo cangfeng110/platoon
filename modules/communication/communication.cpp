@@ -202,9 +202,6 @@ void communication::HandleTestVehicleInfo (const lcm::ReceiveBuffer *rbuf,
                                            const VehicleData *msg)
 {
     VehicleData v2x_other_vehicle_data;
-    v2x_other_vehicle_data.header.nTimeStamp = msg->header.nTimeStamp;
-    v2x_other_vehicle_data.header.nFrameID = msg->header.nFrameID;
-    v2x_other_vehicle_data.header.nCounter = msg->header.nCounter;
     v2x_other_vehicle_data.vehicle_id = msg->vehicle_id;
     v2x_other_vehicle_data.vehicle_length = msg->vehicle_length;
     v2x_other_vehicle_data.vehicle_width = msg->vehicle_width;

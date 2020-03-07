@@ -1,6 +1,0 @@
-package platoon.protocol;
-
-struct ModuleState
-{
-   int8_t state;
-}
