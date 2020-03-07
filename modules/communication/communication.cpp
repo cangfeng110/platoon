@@ -7,6 +7,7 @@
 #include "include/base/EventLoop.h"
 #include "include/base/Channel.h"
 #include "modules/common/functiontool.h"
+#include <sys/time.h>
 
 namespace platoon {
 
@@ -131,13 +132,16 @@ void communication::HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
 //function: broast ego vehicle gps info to ibox
 //
 void communication::BroastEgoVehicleInfo() {
+    struct timeval tv;
+    if (m_debug_flags & DEBUG_BroadcastEgoVehicleInfo)
+        gettimeofday (&tv, NULL);
     if(DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()){
         if (m_debug_flags & DEBUG_BroadcastEgoVehicleInfo)
-            printf ("broadcast ego vehicle gps info to ibox\n");
+            printf ("broadcast ego gps %ld.%ld\n", tv.tv_sec, tv.tv_usec);
         handler_.BroastEgoVehicleInfo();
     } else {
         if (m_debug_flags & DEBUG_BroadcastEgoVehicleInfo)
-            printf ("ego vehicle out of date\n");
+            printf ("ego gps gone %ld.%ld\n", tv.tv_sec, tv.tv_usec);
     }
 }
 
