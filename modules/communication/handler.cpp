@@ -49,8 +49,7 @@ int Handler::BroastEgoVehicleInfo() {
     const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
    
     //assign ego vehicle info
-    VehicleData ego_vehicle_info;
-    //UDPVehicle ego_vehicle_info;
+    UDPVehicle ego_vehicle_info;
      
     //  config info
     //ego_vehicle_info.header = ego_vehicle_gps_data.header;
