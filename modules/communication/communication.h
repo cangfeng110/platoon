@@ -42,13 +42,14 @@ private:
                                const std::string &channel,
                                const VehicleData *msg);
 
-    void PublishManagerInfo();
+    void HandleV2xVehicelInfo(const lcm::ReceiveBuffer* rbuf,
+                                const std::string& channel,
+                                const VehicleData* msg);
     
-    void BroastEgoVehicleInfo();
+    void HandleManagerInfo(const lcm::ReceiveBuffer* rbuf,
+                            const std::string& channel,
+                            const PlatoonManagerInfo* msg);
 
-    void ReceiveV2xOtherVehicleInfo();
-
-    //void PublishWorldmodelInfo();
 
     std::unique_ptr<base::FileLogger> logger_;
     base::EventLoop loop_;

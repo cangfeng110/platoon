@@ -225,7 +225,7 @@ int Handler::DecodeV2xVechileInfo() {
             v2x_other_vehicle_data.relative_x = INVALID_FLOAT;
             v2x_other_vehicle_data.relative_y = INVALID_FLOAT;
         }
-         if (m_debug_flags & DEBUG_V2xVehicleInfo) {
+        /*  if (m_debug_flags & DEBUG_V2xVehicleInfo) {
              using namespace std;
              cout << "-----------Display other vehicle info--------------" << endl;
              cout << "other vehicle id is : " << key << endl;
@@ -233,7 +233,7 @@ int Handler::DecodeV2xVechileInfo() {
              cout << "other vehicle latitude is : " << v2x_other_vehicle_data.latitude << endl;
              cout << "other vehicle speed is(km/h): " << v2x_other_vehicle_data.speed * 3.6 << endl;
              cout << "other vehicle relative_x is : " << v2x_other_vehicle_data.relative_x << endl << endl;
-         }
+         } */
         DataContainer::GetInstance()->v2x_other_vehicle_data_.setData(key, v2x_other_vehicle_data);
 
         return 1;
