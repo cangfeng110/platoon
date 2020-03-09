@@ -66,14 +66,16 @@ void communication::HandleEgoVehicleGpsInfo(const lcm::ReceiveBuffer *rbuf,
     assert(channel == "localization_out_2_map");
     static int gps_count = 0;
     gps_count++;
-    if (gps_count % m_debug_gps_HZ == 0)
-    {
+    if (m_debug_flags & DEBUG_BroadcastEgoVehicleInfo) {
+        if (gps_count % m_debug_gps_HZ == 0){
         using namespace std;
         cout << "*********Display ego vehicle gps info*********" << endl;
         cout << "ego vehicle long is : " << msg->longitude << endl;
         cout << "ego vehicle lat is : " << msg->latitude << endl;
         cout << "ego vehicle alt is : " << msg->height << endl << endl;
     }
+    }
+    
     DataContainer::GetInstance()->ego_vehicle_gps_data_.setData(*msg);
 }
 
@@ -88,13 +90,14 @@ void communication::HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
     //std::cout << "receive ego vcu info." << std::endl;
     static int vcu_count = 0;
     vcu_count++;
-    if (vcu_count % m_debug_vcu_HZ == 0)
-    {
-        using namespace std;
-        cout << "////////Display ego vehicle vcu info////////" << endl;
-        cout << "ego vehicle speed is(km/h) : " << msg->fSpeed << endl << endl;
-       
+    if (m_debug_flags & DEBUG_BroadcastEgoVehicleInfo) {
+        if (vcu_count % m_debug_vcu_HZ == 0){
+            using namespace std;
+            cout << "////////Display ego vehicle vcu info////////" << endl;
+            cout << "ego vehicle speed is(km/h) : " << msg->fSpeed << endl << endl;
     }
+    }
+    
     DataContainer::GetInstance()->ego_vehicle_vcu_data_.setData(*msg);
 }
 
@@ -115,11 +118,14 @@ void communication::HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
     //EgoPlanningMsg ego_planning_msg = DataContainer::GetInstance ()->planning_data_.getData ();
     static int plan_count = 0;
     plan_count++;
-    if (plan_count % m_debug_thw_HZ == 0) {
+    if(m_debug_flags & DEBUG_CalculateID){
+        if (plan_count % m_debug_thw_HZ == 0) {
         using namespace std;
-        cout << "%%%%%%%Display planning info%%%%%%%D" << endl;
+        cout << "########Display planning info#######" << endl;
         cout << "ego vehicle actual mode is : " << int(msg->actual_drive_mode) << endl << endl;
     }
+    }
+    
     
     DataContainer::GetInstance()->planning_data_.setData(*msg);
 }
@@ -132,7 +138,8 @@ void communication:: HandleV2xVehicelInfo(const lcm::ReceiveBuffer* rbuf,
 {
     static int v2x_count = 0;
     v2x_count++;
-    if (v2x_count % m_debug_vcu_HZ == 0){
+    if (m_debug_flags & DEBUG_V2xVehicleInfo) {
+        if (v2x_count % m_debug_vcu_HZ == 0){
         using namespace std;
         cout << "=========Display other vehicle info=========" << endl;
         cout << "other vehicle id is : " << msg->vehicle_id << endl;
@@ -141,7 +148,7 @@ void communication:: HandleV2xVehicelInfo(const lcm::ReceiveBuffer* rbuf,
         cout << "other vehicle speed is(km/h): " << msg->speed * 3.6 << endl;
         cout << "other vehicle relative_x is : " << msg->relative_x << endl << endl;
     }
-    
+    }
 }
 
 /*-----------------------*/
@@ -152,7 +159,8 @@ void communication::HandleManagerInfo(const lcm::ReceiveBuffer* rbuf,
 {
     static int pmi_count = 0;
     pmi_count++;
-    if (pmi_count % m_debug_pmi_HZ == 0) {
+    if (m_debug_flags & DEBUG_TimeToFront) {
+        if (pmi_count % m_debug_pmi_HZ == 0) {
         using namespace std;
         cout << "------------Display manager info------------" << endl;
         cout << "desire drive mode is : " << int(msg->desire_drive_mode) << endl;
@@ -171,7 +179,7 @@ void communication::HandleManagerInfo(const lcm::ReceiveBuffer* rbuf,
         cout << "front vehicle relative x is : " << msg->front_vehicle.relative_x << endl;
         cout << "front vehicle frenet dis is : " << msg->front_frenet_dis << endl<< endl;
     }
-    
+    }
 }
 
 
