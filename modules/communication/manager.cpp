@@ -3,6 +3,8 @@
 #include <math.h>
 #include "modules/common/functiontool.h"
 
+#define INVALID_FLOAT 1.0E10
+
 namespace platoon {
 
 namespace communication {
@@ -37,14 +39,14 @@ float Manager::THW ()
 {
     if (!DataContainer::GetInstance ()->ego_vehicle_vcu_data_.isUpToDate ())
     {
-        return 0.0;//XXX invalid THW
+        return INVALID_FLOAT;
     }
     const VehicleVcuData& ego_vehicle_vcu_data = DataContainer::GetInstance ()->ego_vehicle_vcu_data_.getData ();
     float speed = ego_vehicle_vcu_data.fSpeed;
     float thw;
     if (speed < 0.001)
     {
-        return 0.0;//XXX invalid THW
+        return INVALID_FLOAT;
     }
     if (speed < 14.0)
     {
@@ -71,7 +73,7 @@ float Manager::TimeToFront ()
     {
         if (m_debug_flags & DEBUG_TimeToFront)
             printf ("_ID : %d\n", _ID);
-        return 0.0;//invalid
+        return INVALID_FLOAT;
     }
     VehicleData front_vehicle = other_vehicles[_ID - 2];
     const VehicleVcuData& ego_vehicle_vcu_data = DataContainer::GetInstance ()->ego_vehicle_vcu_data_.getData ();
@@ -80,7 +82,7 @@ float Manager::TimeToFront ()
         printf ("speed %f\n", speed);
     if (speed < 0.001)
     {
-        return 0.0;
+        return INVALID_FLOAT;
     }
 
     if (m_debug_flags & DEBUG_TimeToFront)
@@ -123,9 +125,9 @@ void Manager::ProcessCommand ()
                 DriveMode front_drive_mode = (DriveMode)front_vehicle.actual_drive_mode;
                 if (front_drive_mode == Leader || front_drive_mode == KeepQueue || front_drive_mode == Enqueue)
                 {
-                    if (fabs(thw - 0.0) < Epslion) 
+                    if (fabs(thw - INVALID_FLOAT) < Epslion || fabs(time_to_front - INVALID_FLOAT) < Epslion)
                     {
-                        break;//no speed data. ignore command
+                        break;
                     }
                     if (time_to_front <= 1.2 * thw)
                     {
@@ -141,12 +143,20 @@ void Manager::ProcessCommand ()
             }
             break;
         case Enqueue:
+            if (fabs(thw - INVALID_FLOAT) < Epslion || fabs(time_to_front - INVALID_FLOAT) < Epslion)
+            {
+                break;
+            }
             if (time_to_front <= ConfigData::GetInstance ()->keep_mode_threshold_)
             {
                 desire_drive_mode = KeepQueue;
             }
             break;
         case Dequeue:
+            if (fabs(thw - INVALID_FLOAT) < Epslion || fabs(time_to_front - INVALID_FLOAT) < Epslion)
+            {
+                break;
+            }
             if (time_to_front >= thw)
             {
                 desire_drive_mode = Auto;

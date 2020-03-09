@@ -142,11 +142,11 @@ int Handler::BroastEgoVehicleInfo() {
 
     if(m_debug_flags & DEBUG_BroadcastEgoVehicleInfo){
         using namespace std;
-        cout << "++++Display ego vehicle info++++" << endl;
-        cout << "ego vehicle longitude is : "<< ego_vehicle_info.longitude << endl;
-        cout << "ego vehicle latitude is : " << ego_vehicle_info.latitude << endl;
-        cout << "ego vehicle heading is : " << ego_vehicle_info.heading << endl;
-        cout << "ego vehicle speed is(km/h) : " << ego_vehicle_info.speed * 3.6 << endl << endl;
+        //cout << "++++Display ego vehicle info++++" << endl;
+        printf ("ego vehicle longitude is : %f\n", ego_vehicle_info.longitude);
+        printf ("ego vehicle latitude is  : %f\n", ego_vehicle_info.latitude);
+        printf ("ego vehicle heading is : %f\n", ego_vehicle_info.heading);
+        printf ("ego vehicle speed is(km/h) : %f\n\n", ego_vehicle_info.speed * 3.6);
     }
 
     return 1;
