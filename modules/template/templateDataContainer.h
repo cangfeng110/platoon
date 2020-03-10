@@ -123,11 +123,11 @@ public:
         while(it != _data.end())
         {
             it->second.decreaseTTL();
-            if(!it->second.isUpToDate())
-            {
-                it = _data.erase(it);
-            }
-            else
+           // if(!it->second.isUpToDate())
+           // {
+             //   it = _data.erase(it);
+           // }
+           // else
                 it ++;
         }
     }
