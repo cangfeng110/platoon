@@ -143,6 +143,7 @@ int Handler::BroastEgoVehicleInfo() {
     if(m_debug_flags & DEBUG_BroadcastEgoVehicleInfo){
         using namespace std;
         //cout << "++++Display ego vehicle info++++" << endl;
+        printf ("ego vehicle gps_time is : %f\n", ego_vehicle_info.gps_time);
         printf ("ego vehicle longitude is : %f\n", ego_vehicle_info.longitude);
         printf ("ego vehicle latitude is  : %f\n", ego_vehicle_info.latitude);
         printf ("ego vehicle heading is : %f\n", ego_vehicle_info.heading);

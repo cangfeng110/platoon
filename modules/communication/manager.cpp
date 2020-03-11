@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <math.h>
 #include "modules/common/functiontool.h"
+#include <sys/time.h>
 
 #define INVALID_FLOAT 1.0E10
 
@@ -222,11 +223,30 @@ void Manager::CalculateID ()
             platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth (v2x_other_vehicle_data.relative_heading,
                                                                    ego_vehicle_location.heading,
                                                                    v2x_other_vehicle_data.heading);
+            if (!map_it.second.isUpToDate ())
+            {
+                if (m_debug_flags & DEBUG_CalculateID)
+                {
+                    struct timeval tv;
+                    gettimeofday (&tv, NULL);
+                    printf ("V %d: lost>500 %ld.%ld\n", v2x_other_vehicle_data.vehicle_id, tv.tv_sec, tv.tv_usec);
+                }
+                v2x_other_vehicle_data.vehicle_id = -1;
+            }
+            else
+            {
+                if (m_debug_flags & DEBUG_CalculateID)
+                {
+                    struct timeval tv;
+                    gettimeofday (&tv, NULL);
+                    printf ("V %d: has data %ld.%ld\n", v2x_other_vehicle_data.vehicle_id, tv.tv_sec, tv.tv_usec);
+                }
+            }
             other_vehicles.push_back (v2x_other_vehicle_data);
         }
         std::sort (other_vehicles.begin (), other_vehicles.end (), compare_relative_x);
-        if (m_debug_flags & DEBUG_CalculateID)
-            printf ("other_vehicles: %ld\n", other_vehicles.size ());
+        //if (m_debug_flags & DEBUG_CalculateID)
+            //printf ("other_vehicles: %ld\n", other_vehicles.size ());
         for (i = 0; i < other_vehicles.size (); i++)
         {
             if (other_vehicles[i].relative_x < 0.0)

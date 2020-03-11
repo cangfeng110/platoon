@@ -44,7 +44,7 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     loop_.runEvery(100, std::bind(&DataContainer::DecreaseTtl, DataContainer::GetInstance()));
 
     // broad ego vehicle vcu info to ibox, 50Hz
-    loop_.runEvery(20, std::bind(&communication::BroastEgoVehicleInfo, this));
+    loop_.runEvery(1000 / (ConfigData::GetInstance ()->broadcast_HZ_), std::bind(&communication::BroastEgoVehicleInfo, this));
 
     //publish worldmodel vehilces info, 10Hz
     //loop_.runEvery(100, std::bind(&communication::PublishWorldmodelInfo, this));
