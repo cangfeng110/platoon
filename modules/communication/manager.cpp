@@ -258,8 +258,7 @@ void Manager::CalculateID ()
             other_vehicles.push_back (v2x_other_vehicle_data);
         }
         std::sort (other_vehicles.begin (), other_vehicles.end (), compare_relative_x);
-        if (m_debug_flags & DEBUG_CalculateID)
-            printf ("other_vehicles: %ld\n", other_vehicles.size ());
+       
         /**
          * first traversal storage other vehicle's platoon id in the map 
          **/
@@ -286,14 +285,33 @@ void Manager::CalculateID ()
         }  
     }
     _ID = i + 1;//if no v2x_other_vehicle_data, _ID = 1
+    if (m_debug_flags & DEBUG_CalculateID)
+        {
+            std::cout << "Diaplay calculated id" << std::endl;
+            printf ("other_vehicles: %ld\n", other_vehicles.size ());
+            printf("ego vehicle platoon id is : %d\n", _ID);
+        }
 }
 
 void Manager::UpdatePlatoonManagerInfo ()
 {
     // the id only can change in the Auto mode
-    if (actual_drive_mode == Auto)
+    if (actual_drive_mode == Auto || actual_drive_mode == Manual)
     {
          CalculateID ();
+    }
+    else 
+    {
+        if (m_debug_flags & DEBUG_CalculateID)
+        {
+            using namespace std;
+            cout << "id is not change" << endl;
+            for(auto it : platoon_id_map_)
+            {
+                cout << "vehicle " << it.second << ":" << " platoon id is :" << it.first << endl;
+            }
+        }
+        
     }
     ProcessCommand ();
     m_worldmodle_.GetWorldmodleVehiles();
