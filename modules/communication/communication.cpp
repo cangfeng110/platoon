@@ -28,7 +28,7 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     lcm_.subscribe("localization_out_2_map", &communication::HandleEgoVehicleGpsInfo, this);
     lcm_.subscribe("FMS_INFO", &communication::HandleFmsInfo, this);
     lcm_.subscribe("EGO_PLANNINGMSG_FOR_PLATOON", &communication::HandlePlanningInfo, this);
-    //lcm_.subscribe("vehicle_info_for_test", &communication::HandleTestVehicleInfo, this);
+//    lcm_.subscribe("vehicle_info_for_test", &communication::HandleTestVehicleInfo, this);
     
     // lcm channel
     lcm_channel_.reset(new platoon::base::Channel(&loop_, lcm_.getFileno(), "lcm"));
@@ -44,7 +44,7 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     loop_.runEvery(100, std::bind(&DataContainer::DecreaseTtl, DataContainer::GetInstance()));
 
     // broad ego vehicle vcu info to ibox, 50Hz
-    loop_.runEvery(20, std::bind(&communication::BroastEgoVehicleInfo, this));
+    loop_.runEvery(1000 / (ConfigData::GetInstance ()->broadcast_HZ_), std::bind(&communication::BroastEgoVehicleInfo, this));
 
     //publish worldmodel vehilces info, 10Hz
     //loop_.runEvery(100, std::bind(&communication::PublishWorldmodelInfo, this));
@@ -206,9 +206,6 @@ void communication::HandleTestVehicleInfo (const lcm::ReceiveBuffer *rbuf,
                                            const VehicleData *msg)
 {
     VehicleData v2x_other_vehicle_data;
-    v2x_other_vehicle_data.header.nTimeStamp = msg->header.nTimeStamp;
-    v2x_other_vehicle_data.header.nFrameID = msg->header.nFrameID;
-    v2x_other_vehicle_data.header.nCounter = msg->header.nCounter;
     v2x_other_vehicle_data.vehicle_id = msg->vehicle_id;
     v2x_other_vehicle_data.vehicle_length = msg->vehicle_length;
     v2x_other_vehicle_data.vehicle_width = msg->vehicle_width;

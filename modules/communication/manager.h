@@ -44,6 +44,14 @@ private:
     DriveMode desire_drive_mode;
     int _ID;
     std::vector<VehicleData> other_vehicles;
+    /** 
+     * this map storae all the platoon vehicle id and platoon id 
+     * the key is paltoon id
+     * the value is vehicle id
+     * when the actual mode is auto or manual, this map will be update, else no update 
+    **/
+    std::map<int,int> platoon_id_map_;
+
     WorldModle m_worldmodle_;
     FmsInfo m_fms_info;
 

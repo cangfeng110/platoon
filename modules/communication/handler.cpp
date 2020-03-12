@@ -21,7 +21,7 @@ namespace communication {
 
 #define ACCURACY_10 1E10
 #define ACCURACY_7 1E7
-#define INVALID_FLOAT 1E10;
+#define INVALID_FLOAT 1.0E10;
 const double PI = 3.1415926;
 
 Handler::Handler() {
@@ -49,10 +49,10 @@ int Handler::BroastEgoVehicleInfo() {
     const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
    
     //assign ego vehicle info
+
     UDPVehicle ego_vehicle_info;
      
     //  config info
-    //ego_vehicle_info.header = ego_vehicle_gps_data.header;
     ego_vehicle_info.vehicle_id = ConfigData::GetInstance()->vehicle_id_;
     ego_vehicle_info.vehicle_length = ConfigData::GetInstance()->vehicle_length_;
     ego_vehicle_info.vehicle_width = ConfigData::GetInstance()->vehicle_width_;
@@ -120,15 +120,6 @@ int Handler::BroastEgoVehicleInfo() {
     std::string send_ip =  ConfigData::GetInstance()->remote_ip_;
     int send_port =  ConfigData::GetInstance()->remote_port_;
 
-    if(m_debug_flags & DEBUG_BroadcastEgoVehicleInfo){
-        using namespace std;
-        cout << "++++Display ego vehicle info++++" << endl;
-        cout << "ego vehicle longitude is : "<< ego_vehicle_info.longitude << endl;
-        cout << "ego vehicle latitude is : " << ego_vehicle_info.latitude << endl;
-        cout << "ego vehicle heading is : " << ego_vehicle_info.heading << endl;
-        cout << "ego vehicle speed is(km/h) : " << ego_vehicle_info.speed * 3.6 << endl;
-        cout << "udp send length is : " << data_len << endl << endl;
-    }
     // udp send
     Udp sudp(send_ip,send_port);
     sudp.init();
@@ -136,6 +127,17 @@ int Handler::BroastEgoVehicleInfo() {
     memcpy(buffer, &ego_vehicle_info, data_len);
     sudp.send(buffer, data_len);
     delete []buffer;
+
+    if(m_debug_flags & DEBUG_BroadcastEgoVehicleInfo){
+        using namespace std;
+        cout << "++++Display ego vehicle info++++" << endl;
+        printf ("ego vehicle gps_time is : %f\n", ego_vehicle_info.gps_time);
+        printf ("ego vehicle longitude is : %f\n", ego_vehicle_info.longitude);
+        printf ("ego vehicle latitude is  : %f\n", ego_vehicle_info.latitude);
+        printf ("ego vehicle heading is : %f\n", ego_vehicle_info.heading);
+        printf ("ego vehicle speed is(km/h) : %f\n\n", ego_vehicle_info.speed * 3.6);
+    }
+
     return 1;
 }
 //
@@ -198,11 +200,12 @@ int Handler::DecodeV2xVechileInfo() {
         using namespace std;
         cout << "-----------Display other vehicle info--------------" << endl;
         cout << "receive length is : " << len << endl;
-        cout << "ego vehicle info length : " << data_len << endl;
-        cout << "other vehicle id is : " << key << endl;
-        cout << "other vehicle longitude is : " << v2x_other_vehicle_data.longitude << endl;
-        cout << "other vehicle latitude is : " << v2x_other_vehicle_data.latitude << endl;
-        cout << "other vehicle speed is(km/h): " << v2x_other_vehicle_data.speed * 3.6 << endl;
+        cout << "other vehicle info length : " << data_len << endl;
+        printf ("other vehicle gps_time is : %f\n", v2x_other_vehicle_data.gps_time);
+        printf ("other vehicle longitude is : %f\n", v2x_other_vehicle_data.longitude);
+        printf ("other vehicle latitude is  : %f\n", v2x_other_vehicle_data.latitude);
+        printf ("other vehicle heading is : %f\n", v2x_other_vehicle_data.heading);
+        printf ("other vehicle speed is(km/h) : %f\n\n", v2x_other_vehicle_data.speed * 3.6);
         cout << "other vehicle relative_x is : " << v2x_other_vehicle_data.relative_x << endl << endl;
     }
         DataContainer::GetInstance()->v2x_other_vehicle_data_.setData(key, v2x_other_vehicle_data);

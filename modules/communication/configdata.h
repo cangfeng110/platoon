@@ -30,6 +30,7 @@ public:
     float vehicle_width_;
     float desire_distance_;
     float keep_mode_threshold_;
+    int broadcast_HZ_;
 //udp config
     int local_port_;
     std::string remote_ip_;
