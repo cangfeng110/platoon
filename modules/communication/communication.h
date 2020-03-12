@@ -41,7 +41,10 @@ private:
     void HandleTestVehicleInfo(const lcm::ReceiveBuffer *rbuf,
                                const std::string &channel,
                                const VehicleData *msg);
-
+                               
+    void HandleV2xVehicleInfo(const lcm::ReceiveBuffer *rbuf,
+                               const std::string &channel,
+                               const VehicleData *msg);
     void PublishManagerInfo();
     
     void BroastEgoVehicleInfo();

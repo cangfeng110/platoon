@@ -13,6 +13,8 @@ namespace platoon {
 
 namespace communication {
 
+#define INVALID_FLOAT 1.0E10;
+
 communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("communication") {
     // Logger
     // if(CommuConfig::GetInstance()->debug_) {
@@ -28,17 +30,16 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     lcm_.subscribe("localization_out_2_map", &communication::HandleEgoVehicleGpsInfo, this);
     lcm_.subscribe("FMS_INFO", &communication::HandleFmsInfo, this);
     lcm_.subscribe("EGO_PLANNINGMSG_FOR_PLATOON", &communication::HandlePlanningInfo, this);
-//    lcm_.subscribe("vehicle_info_for_test", &communication::HandleTestVehicleInfo, this);
-    
+    lcm_.subscribe("V2X_OTHER_VEHICLE_INFO", &communication::HandleV2xVehicleInfo, this);
     // lcm channel
     lcm_channel_.reset(new platoon::base::Channel(&loop_, lcm_.getFileno(), "lcm"));
     lcm_channel_->setReadCallback(std::bind(&lcm::LCM::handle, &lcm_));
     lcm_channel_->enableReading();
 
     // v2x channel
-    v2x_channel_.reset(new platoon::base::Channel(&loop_, handler_.GetFileno(), "v2xComm"));
+    /* v2x_channel_.reset(new platoon::base::Channel(&loop_, handler_.GetFileno(), "v2xComm"));
     v2x_channel_->setReadCallback(std::bind(&communication::ReceiveV2xOtherVehicleInfo, this));
-    v2x_channel_->enableReading();
+    v2x_channel_->enableReading(); */
 
     // decrease ttl
     loop_.runEvery(100, std::bind(&DataContainer::DecreaseTtl, DataContainer::GetInstance()));
@@ -199,6 +200,47 @@ void communication::ReceiveV2xOtherVehicleInfo() {
         }
     }
 }
+
+
+ /*
+  *handle v2x vehicle info to replace udp info
+ */
+
+ void communication::HandleV2xVehicleInfo(const lcm::ReceiveBuffer *rbuf,
+                               const std::string &channel,
+                               const VehicleData *msg) 
+{
+    assert(channel =="V2X_OTHER_VEHICLE_INFO");
+    VehicleData v2x_other_vehicle_data = *msg;
+    int key = v2x_other_vehicle_data.vehicle_id;
+    if (DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) {
+        const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
+        platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(v2x_other_vehicle_data.relative_x, v2x_other_vehicle_data.relative_y,
+                                                            ego_vehicle_gps_data.heading,
+                                                            ego_vehicle_gps_data.longitude,ego_vehicle_gps_data.latitude,
+                                                            ego_vehicle_gps_data.height,
+                                                            v2x_other_vehicle_data.longitude, v2x_other_vehicle_data.latitude,
+                                                            v2x_other_vehicle_data.altitude);
+        platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(v2x_other_vehicle_data.relative_heading,
+                                                                ego_vehicle_gps_data.heading, v2x_other_vehicle_data.heading);
+    } else {
+        v2x_other_vehicle_data.relative_x = INVALID_FLOAT;
+        v2x_other_vehicle_data.relative_y = INVALID_FLOAT;
+    }
+    DataContainer::GetInstance()->v2x_other_vehicle_data_.setData(key, *msg); 
+    if (m_debug_flags & DEBUG_V2xVehicleInfo) {
+        using namespace std;
+        cout << "-----------Display other vehicle info--------------" << endl;
+        printf ("other vehicle gps_time is : %f\n", v2x_other_vehicle_data.gps_time);
+        printf ("other vehicle longitude is : %f\n", v2x_other_vehicle_data.longitude);
+        printf ("other vehicle latitude is  : %f\n", v2x_other_vehicle_data.latitude);
+        printf ("other vehicle heading is : %f\n", v2x_other_vehicle_data.heading);
+        printf ("other vehicle speed is(km/h) : %f\n\n", v2x_other_vehicle_data.speed * 3.6);
+        cout << "other vehicle relative_x is : " << v2x_other_vehicle_data.relative_x << endl << endl;
+    }           
+}
+
+
 
 /* #define INVALID_FLOAT 1E10;
 void communication::HandleTestVehicleInfo (const lcm::ReceiveBuffer *rbuf,

@@ -258,8 +258,8 @@ void Manager::CalculateID ()
             other_vehicles.push_back (v2x_other_vehicle_data);
         }
         std::sort (other_vehicles.begin (), other_vehicles.end (), compare_relative_x);
-        //if (m_debug_flags & DEBUG_CalculateID)
-            //printf ("other_vehicles: %ld\n", other_vehicles.size ());
+        if (m_debug_flags & DEBUG_CalculateID)
+            printf ("other_vehicles: %ld\n", other_vehicles.size ());
         /**
          * first traversal storage other vehicle's platoon id in the map 
          **/
