@@ -182,9 +182,9 @@ void Manager::ProcessCommand ()
                 else if(i == other_vehicles.size ())  */
                 if (_ID < platoon_id_map_.size())
                 {
-                    int temp_key = platoon_id_map_[_ID + 1];
-                    DriveMode temp_mode = DriveMode(DataContainer::GetInstance()->v2x_other_vehicle_data_.getData()[temp_key].getData().actual_drive_mode);
-                    if (temp_mode == Manual || temp_mode == Auto || temp_mode == Leader)
+                    int after_id = platoon_id_map_[_ID + 1];
+                    DriveMode after_mode = DriveMode(DataContainer::GetInstance()->v2x_other_vehicle_data_.getData()[after_id].getData().actual_drive_mode);
+                    if (after_mode == Manual || after_mode == Auto || after_mode == Leader)
                         desire_drive_mode = Dequeue;
                 }
                 else if (_ID > platoon_id_map_.size())
@@ -270,7 +270,7 @@ void Manager::CalculateID ()
                 int temp_key = i + 1;
                 platoon_id_map_[temp_key] = other_vehicles[i].vehicle_id;
             } 
-            if (other_vehicles[i].relative_x < 0.0)
+            else if (other_vehicles[i].relative_x < 0.0)
             {
                 int temp_key = i + 2;
                 platoon_id_map_[temp_key] = other_vehicles[i].vehicle_id;
