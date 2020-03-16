@@ -11,6 +11,7 @@ typedef enum
     DEBUG_CalculateID             = 1 << (1),
     DEBUG_V2xVehicleInfo          = 1 << (2),
     DEBUG_BroadcastEgoVehicleInfo = 1 << (3),
+    DEBUG_RelativeX               = 1 << (4),
 }
 DebugFlags;
 
@@ -50,6 +51,7 @@ private:
     bool debug_CalculateID_;
     bool debug_V2xVehicleInfo_;
     bool debug_BroadcastEgoVehicleInfo_;
+    bool debug_RelativeX_;
 
     int debug_thw_HZ_;
     int debug_gps_HZ_;

@@ -32,6 +32,8 @@ class PlatoonManagerInfo
 
         int8_t     vehicle_num;
 
+        float      safe_distance;
+
     public:
         /**
          * Encode a message into binary form.
@@ -146,6 +148,9 @@ int PlatoonManagerInfo::_encodeNoHash(void *buf, int offset, int maxlen) const
     tlen = __int8_t_encode_array(buf, offset + pos, maxlen - pos, &this->vehicle_num, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->safe_distance, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
     return pos;
 }
 
@@ -171,6 +176,9 @@ int PlatoonManagerInfo::_decodeNoHash(const void *buf, int offset, int maxlen)
     tlen = __int8_t_decode_array(buf, offset + pos, maxlen - pos, &this->vehicle_num, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->safe_distance, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
     return pos;
 }
 
@@ -183,6 +191,7 @@ int PlatoonManagerInfo::_getEncodedSizeNoHash() const
     enc_size += __double_encoded_array_size(NULL, 1);
     enc_size += __double_encoded_array_size(NULL, 1);
     enc_size += __int8_t_encoded_array_size(NULL, 1);
+    enc_size += __float_encoded_array_size(NULL, 1);
     return enc_size;
 }
 
@@ -194,7 +203,7 @@ uint64_t PlatoonManagerInfo::_computeHash(const __lcm_hash_ptr *p)
             return 0;
     const __lcm_hash_ptr cp = { p, (void*)PlatoonManagerInfo::getHash };
 
-    uint64_t hash = 0x5a4e2926bce960b5LL +
+    uint64_t hash = 0x4cb70f9117cd99bdLL +
          platoon::protocol::VehicleInfo::_computeHash(&cp) +
          platoon::protocol::VehicleInfo::_computeHash(&cp);
 

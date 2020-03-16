@@ -33,7 +33,7 @@ public:
         F_Leader = 1,
         F_Enqueue = 2,
         F_Dequeue = 3,
-        F_DisBand = 4,
+        F_Disband = 4,
     };
 
     void SetFmsInfo (const FmsInfo& fms_info);

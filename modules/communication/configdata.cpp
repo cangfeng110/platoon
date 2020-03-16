@@ -34,6 +34,7 @@ ConfigData::ConfigData() {
         platoon_config.lookupValue("vehicle_id", vehicle_id_);
         platoon_config.lookupValue("vehicle_height", vehicle_height_);
         platoon_config.lookupValue("vehicle_width", vehicle_width_);
+        platoon_config.lookupValue("vehicle_length", vehicle_length_);
         platoon_config.lookupValue("desire_distance", desire_distance_);
         platoon_config.lookupValue("local_port", local_port_);
         platoon_config.lookupValue("remote_ip", remote_ip_);
@@ -46,6 +47,7 @@ ConfigData::ConfigData() {
         platoon_debug.lookupValue("debug_CalculateID", debug_CalculateID_);
         platoon_debug.lookupValue("debug_V2xVehicleInfo", debug_V2xVehicleInfo_);
         platoon_debug.lookupValue("debug_BroadcastEgoVehicleInfo", debug_BroadcastEgoVehicleInfo_);
+        platoon_debug.lookupValue("debug_RelativeX", debug_RelativeX_);
         debug_flags_ = 0;
         if (debug_TimeToFront_)
             debug_flags_ |= DEBUG_TimeToFront;
@@ -55,6 +57,8 @@ ConfigData::ConfigData() {
             debug_flags_ |= DEBUG_V2xVehicleInfo;
         if (debug_BroadcastEgoVehicleInfo_)
             debug_flags_ |= DEBUG_BroadcastEgoVehicleInfo;
+        if (debug_RelativeX_)
+            debug_flags_ |= DEBUG_RelativeX;
 
         platoon_debug.lookupValue("debug_thw_HZ", debug_thw_HZ_);
         platoon_debug.lookupValue("debug_gps_HZ", debug_gps_HZ_);

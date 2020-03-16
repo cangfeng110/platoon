@@ -18,6 +18,7 @@ Manager::Manager () {
     _ID = 0;
     other_vehicles.reserve (100);
     m_fms_info.fms_order = F_Invalid;
+    m_fms_info.safe_distance = 10.0;
     m_debug_flags = ConfigData::GetInstance ()->GetDebugFlags ();
     m_debug_thw_HZ = ConfigData::GetInstance ()->GetDebugThwHZ ();
     if (m_debug_thw_HZ <= 0)
@@ -32,6 +33,10 @@ void Manager::SetFmsInfo (const FmsInfo& msg)
     if (m_fms_info.fms_order != msg.fms_order)
     {
         printf ("asdf FMS_INFO fms_order changed: %d\n", msg.fms_order);
+    }
+    if (m_fms_info.safe_distance != msg.safe_distance)
+    {
+        printf ("asdf FMS_INFO safe_distance changed: %f\n", msg.safe_distance);
     }
     m_fms_info = msg;
 }
@@ -70,7 +75,7 @@ float Manager::THW ()
 
 float Manager::TimeToFront ()
 {
-    if(_ID <= 1)
+    if (_ID <= 1)
     {
         if (m_debug_flags & DEBUG_TimeToFront)
             printf ("_ID : %d\n", _ID);
@@ -100,6 +105,8 @@ void Manager::ProcessCommand ()
     DriveMode old = desire_drive_mode;
     EgoPlanningMsg ego_planning_msg = DataContainer::GetInstance ()->planning_data_.getData ();
     actual_drive_mode = (DriveMode)ego_planning_msg.actual_drive_mode;
+    const VehicleVcuData& ego_vehicle_vcu_data = DataContainer::GetInstance ()->ego_vehicle_vcu_data_.getData ();
+    float speed = ego_vehicle_vcu_data.fSpeed;
     float thw = THW ();
     float time_to_front = TimeToFront ();
     static int debug_count = 0;
@@ -138,7 +145,7 @@ void Manager::ProcessCommand ()
             }
             break;
         case Leader:
-            if (m_fms_info.fms_order == F_Dequeue || m_fms_info.fms_order == F_DisBand)
+            if (m_fms_info.fms_order == F_Dequeue || m_fms_info.fms_order == F_Disband)
             {
                 desire_drive_mode = Auto;
             }
@@ -148,7 +155,7 @@ void Manager::ProcessCommand ()
             {
                 break;
             }
-            if (time_to_front <= ConfigData::GetInstance ()->keep_mode_threshold_)
+            if (time_to_front <= ConfigData::GetInstance ()->keep_mode_threshold_ + m_fms_info.safe_distance / speed)
             {
                 desire_drive_mode = KeepQueue;
             }
@@ -177,7 +184,7 @@ void Manager::ProcessCommand ()
                 else if(i == other_vehicles.size ()) 
                     desire_drive_mode = Dequeue;
             }
-            else if (m_fms_info.fms_order == F_DisBand)
+            else if (m_fms_info.fms_order == F_Disband)
             {
                 desire_drive_mode = Dequeue;
             }
@@ -245,8 +252,6 @@ void Manager::CalculateID ()
             other_vehicles.push_back (v2x_other_vehicle_data);
         }
         std::sort (other_vehicles.begin (), other_vehicles.end (), compare_relative_x);
-        //if (m_debug_flags & DEBUG_CalculateID)
-            //printf ("other_vehicles: %ld\n", other_vehicles.size ());
         for (i = 0; i < other_vehicles.size (); i++)
         {
             if (other_vehicles[i].relative_x < 0.0)
@@ -271,6 +276,7 @@ void Manager::UpdatePlatoonManagerInfo ()
     PlatoonManagerInfo platoon_manager_info;
     platoon_manager_info.desire_drive_mode = desire_drive_mode;
     platoon_manager_info.vehicle_num = 0;
+    platoon_manager_info.safe_distance = m_fms_info.safe_distance;
     platoon_manager_info.leader_frenet_dis = 1.0e10;
     platoon_manager_info.front_frenet_dis = 1.0e10;
     //assign leader/front vehicle id 
@@ -283,6 +289,8 @@ void Manager::UpdatePlatoonManagerInfo ()
         if (other_vehicles[i].actual_drive_mode == Leader)
         {
             platoon_manager_info.leader_vehicle = other_vehicles[i];
+            if (m_debug_flags & DEBUG_RelativeX)
+                printf ("front_vehicle relative_x: %f", platoon_manager_info.leader_vehicle.relative_x);
             int leader_id = other_vehicles[i].vehicle_id;
             platoon_manager_info.leader_frenet_dis = m_worldmodle_.GetFrenetDis(leader_id);
             platoon_manager_info.vehicle_num = _ID - (i + 1);
@@ -292,6 +300,8 @@ void Manager::UpdatePlatoonManagerInfo ()
     if (_ID >= 2)
     {
         platoon_manager_info.front_vehicle = other_vehicles[_ID - 2];//_ID surely >= 2
+        if (m_debug_flags & DEBUG_RelativeX)
+            printf ("front_vehicle relative_x: %f", platoon_manager_info.front_vehicle.relative_x);
         int front_id = other_vehicles[_ID - 2].vehicle_id;
         platoon_manager_info.front_frenet_dis = m_worldmodle_.GetFrenetDis(front_id);
     }

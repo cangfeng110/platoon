@@ -22,6 +22,8 @@ class FmsInfo
 
         float      leader_speed;
 
+        float      safe_distance;
+
     public:
         /**
          * Encode a message into binary form.
@@ -124,6 +126,9 @@ int FmsInfo::_encodeNoHash(void *buf, int offset, int maxlen) const
     tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->leader_speed, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->safe_distance, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
     return pos;
 }
 
@@ -137,6 +142,9 @@ int FmsInfo::_decodeNoHash(const void *buf, int offset, int maxlen)
     tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->leader_speed, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->safe_distance, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
     return pos;
 }
 
@@ -145,12 +153,13 @@ int FmsInfo::_getEncodedSizeNoHash() const
     int enc_size = 0;
     enc_size += __int8_t_encoded_array_size(NULL, 1);
     enc_size += __float_encoded_array_size(NULL, 1);
+    enc_size += __float_encoded_array_size(NULL, 1);
     return enc_size;
 }
 
 uint64_t FmsInfo::_computeHash(const __lcm_hash_ptr *)
 {
-    uint64_t hash = 0xec5add1ee591dc30LL;
+    uint64_t hash = 0xdca588bbb4ca50feLL;
     return (hash<<1) + ((hash>>63)&1);
 }
 
