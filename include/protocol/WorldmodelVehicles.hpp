@@ -6,26 +6,23 @@
 
 #include <lcm/lcm_coretypes.h>
 
-#ifndef __platoon_protocol_EgoPlanningMsg_hpp__
-#define __platoon_protocol_EgoPlanningMsg_hpp__
+#ifndef __platoon_protocol_WorldmodelVehicles_hpp__
+#define __platoon_protocol_WorldmodelVehicles_hpp__
 
-#include "protocol/HEADER.hpp"
+#include <vector>
+#include "include/protocol/WorldmodelVehicle.hpp"
 
 namespace platoon
 {
 namespace protocol
 {
 
-class EgoPlanningMsg
+class WorldmodelVehicles
 {
     public:
-        platoon::protocol::HEADER PlanningHeader;
+        int32_t    vehicle_num;
 
-        double     expire_acc;
-
-        int8_t     actual_drive_mode;
-
-        int8_t     cut_in;
+        std::vector< platoon::protocol::WorldmodelVehicle > vehicles;
 
     public:
         /**
@@ -63,7 +60,7 @@ class EgoPlanningMsg
         inline static int64_t getHash();
 
         /**
-         * Returns "EgoPlanningMsg"
+         * Returns "WorldmodelVehicles"
          */
         inline static const char* getTypeName();
 
@@ -74,7 +71,7 @@ class EgoPlanningMsg
         inline static uint64_t _computeHash(const __lcm_hash_ptr *p);
 };
 
-int EgoPlanningMsg::encode(void *buf, int offset, int maxlen) const
+int WorldmodelVehicles::encode(void *buf, int offset, int maxlen) const
 {
     int pos = 0, tlen;
     int64_t hash = (int64_t)getHash();
@@ -88,7 +85,7 @@ int EgoPlanningMsg::encode(void *buf, int offset, int maxlen) const
     return pos;
 }
 
-int EgoPlanningMsg::decode(const void *buf, int offset, int maxlen)
+int WorldmodelVehicles::decode(const void *buf, int offset, int maxlen)
 {
     int pos = 0, thislen;
 
@@ -103,80 +100,73 @@ int EgoPlanningMsg::decode(const void *buf, int offset, int maxlen)
     return pos;
 }
 
-int EgoPlanningMsg::getEncodedSize() const
+int WorldmodelVehicles::getEncodedSize() const
 {
     return 8 + _getEncodedSizeNoHash();
 }
 
-int64_t EgoPlanningMsg::getHash()
+int64_t WorldmodelVehicles::getHash()
 {
     static int64_t hash = _computeHash(NULL);
     return hash;
 }
 
-const char* EgoPlanningMsg::getTypeName()
+const char* WorldmodelVehicles::getTypeName()
 {
-    return "EgoPlanningMsg";
+    return "WorldmodelVehicles";
 }
 
-int EgoPlanningMsg::_encodeNoHash(void *buf, int offset, int maxlen) const
+int WorldmodelVehicles::_encodeNoHash(void *buf, int offset, int maxlen) const
 {
     int pos = 0, tlen;
 
-    tlen = this->PlanningHeader._encodeNoHash(buf, offset + pos, maxlen - pos);
+    tlen = __int32_t_encode_array(buf, offset + pos, maxlen - pos, &this->vehicle_num, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->expire_acc, 1);
-    if(tlen < 0) return tlen; else pos += tlen;
-
-    tlen = __int8_t_encode_array(buf, offset + pos, maxlen - pos, &this->actual_drive_mode, 1);
-    if(tlen < 0) return tlen; else pos += tlen;
-
-    tlen = __boolean_encode_array(buf, offset + pos, maxlen - pos, &this->cut_in, 1);
-    if(tlen < 0) return tlen; else pos += tlen;
+    for (int a0 = 0; a0 < this->vehicle_num; a0++) {
+        tlen = this->vehicles[a0]._encodeNoHash(buf, offset + pos, maxlen - pos);
+        if(tlen < 0) return tlen; else pos += tlen;
+    }
 
     return pos;
 }
 
-int EgoPlanningMsg::_decodeNoHash(const void *buf, int offset, int maxlen)
+int WorldmodelVehicles::_decodeNoHash(const void *buf, int offset, int maxlen)
 {
     int pos = 0, tlen;
 
-    tlen = this->PlanningHeader._decodeNoHash(buf, offset + pos, maxlen - pos);
+    tlen = __int32_t_decode_array(buf, offset + pos, maxlen - pos, &this->vehicle_num, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->expire_acc, 1);
-    if(tlen < 0) return tlen; else pos += tlen;
-
-    tlen = __int8_t_decode_array(buf, offset + pos, maxlen - pos, &this->actual_drive_mode, 1);
-    if(tlen < 0) return tlen; else pos += tlen;
-
-    tlen = __boolean_decode_array(buf, offset + pos, maxlen - pos, &this->cut_in, 1);
-    if(tlen < 0) return tlen; else pos += tlen;
+    this->vehicles.resize(this->vehicle_num);
+    for (int a0 = 0; a0 < this->vehicle_num; a0++) {
+        tlen = this->vehicles[a0]._decodeNoHash(buf, offset + pos, maxlen - pos);
+        if(tlen < 0) return tlen; else pos += tlen;
+    }
 
     return pos;
 }
 
-int EgoPlanningMsg::_getEncodedSizeNoHash() const
+int WorldmodelVehicles::_getEncodedSizeNoHash() const
 {
     int enc_size = 0;
-    enc_size += this->PlanningHeader._getEncodedSizeNoHash();
-    enc_size += __double_encoded_array_size(NULL, 1);
-    enc_size += __int8_t_encoded_array_size(NULL, 1);
-    enc_size += __boolean_encoded_array_size(NULL, 1);
+    enc_size += __int32_t_encoded_array_size(NULL, 1);
+    for (int a0 = 0; a0 < this->vehicle_num; a0++) {
+        enc_size += this->vehicles[a0]._getEncodedSizeNoHash();
+    }
     return enc_size;
 }
 
-uint64_t EgoPlanningMsg::_computeHash(const __lcm_hash_ptr *p)
+uint64_t WorldmodelVehicles::_computeHash(const __lcm_hash_ptr *p)
 {
     const __lcm_hash_ptr *fp;
     for(fp = p; fp != NULL; fp = fp->parent)
-        if(fp->v == EgoPlanningMsg::getHash)
+        if(fp->v == WorldmodelVehicles::getHash)
             return 0;
-    const __lcm_hash_ptr cp = { p, (void*)EgoPlanningMsg::getHash };
+    const __lcm_hash_ptr cp = { p, (void*)WorldmodelVehicles::getHash };
 
-    uint64_t hash = 0x7aef6afa86e45800LL +
-         platoon::protocol::HEADER::_computeHash(&cp);
+    uint64_t hash = 0xe4e6dbd8e39730c3LL +
+         platoon::protocol::WorldmodelVehicle::_computeHash(&cp);
 
     return (hash<<1) + ((hash>>63)&1);
 }

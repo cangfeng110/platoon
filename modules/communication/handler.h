@@ -7,11 +7,9 @@
 #include <arpa/inet.h>
 
 #include "include/base/NonCopyable.h"
-#include "protocol/lcmDataNameTypeDefine.h"
+#include "include/protocol/lcmDataNameTypeDefine.h"
 #include "modules/communication/datacontainer.h"
 #include "modules/communication/configdata.h"
-//#include "modules/communication/remote_info.h"
-//#include "modules/communication/outbound_communication_header.h"
 
 
 
@@ -47,6 +45,8 @@ private:
     char buffer_[MAX_RECV_LENGTH];
 
     int m_debug_flags;
+
+    static int send_number_;
 };
 
 } // namespace communication

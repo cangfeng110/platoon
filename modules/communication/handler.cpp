@@ -6,14 +6,17 @@
 #include <fstream>
 #include <math.h>
 
+#include "modules/common/functiontool.h"
+#include "modules/communication/fmsdata.h"
+#include "modules/communication/udp.h"
+
 #include "include/base/Timestamp.h"
 #include "include/base/Logging.h"
+#include "include/ibox/inbound_communication_header.h"
+#include "include/ibox/outbound_communication_header.h"
+#include "include/ibox/UDPVehicle.hpp"
+#include "include/proto/ProtoClassNameyTypeDefine.h"
 
-#include "modules/common/functiontool.h"
-#include "modules/communication/inbound_communication_header.h"
-#include "modules/communication/outbound_communication_header.h"
-#include "modules/communication/udp.h"
-#include "modules/communication/UDPVehicle.hpp"
 
 namespace platoon {
 
@@ -23,6 +26,8 @@ namespace communication {
 #define ACCURACY_7 1E7
 #define INVALID_FLOAT 1.0E10;
 const double PI = 3.1415926;
+
+int Handler::send_number_ = 0;
 
 Handler::Handler() {
     if((sockfd_ = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
@@ -45,7 +50,10 @@ Handler::Handler() {
 //
 //function: broast ego vehicle info to ibox
 //
-int Handler::BroastEgoVehicleInfo() {
+int Handler::BroastEgoVehicleInfo() 
+{
+    // Record number of send
+    send_number_++;
     // read gps data
     const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
    
@@ -98,8 +106,10 @@ int Handler::BroastEgoVehicleInfo() {
     if(DataContainer::GetInstance()->manager_data_.isUpToDate()){
         const PlatoonManagerInfo &manager_data = DataContainer::GetInstance()->manager_data_.getData();
         ego_vehicle_info.desire_drive_mode = manager_data.desire_drive_mode;
+        ego_vehicle_info.vehicle_sequence = manager_data.vehicle_sequence;
     } else {
         ego_vehicle_info.desire_drive_mode = 7;
+        ego_vehicle_info.vehicle_sequence = -1;
     }
    
     // platoon-planning info
@@ -112,32 +122,45 @@ int Handler::BroastEgoVehicleInfo() {
         ego_vehicle_info.actual_drive_mode = 7;
         ego_vehicle_info.cut_in_flag = 2;
         ego_vehicle_info.desire_long_acc = INVALID_FLOAT;
-    }
-    
-    // 
+    } 
+
+    //fms info 
+    const FMSPreFormationInfo fms_pre_info = FmsData::GetInstance()->fms_pre_info_.getData();
+    ego_vehicle_info.platoon_number = fms_pre_info.platoonnumber();
+
     int data_len = sizeof(ego_vehicle_info);
 
-    // assign ip port
-    std::string send_ip =  ConfigData::GetInstance()->remote_ip_;
-    int send_port =  ConfigData::GetInstance()->remote_port_;
+    //assign transparrent transmission data header
+    Transparent_Transmission_Data_Header verify_header;
+    verify_header.ttdID = 0;
+    verify_header.dataSN = send_number_;
+    verify_header.informationage = 0;
+    verify_header.secmark = 0;
+    verify_header.discardage = abs(ConfigData::GetInstance()->discard_time_);
+    verify_header.maxIOsize = 0;
+    int verify_len = sizeof(verify_header);
 
-    //assign header
-    int header_len = 24;
+     //assign inbound header
     inbound_communication_header send_header;
+    int header_len = sizeof(send_header);
     send_header.proto_id = 0xADFF246C;
-    send_header.ver = 3;
+    send_header.ver = 6;
     send_header.op_type = 2;
     send_header.op_code = 98;
     send_header.op_sn = 0;
-    send_header.msg_len = data_len;
+    send_header.msg_len = data_len + verify_len;
 
     // udp send
+    // assign ip port
+    std::string send_ip =  ConfigData::GetInstance()->remote_ip_;
+    int send_port =  ConfigData::GetInstance()->remote_port_;
     Udp sudp(send_ip,send_port);
     sudp.init();
-    char * buffer = new char[header_len + data_len];
+    char* buffer = new char[header_len + verify_len + data_len];
     memcpy(buffer, &send_header, header_len);
-    memcpy(buffer + header_len, &ego_vehicle_info, data_len);
-    sudp.send(buffer, header_len + data_len);
+    memcpy(buffer + header_len, &verify_header, verify_len);
+    memcpy(buffer + header_len + verify_len, &ego_vehicle_info, data_len);
+    sudp.send(buffer, header_len + verify_len + data_len);
     delete []buffer;
 
     if(m_debug_flags & DEBUG_BroadcastEgoVehicleInfo){

@@ -9,7 +9,7 @@
 #ifndef __platoon_protocol_Localization_Out_2_Map_hpp__
 #define __platoon_protocol_Localization_Out_2_Map_hpp__
 
-#include "protocol/HEADER.hpp"
+#include "include/protocol/HEADER.hpp"
 
 namespace platoon
 {

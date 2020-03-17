@@ -8,7 +8,7 @@
 #include "include/base/CountDownLatch.h"
 #include "include/base/EventLoop.h"
 #include "include/base/Logging.h"
-#include "protocol/lcmDataNameTypeDefine.h"
+#include "include/protocol/lcmDataNameTypeDefine.h"
 
 #include "modules/communication/configdata.h"
 #include "modules/communication/datacontainer.h"

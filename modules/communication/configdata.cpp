@@ -27,27 +27,32 @@ ConfigData::ConfigData() {
     }
 
     try {
-        const libconfig::Setting& platoon_config = cfg.lookup("platoon");
+        const libconfig::Setting& vehicle_config = cfg.lookup("vehicle");
 
-        platoon_config.lookupValue("debug", debug_);
-        platoon_config.lookupValue("log_path",log_path_);
-        platoon_config.lookupValue("vehicle_id", vehicle_id_);
-        platoon_config.lookupValue("vehicle_height", vehicle_height_);
-        platoon_config.lookupValue("vehicle_width", vehicle_width_);
-        platoon_config.lookupValue("vehicle_length", vehicle_length_);
-        platoon_config.lookupValue("desire_distance", desire_distance_);
-        platoon_config.lookupValue("local_port", local_port_);
-        platoon_config.lookupValue("remote_ip", remote_ip_);
-        platoon_config.lookupValue("remote_port", remote_port_);
-        platoon_config.lookupValue("keep_mode_threshold", keep_mode_threshold_);
-        platoon_config.lookupValue("broadcast_HZ", broadcast_HZ_);
+        /**
+         *  if the data is not in the configuration file, no error is reported
+         * */
+        vehicle_config.lookupValue("vehicle_license", vehicle_license_);
+        vehicle_config.lookupValue("vehicle_id", vehicle_id_);
+        vehicle_config.lookupValue("vehicle_height", vehicle_height_);
+        vehicle_config.lookupValue("vehicle_width", vehicle_width_);
+        vehicle_config.lookupValue("vehicle_length", vehicle_length_);
 
-        const libconfig::Setting& platoon_debug = cfg.lookup("debug");
-        platoon_debug.lookupValue("debug_TimeToFront", debug_TimeToFront_);
-        platoon_debug.lookupValue("debug_CalculateID", debug_CalculateID_);
-        platoon_debug.lookupValue("debug_V2xVehicleInfo", debug_V2xVehicleInfo_);
-        platoon_debug.lookupValue("debug_BroadcastEgoVehicleInfo", debug_BroadcastEgoVehicleInfo_);
-        platoon_debug.lookupValue("debug_RelativeX", debug_RelativeX_);
+        const libconfig::Setting& control_config = cfg.lookup("control");
+        control_config.lookupValue("keep_mode_threshold", keep_mode_threshold_);
+
+        const libconfig::Setting& communication_config = cfg.lookup("communication");
+        communication_config.lookupValue("local_port", local_port_);
+        communication_config.lookupValue("remote_ip", remote_ip_);
+        communication_config.lookupValue("remote_port", remote_port_);
+        communication_config.lookupValue("broadcast_HZ", broadcast_HZ_);
+
+        const libconfig::Setting& debug_config = cfg.lookup("debug");
+        debug_config.lookupValue("debug_TimeToFront", debug_TimeToFront_);
+        debug_config.lookupValue("debug_CalculateID", debug_CalculateID_);
+        debug_config.lookupValue("debug_V2xVehicleInfo", debug_V2xVehicleInfo_);
+        debug_config.lookupValue("debug_BroadcastEgoVehicleInfo", debug_BroadcastEgoVehicleInfo_);
+        debug_config.lookupValue("debug_RelativeX", debug_RelativeX_);
         debug_flags_ = 0;
         if (debug_TimeToFront_)
             debug_flags_ |= DEBUG_TimeToFront;
@@ -60,45 +65,44 @@ ConfigData::ConfigData() {
         if (debug_RelativeX_)
             debug_flags_ |= DEBUG_RelativeX;
 
-        platoon_debug.lookupValue("debug_thw_HZ", debug_thw_HZ_);
-        platoon_debug.lookupValue("debug_gps_HZ", debug_gps_HZ_);
-        platoon_debug.lookupValue("debug_vcu_HZ", debug_vcu_HZ_);
-        platoon_debug.lookupValue("debug_pmi_HZ", debug_pmi_HZ_);
+        debug_config.lookupValue("debug_thw_HZ", debug_thw_HZ_);
+        debug_config.lookupValue("debug_gps_HZ", debug_gps_HZ_);
+        debug_config.lookupValue("debug_vcu_HZ", debug_vcu_HZ_);
+        debug_config.lookupValue("debug_pmi_HZ", debug_pmi_HZ_);
 
         std::cout << "read all config data" << std::endl;
     } catch(const libconfig::SettingNotFoundException& e) {
         DIE("can not read config data (%s) form file  \n", e.what());
-
     }
 
 }
 
-const int
-ConfigData::GetDebugFlags ()
+
+inline int ConfigData::GetDebugFlags () const
 {
     return debug_flags_;
 }
 
-const int
-ConfigData::GetDebugThwHZ ()
+
+inline int ConfigData::GetDebugThwHZ () const
 {
     return debug_thw_HZ_;
 }
 
-const int
-ConfigData::GetDebugGpsHZ ()
+
+inline int ConfigData::GetDebugGpsHZ () const
 {
     return debug_gps_HZ_;
 }
 
-const int
-ConfigData::GetDebugVcuHZ ()
+
+inline int ConfigData::GetDebugVcuHZ () const
 {
     return debug_vcu_HZ_;
 }
 
-const int
-ConfigData::GetDebugPmiHZ ()
+
+inline int ConfigData::GetDebugPmiHZ () const
 {
     return debug_pmi_HZ_;
 }

@@ -19,32 +19,35 @@ class ConfigData {
 public:
 //function
     static ConfigData *GetInstance();
-    const int GetDebugFlags();
-    const int GetDebugThwHZ();
-    const int GetDebugGpsHZ();
-    const int GetDebugVcuHZ();
-    const int GetDebugPmiHZ();
+    int GetDebugFlags() const;
+    int GetDebugThwHZ() const;
+    int GetDebugGpsHZ() const;
+    int GetDebugVcuHZ() const;
+    int GetDebugPmiHZ() const;
+
 // vehicle paraments config
+    std::string vehicle_license_;
     int   vehicle_id_;
     float vehicle_length_;
     float vehicle_height_;
     float vehicle_width_;
-    float desire_distance_;
+
+// control config
     float keep_mode_threshold_;
-    int broadcast_HZ_;
-//udp config
+    
+//communication config
     int local_port_;
     std::string remote_ip_;
     int remote_port_;
-//
-    bool debug_;
-    std::string log_path_;
+    int discard_time_;
+    int broadcast_HZ_;
 
 private:
     static ConfigData* instance_;
     ConfigData();
     ConfigData(const ConfigData&) = delete;
     ConfigData& operator =(const ConfigData&) = delete;
+
     int debug_flags_;
 
     bool debug_TimeToFront_;

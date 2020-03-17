@@ -9,7 +9,7 @@
 #ifndef __VCU_VEHICLE_INFO_hpp__
 #define __VCU_VEHICLE_INFO_hpp__
 
-#include "protocol/HEADER.hpp"
+#include "include/protocol/HEADER.hpp"
 
 namespace platoon
 {

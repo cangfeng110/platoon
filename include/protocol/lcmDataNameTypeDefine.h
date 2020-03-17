@@ -1,23 +1,23 @@
 #ifndef _LCM_DATA_NAME_TYPE_DEFINE_
 #define _LCM_DATA_NAME_TYPE_DEFINE_
 
-#include "protocol/VCU_VEHICLE_INFO.hpp"
+#include "include/protocol/VCU_VEHICLE_INFO.hpp"
 
-#include "protocol/VehicleInfo.hpp"
+#include "include/protocol/VehicleInfo.hpp"
 
-#include "protocol/Localization_Out_2_Map.hpp"
+#include "include/protocol/Localization_Out_2_Map.hpp"
 
-#include "protocol/Location.hpp"
+#include "include/protocol/Location.hpp"
 
-#include "protocol/WorldmodelVehicle.hpp"
+#include "include/protocol/WorldmodelVehicle.hpp"
 
-#include "protocol/WorldmodelVehicles.hpp"
+#include "include/protocol/WorldmodelVehicles.hpp"
 
-#include "protocol/FmsInfo.hpp"
+#include "include/protocol/FmsInfo.hpp"
 
-#include "protocol/EgoPlanningMsg.hpp"
+#include "include/protocol/EgoPlanningMsg.hpp"
 
-#include "protocol/PlatoonManagerInfo.hpp"
+#include "include/protocol/PlatoonManagerInfo.hpp"
 
 
 typedef platoon::protocol::VCU_VEHICLE_INFO             VehicleVcuData;         

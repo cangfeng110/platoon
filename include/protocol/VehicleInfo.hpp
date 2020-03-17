@@ -32,6 +32,12 @@ class VehicleInfo
 
         int8_t     cut_in_flag;
 
+        int8_t     vehicle_sequence;
+
+        int8_t     platoon_number;
+
+        int8_t     gps_status;
+
         double     longitude;
 
         double     latitude;
@@ -39,8 +45,6 @@ class VehicleInfo
         float      altitude;
 
         float      heading;
-
-        int8_t     gps_status;
 
         double     gps_time;
 
@@ -179,6 +183,15 @@ int VehicleInfo::_encodeNoHash(void *buf, int offset, int maxlen) const
     tlen = __boolean_encode_array(buf, offset + pos, maxlen - pos, &this->cut_in_flag, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
+    tlen = __int8_t_encode_array(buf, offset + pos, maxlen - pos, &this->vehicle_sequence, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __int8_t_encode_array(buf, offset + pos, maxlen - pos, &this->platoon_number, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __int8_t_encode_array(buf, offset + pos, maxlen - pos, &this->gps_status, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
     tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->longitude, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
@@ -189,9 +202,6 @@ int VehicleInfo::_encodeNoHash(void *buf, int offset, int maxlen) const
     if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->heading, 1);
-    if(tlen < 0) return tlen; else pos += tlen;
-
-    tlen = __int8_t_encode_array(buf, offset + pos, maxlen - pos, &this->gps_status, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->gps_time, 1);
@@ -252,6 +262,15 @@ int VehicleInfo::_decodeNoHash(const void *buf, int offset, int maxlen)
     tlen = __boolean_decode_array(buf, offset + pos, maxlen - pos, &this->cut_in_flag, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
+    tlen = __int8_t_decode_array(buf, offset + pos, maxlen - pos, &this->vehicle_sequence, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __int8_t_decode_array(buf, offset + pos, maxlen - pos, &this->platoon_number, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __int8_t_decode_array(buf, offset + pos, maxlen - pos, &this->gps_status, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
     tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->longitude, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
@@ -262,9 +281,6 @@ int VehicleInfo::_decodeNoHash(const void *buf, int offset, int maxlen)
     if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->heading, 1);
-    if(tlen < 0) return tlen; else pos += tlen;
-
-    tlen = __int8_t_decode_array(buf, offset + pos, maxlen - pos, &this->gps_status, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->gps_time, 1);
@@ -310,11 +326,13 @@ int VehicleInfo::_getEncodedSizeNoHash() const
     enc_size += __int8_t_encoded_array_size(NULL, 1);
     enc_size += __int8_t_encoded_array_size(NULL, 1);
     enc_size += __boolean_encoded_array_size(NULL, 1);
-    enc_size += __double_encoded_array_size(NULL, 1);
-    enc_size += __double_encoded_array_size(NULL, 1);
-    enc_size += __float_encoded_array_size(NULL, 1);
-    enc_size += __float_encoded_array_size(NULL, 1);
     enc_size += __int8_t_encoded_array_size(NULL, 1);
+    enc_size += __int8_t_encoded_array_size(NULL, 1);
+    enc_size += __int8_t_encoded_array_size(NULL, 1);
+    enc_size += __double_encoded_array_size(NULL, 1);
+    enc_size += __double_encoded_array_size(NULL, 1);
+    enc_size += __float_encoded_array_size(NULL, 1);
+    enc_size += __float_encoded_array_size(NULL, 1);
     enc_size += __double_encoded_array_size(NULL, 1);
     enc_size += __double_encoded_array_size(NULL, 1);
     enc_size += __double_encoded_array_size(NULL, 1);
@@ -330,7 +348,7 @@ int VehicleInfo::_getEncodedSizeNoHash() const
 
 uint64_t VehicleInfo::_computeHash(const __lcm_hash_ptr *)
 {
-    uint64_t hash = 0xe996e89ec263e471LL;
+    uint64_t hash = 0xf96140e3e14bb7edLL;
     return (hash<<1) + ((hash>>63)&1);
 }
 

@@ -5,8 +5,7 @@
 #include <map>
 #include <assert.h>
 
-// #include "modules/communication/communication_config.h"
-#include "protocol/lcmDataNameTypeDefine.h"
+#include "include/protocol/lcmDataNameTypeDefine.h"
 #include "modules/template/templateDataContainer.h"
 
 namespace platoon {
@@ -21,6 +20,9 @@ public:
 
     // v2x other vehicle information from ibox
     templateDataContainer_Map<VehicleData> v2x_other_vehicle_data_;
+
+    //one platoon vehicles
+    templateDataContainer_Map<VehicleData> paltoon_vheicles_data_;
 
     // other vehicle information in ego vehicle coordination system
     templateDataContainer_Map<WorldModelObject> worldmodle_other_vehicle_data_;

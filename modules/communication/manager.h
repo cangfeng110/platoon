@@ -2,7 +2,7 @@
 #define __MANAGER_H__
 
 #include "include/base/NonCopyable.h"
-#include "protocol/lcmDataNameTypeDefine.h"
+#include "include/protocol/lcmDataNameTypeDefine.h"
 #include "modules/communication/datacontainer.h"
 #include "modules/communication/worldmodle.h"
 #include "modules/communication/configdata.h"
@@ -33,7 +33,7 @@ public:
         F_Leader = 1,
         F_Enqueue = 2,
         F_Dequeue = 3,
-        F_Disband = 4,
+        F_DisBand = 4,
     };
 
     void SetFmsInfo (const FmsInfo& fms_info);
@@ -44,6 +44,14 @@ private:
     DriveMode desire_drive_mode;
     int _ID;
     std::vector<VehicleData> other_vehicles;
+    /** 
+     * this map storae all the platoon vehicle id and platoon id 
+     * the key is paltoon id
+     * the value is vehicle id
+     * when the actual mode is auto or manual, this map will be update, else no update 
+    **/
+    std::map<int,int> platoon_id_map_;
+
     WorldModle m_worldmodle_;
     FmsInfo m_fms_info;
 

@@ -1,7 +1,8 @@
 #ifndef OUTBOUND_COMMUNICATION_HEADER
 #define OUTBOUND_COMMUNICATION_HEADER
 
-#endif // OUTBOUND_COMMUNICATION_HEADER
+#include <stdint.h>
+
 typedef struct outbound_communication_header
 {
     /** 0xAFDD2468 */
@@ -34,3 +35,4 @@ typedef struct outbound_communication_header
     uint32_t rsvd4;
 } __attribute__ ((packed))  outbound_communication_header_t;
 
+#endif // OUTBOUND_COMMUNICATION_HEADER

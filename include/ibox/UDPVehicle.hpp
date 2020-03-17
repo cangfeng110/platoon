@@ -19,6 +19,12 @@ struct UDPVehicle
 
         int8_t     cut_in_flag;
 
+        int8_t     vehicle_sequence;
+
+        int8_t     platoon_number;
+
+        int8_t     gps_status;
+
         double     longitude;
 
         double     latitude;
@@ -26,8 +32,6 @@ struct UDPVehicle
         float      altitude;
 
         float      heading;
-
-        int8_t     gps_status;
 
         double    gps_time;
 

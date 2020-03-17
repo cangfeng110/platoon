@@ -9,7 +9,7 @@
 #ifndef __INERTIAL_Debug_hpp__
 #define __INERTIAL_Debug_hpp__
 
-#include "protocol/HEADER.hpp"
+#include "include/protocol/HEADER.hpp"
 
 namespace  platoon {
 

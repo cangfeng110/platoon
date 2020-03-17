@@ -1,7 +1,7 @@
 #ifndef INBOUND_COMMUNICATION_HEADER
 #define INBOUND_COMMUNICATION_HEADER
 
-#endif // INBOUND_COMMUNICATION_HEADER
+#include <stdint.h>
 /** inboud communication header */
 typedef struct inbound_communication_header
 {
@@ -26,3 +26,19 @@ typedef struct inbound_communication_header
     /** reserved4 */
     uint32_t rsvd4;
 } __attribute__ ((packed)) inbound_communication_header_t;
+
+typedef struct Transparent_Transmission_Data_Header
+{
+    uint8_t ttdID;
+    uint8_t reseverd;
+    uint16_t reseverd1;
+    uint32_t dataSN;
+    uint16_t informationage;
+    uint16_t secmark;
+    uint16_t discardage;
+    uint16_t maxIOsize;
+    uint32_t reserved2;
+    uint32_t reserved3;
+} __attribute__ ((packed)) Transparent_Transmission_Data_Header_t;
+
+#endif // INBOUND_COMMUNICATION_HEADER
