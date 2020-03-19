@@ -40,6 +40,7 @@ ConfigData::ConfigData() {
 
         const libconfig::Setting& control_config = cfg.lookup("control");
         control_config.lookupValue("keep_mode_threshold", keep_mode_threshold_);
+        control_config.lookupValue("hmi_fms_valid", hmi_fms_valid_);
 
         const libconfig::Setting& communication_config = cfg.lookup("communication");
         communication_config.lookupValue("local_port", local_port_);
@@ -77,32 +78,27 @@ ConfigData::ConfigData() {
 
 }
 
-
-inline int ConfigData::GetDebugFlags () const
+int ConfigData::GetDebugFlags () const
 {
     return debug_flags_;
 }
 
-
-inline int ConfigData::GetDebugThwHZ () const
+ int ConfigData::GetDebugThwHZ () const
 {
     return debug_thw_HZ_;
 }
 
-
-inline int ConfigData::GetDebugGpsHZ () const
+int ConfigData::GetDebugGpsHZ () const
 {
     return debug_gps_HZ_;
 }
 
-
-inline int ConfigData::GetDebugVcuHZ () const
+int ConfigData::GetDebugVcuHZ () const
 {
     return debug_vcu_HZ_;
 }
-
-
-inline int ConfigData::GetDebugPmiHZ () const
+ 
+int ConfigData::GetDebugPmiHZ () const
 {
     return debug_pmi_HZ_;
 }

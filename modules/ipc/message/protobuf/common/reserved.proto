@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+package atd.common;
+option optimize_for = LITE_RUNTIME;
+
+message Reserved {
+  optional string reserved_msg = 1;
+  optional string reserved_bit = 2;
+}
+
+
+

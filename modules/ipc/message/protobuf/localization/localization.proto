@@ -1,0 +1,102 @@
+syntax = "proto2";
+
+option optimize_for = LITE_RUNTIME;
+
+
+package atd.localization;
+
+import "modules/ipc/message/protobuf/common/header.proto";
+import "modules/ipc/message/protobuf/common/reserved.proto";
+import "modules/ipc/message/protobuf/localization/pose.proto";
+import "modules/ipc/message/protobuf/common/geometry.proto";
+import "modules/ipc/message/protobuf/common/pnc_point.proto";
+
+
+enum MeasureState {
+  NOT_VALID = 0;
+  NOT_STABLE = 1;
+  OK = 2;
+  VALID = 3;
+}
+
+
+message Uncertainty {
+  // Standard deviation of position, east/north/up in meters.
+  optional atd.common.Point3D position_std_dev = 1;
+
+  // Standard deviation of quaternion qx/qy/qz, unitless.
+  optional atd.common.Point3D orientation_std_dev = 2;
+
+  // Standard deviation of linear velocity, east/north/up in meters per second.
+  optional atd.common.Point3D linear_velocity_std_dev = 3;
+
+  // Standard deviation of linear acceleration, right/forward/up in meters per
+  // square second.
+  optional atd.common.Point3D linear_acceleration_std_dev = 4;
+
+  // Standard deviation of angular velocity, right/forward/up in radians per
+  // second.
+  optional atd.common.Point3D angular_velocity_std_dev = 5;
+
+  // TODO: Define covariance items when needed.
+}
+
+
+message LocalizationAbsEstimate {
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  optional atd.localization.Pose pose = 3;
+  optional Uncertainty uncertainty = 4;
+  optional Particles uwb = 5;
+  optional Particles ins =6;
+  optional Particles ofilm=7;
+  optional Particles locabs=8;
+}
+
+message LocalizationMapMatchEstimate {
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg = 2;
+  optional atd.localization.Pose pose = 3;
+  optional Uncertainty uncertainty = 4;
+  optional Particles histraj = 5;
+  optional Particles grid =6;
+}
+
+message LocalizationEstimate {
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  optional atd.localization.Pose pose = 3;
+  optional Uncertainty uncertainty = 4;
+  optional Particles particles = 5;
+
+  // Future trajectory acturally driven by the drivers
+  repeated atd.common.TrajectoryPoint trajectory_point = 6;
+}
+
+
+message Particle {
+  optional atd.common.Arrow2D arrow=1;
+  optional atd.localization.Pose pose=2;
+  optional float score=3; //the score before unit
+  optional float weight = 4; //the score after unit
+}
+
+
+message Particles {
+  optional string layername = 1;
+  optional float meanscore = 2;
+  optional float belief = 3;
+  optional fixed32 colorR = 4;
+  optional fixed32 colorG = 5;
+  optional fixed32 colorB = 6;
+  repeated Particle particle = 7;
+  optional MeasureState layerState = 9;
+}
+
+message Particles_Collection {
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  repeated Particles particles = 3;
+}
+
+

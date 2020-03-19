@@ -1,0 +1,88 @@
+syntax = "proto2";
+
+package atd.common;
+option optimize_for = LITE_RUNTIME;
+
+// Error codes enum for API's categorized by modules.
+enum ErrorCode {
+  // No error, reutrns on success.
+  OK = 0;
+
+  //DR error
+  DR_ERROR =100;
+
+  //MATCH error
+  MATCH_ERROR =200;
+
+  //GRIDMAP error
+  GRIDMAP_ERROR =300;
+
+  //LOCALIZATIONABS error
+  LOCALIZATIONABS_ERROR =400;
+
+  //DRIVER error
+  DRIVER_MELANE_ERROR =500;
+  DRIVER_US_ERROR =501;
+  DRIVER_INS_ERROR =502;
+  DRIVER_UWB_ERROR =503;
+  DRIVER_VCU_ERROR =504;
+  CAN_CLIENT_ERROR_BASE=505;
+  CAN_CLIENT_ERROR_FRAME_NUM=506;
+  CAN_CLIENT_ERROR_SEND_FAILED=507;
+  CAN_CLIENT_ERROR_RECV_FAILED=508;
+  CANBUS_ERROR=509;
+
+  //FSM error
+  FSM_Socket_creation_ERROR=510;
+  FSM_Registration_ERROR=511;
+  FSM_HeartBeatTimeout_ERROR=512;
+  FSM_ResultFB_ERROR=513;
+  FSM_PassingReq_ERROR=514;
+  FSM_ERROR=515;
+
+  // Localization module error codes start from here.
+  LOCALIZATION_ERROR = 3000;
+  LOCALIZATION_ERROR_MSG = 3100;
+  LOCALIZATION_ERROR_LIDAR = 3200;
+  LOCALIZATION_ERROR_INTEG = 3300;
+  LOCALIZATION_ERROR_GNSS = 3400;
+
+
+  // Perception module error codes start from here.
+  PERCEPTION_ERROR = 4000;
+  PERCEPTION_ERROR_TF = 4001;
+  PERCEPTION_ERROR_PROCESS = 4002;
+  PERCEPTION_FATAL = 4003;
+  PERCEPTION_ERROR_EyeQ4Lane = 4004;
+  PERCEPTION_ERROR_HDMapLane = 4005;
+  PERCEPTION_ERROR_MATCHHDMapLane_to_EyeQLane = 4006;
+  PERCEPTION_ERROR_RectifyHDMapLane = 4007;
+  PERCEPTION_ERROR_NOT_ALL_EyeQ4Lane_VALID = 4008;
+  PERCEPTION_ERROR_EyeQ4Lane_Line_SLope_Too_Big=4009;
+
+  // Prediction module error codes start from here.
+  PREDICTION_ERROR = 5000;
+
+  // Planning module error codes start from here
+  PLANNING_ERROR = 6000;
+
+  // HDMap module error codes start from here
+  HDMAP_DATA_ERROR = 7000;
+  HDMAP_ROUTE_FAILROUTE=7001;
+  HDMAP_MATCHGRID_NOMATCH=7002;
+
+  // Indicates an input has been exhausted.
+  SYS_END_OF_INPUT = 9000;
+  SYS_FILEREAD_ERROR = 9001;
+  SYS_INIT_ERROR = 9002;
+  
+  // HTTP request error codes.
+  HTTP_LOGIC_ERROR = 10000;
+  HTTP_RUNTIME_ERROR = 10001;
+
+}
+
+message StatusPb {
+	optional ErrorCode error_code = 1 [default = OK];
+	optional string msg = 2;
+}

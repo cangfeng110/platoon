@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+option optimize_for = LITE_RUNTIME;
+
+
+package atd.map;
+
+import "modules/ipc/message/protobuf/common/header.proto";
+import "modules/ipc/message/protobuf/common/reserved.proto";
+import "modules/ipc/message/protobuf/localization/pose.proto";
+
+message LANE_LINK_KEY_GridLog {
+    optional int64 m_iRoadId = 1;
+    optional int32 m_iSectionSeq = 2;
+    optional int32 m_iLaneNum = 3;
+    optional int32 m_iBranch = 4;
+}
+message GridLogInfo {
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  optional atd.localization.Pose pose = 3;
+  optional LANE_LINK_KEY_GridLog currentlaneinfo =4;
+  optional int64 m_iSpeed =5;
+}

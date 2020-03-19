@@ -1,0 +1,78 @@
+syntax ="proto2";
+
+option optimize_for = LITE_RUNTIME;
+
+
+package atd.map;
+
+
+import "modules/ipc/message/protobuf/common/header.proto";
+import "modules/ipc/message/protobuf/common/reserved.proto";
+import "modules/ipc/message/protobuf/localization/pose.proto";
+import "modules/ipc/message/protobuf/common/geometry.proto";
+
+
+message LANE_LINK_KEY {
+    optional int64 m_iRoadId = 1;
+    optional int32 m_iSectionSeq = 2;
+    optional int32 m_iLaneNum = 3;
+    optional int32 m_iBranch = 4;
+}
+
+message SPEED_LIMIT
+{
+    optional int32 m_iMaxSpeed = 1;
+    optional int32 m_iMinSpeed = 2;
+    optional int32 m_iRecommentSpeed = 3;
+}
+
+message TSR_DISTANCE
+{
+    optional SPEED_LIMIT stCurrentSpeedLimit = 2;
+    optional SPEED_LIMIT stNextSpeedLimit = 3;
+    optional LANE_LINK_KEY stCurrentLaneKey = 4;
+    optional int32 iCurrentLaneKeyID = 5;
+    optional int32 iTotleLaneKeyID = 6;
+    optional int32 iTurnFlag = 7;
+    optional int32 iTurnStatus = 8;
+    optional int32 isCalculatedLane = 9;
+    optional int32 isDummyRoad = 10;
+    optional int32 iTotleStoplineNum = 11;
+    optional int32 iRemainStoplineNum = 12;
+    optional int32 isLeftTurnZone = 13;
+    optional int32 iParkingStatus = 14;
+    optional double dDistance2Stopline = 15;
+    optional double dDistance2Destination = 16;
+    optional double dWholeRouteLength = 17;
+    optional double dDistance2Parking = 18;
+    optional double dDistance2LaneEnd = 19;
+    optional double dWholeParkingLength = 20;
+}
+
+message ONE_PARKING_SITE
+{
+    repeated LANE_LINK_KEY stAttachedRoad = 2;
+    optional atd.common.Point3D stPoint2VehicleCor = 3;
+    repeated atd.common.Point3D stShapePoint2VehicleCor = 4;
+    optional int32 iAttachedRoadCount = 5;
+    optional int32 iSID = 6;
+    optional int32 iLength = 7;
+    optional int32 iWidth = 8;
+    optional int32 iAttribute = 9;
+    optional int32 iStyle = 10;
+    optional int32 iShapeType = 11;
+    optional int32 iShapeNum = 12;
+    optional int32 iAppStatus = 13;
+    optional int32 iAdd = 14;
+}
+    
+
+message EngineRemainDistance
+{
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  optional atd.localization.Pose pose = 3;
+  optional TSR_DISTANCE tsrdistance=4;
+  optional ONE_PARKING_SITE oneparkingsite=5;
+  optional string sTaskID = 6;
+}

@@ -2,13 +2,19 @@ cmake_minimum_required(VERSION 2.6)
 
 project(platoon)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++0x")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++0x")
+
+add_compile_options(-std=c++11)
 
 include_directories("/include/" ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
+#add ipc
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/common)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/ipc)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/worldmodel)
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/customfunction)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/include/base)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/include/proto)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/communication)

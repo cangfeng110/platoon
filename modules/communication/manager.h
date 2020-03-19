@@ -36,14 +36,26 @@ public:
         F_DisBand = 4,
     };
 
-    void SetFmsInfo (const FmsInfo& fms_info);
+    //void SetFmsInfo (const FmsInfo& fms_info);
     void UpdatePlatoonManagerInfo ();
 
 private:
+//data member
     DriveMode actual_drive_mode;
     DriveMode desire_drive_mode;
     int _ID;
+    float m_safe_distance_;
+    /**
+     * this vector is to sort to calculated id 
+    */
     std::vector<VehicleData> other_vehicles;
+
+    /* this vector storage communication status, 
+     * if normal, storage vehicle id
+     * else, storage -vehicel_id;
+     */
+    std::vector<int> vehicle_status_;
+
     /** 
      * this map storae all the platoon vehicle id and platoon id 
      * the key is paltoon id
@@ -52,16 +64,22 @@ private:
     **/
     std::map<int,int> platoon_id_map_;
 
-    WorldModle m_worldmodle_;
-    FmsInfo m_fms_info;
+    FmsOrder m_fms_order_;
 
-    float THW ();
-    float TimeToFront ();
-    void CalculateID ();
-    void ProcessCommand ();
+    WorldModle m_worldmodle_;
 
     int m_debug_flags;
     int m_debug_thw_HZ;
+    bool hmi_fms_valid_;
+    
+private:
+//function member
+    float THWDis ();
+    float FrontDis ();
+    void SetSafeDis(float safe_dis);
+    void CalculateID ();
+    bool IfAbnormal ();
+    void ProcessCommand ();
 };
 
 } // namespace communication

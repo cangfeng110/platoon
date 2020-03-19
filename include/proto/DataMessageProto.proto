@@ -1,0 +1,407 @@
+﻿syntax = "proto3";
+option optimize_for = LITE_RUNTIME;
+import public "google/protobuf/timestamp.proto";
+//package com.example.protobufmodel;
+package platoon.communication;
+/**
+ * 消息头类型 对应文档中的消息头类型
+ * @author  admin
+ * @create  2018/12/27 16:21
+ * @desc
+ **/
+enum FMS_MessageType {
+    MsgNull_Error = 0; //无指令
+    MsgRequestAndReqAns = 101; //注册----InitMessage(车辆->fms)，InitRespMessage(fms->车辆)
+    MsgHB = 201; //心跳-----HeartBeatMessage(fms->车辆)
+    MsgVehicleFB = 301; //实时信息上报----DspFeedbackFrame(车辆->fms)
+    MsgTaskAndPerfResult = 302; //任务指令----DriveUnitOperation(fms->车辆)，DriveUnitOperationResult(车辆->fms)
+    MsgCrossingRequestAndAns = 303; //车道申请----RequireLane(车辆->fms),RequireLaneResult(fms->车辆)
+    MsgVehicleInOutPort = 305; //车辆进出港口反馈---VehicleInOutPortMsg(车辆->fms)
+
+    MsgVehicleFleetAndPerfResult = 304; //车辆编队请求和编队装对反馈-----VehicleFleetInfo(车辆->fms)；VehicleFleetResult(fms->车辆)
+    MsgVehicleFleetResult = 306; //车辆预编队指令-----VehicleFleetOperation（fms->车辆)
+
+    MsgOperationReceived = 401; //指令接收确认-----OperationReceivedMsg
+}
+
+/**
+ * 指令消息对象
+ * @author  admin
+ * @create  2018/12/27 16:21
+ * @desc
+ **/
+
+/**
+ * 箱位（前箱，后箱，全部）
+ * @author  admin
+ * @create  2019/1/16 15:41
+ * @desc
+ **/
+enum ContainerLocation {
+    FRONT_BOX = 0; //前箱
+    BACK_BOX = 1; //后箱
+    FULL = 2; //双箱位
+}
+
+/**
+ * 指令类型
+ * @author  admin
+ * @create  2019/1/14 16:48
+ * @desc
+ **/
+enum OperationCode {
+    SELFCHECK = 0; //自检
+    SLOWSTOP = 1; //缓慢停车
+    EMERGENCYSTOP = 2; //紧急停车
+    MOVE = 3; //移动
+    INCHFRONT = 4; //微调---向前
+    INCHBACK = 5; //微调---向后
+    CHANGEWORKMODE = 6; //操作模式切换
+    TASKGET = 7; //命令获取成功.
+    LOAD = 8; //车辆接箱
+    UNLOAD = 9; //车辆卸箱
+    REVERSE_LSTP=10;//外集卡倒入作业库位
+}
+
+/**
+ *车辆操作模式
+ * @author  admin
+ * @create  2019/1/16 15:34
+ * @desc
+ **/
+enum WorkingMode {
+    AUTO = 0; //自动模式
+    MAN_CONTROL = 1; //人工操作模式
+    REMOTE_CONTROL = 2; //远程遥控模式
+}
+/**
+ *货物类型（液态，固态）
+ * @author  admin
+ * @create  2019/1/16 15:38
+ * @desc
+ **/
+enum ContainerForm {
+    LIQUID_STATE = 0; //液态
+    SOLID_STATE = 1; //固态
+}
+
+/**
+ * 作业箱型信息
+ * @author  admin
+ * @create  2019/1/16 15:44
+ * @desc
+ **/
+enum ContainerType {
+    FORTY_FEET = 0; //单四十尺
+    TWENTY_FEET = 1; //单二十尺
+    DOUBLE_TWENTY_FEET = 2; //双二十尺
+}
+
+/**
+ * 节点类型
+ * @author  admin
+ * @create  2019/1/14 16:47
+ * @desc
+ **/
+enum PathType {
+    LANE = 0; //车道
+    STARTNODE = 1; //任务起点
+    BAY = 2; //bay位
+    STSLOCATION = 3; //STS的GPS坐标
+    TURNPOINTIN = 4; //掉头入口点（坐标点）
+    TURNPOINTOUT = 5; //掉头出口点（坐标点）
+    LANECHANGEIN = 6; //变道入口点（坐标点）
+    LANECHANGEOUT = 7; //变道出口点（坐标点）
+    PORTGATE = 8; //港口闸机
+    LSTP=9;//陆侧集卡换箱作业区（洋四外集卡倒车库位）
+}
+
+/**
+ * 车辆当前状态（0-空闲，1-等待装箱,2-等待卸箱，3-充电/加油,4-故障）
+ * @author  admin
+ * @create  2019/1/14 17:08
+ * @desc
+ **/
+enum VehicleStatus {
+    FREE = 0; //空闲
+    WAITINGLOAD = 1; //等待装箱
+    WAITINGUNLOAD = 2; //等待卸箱
+    CHARGING = 3; //充电/加油
+    ERROR = 4; //故障
+}
+
+/**
+ * 车辆作业指令（fms->车辆）
+ * @author  admin
+ * @create  2019/1/14 17:08
+ * @desc
+ **/
+
+message DriveUnitOperation {
+    string id = 1;
+    string vehicleId = 2; //	车辆ID
+    int32 taskId = 3; //	任务ide
+    int32 actionId = 4; //	子任务id
+    OperationCode operationCode = 5; //	指令类型
+    WorkingMode workingMode = 6; //	车辆操作模式(0-自动，1-手动，2-远程)
+    int32 timeLimit = 7; //	任务时间（秒）
+    float containerWeight = 8; //	当前箱重(kg)
+    ContainerForm containerForm = 9; //	货物类型（液态，固态）
+    ContainerType containerType = 10; //	作业箱型（四十尺，二十尺）
+    ContainerLocation containerLocation = 11; //	作业箱位（1-前箱，2-后箱,3-双箱位全占）
+    repeated Path nextPath = 12; //	下一段路径（车道级路径包含任务起点，任务终点（bay位号，STS的GPS坐标），车道ID序列，掉头出口点（坐标点），掉头入口点（坐标点），并道入口点（坐标点），并道出口点（坐标点））
+    int32 inchingDistance = 13; //微调距离（单位：cm）
+    string signature = 14; //签名密文
+}
+
+/**
+ * 路径元素信息
+ * @author  admin
+ * @create  2019/1/14 16:08
+ * @desc
+ **/
+message Path {
+    string Id = 1; //节点编号（bay位为主）
+    double posX = 2; //节点gpsX坐标
+    double posY = 3; //节点gpsY坐标
+    PathType pathType = 4; //节点类型(车道，任务起点，任务终点-bay位号，STS的GPS坐标，掉头出口点（坐标点），掉头入口点（坐标点），变道入口点（坐标点），变道出口点（坐标点）)
+    repeated string eliminateLaneId=5;//freespace时排除的车道编号
+}
+
+/**
+ * 指令执行结果（车辆->fms）
+ * @author  admin
+ * @create  2018/12/27 16:21
+ * @desc
+ **/
+message DriveUnitOperationResult {
+
+    enum TASK_PerfResult {
+        StatusUnavaliable = 0; // 任务状态无法获取
+        Incompleted = 1; // 任务未完成
+        Completed = 2; // 任务完成
+        Reserved_1_Result = 3; // 保留位
+        Reserved_2_Result = 4; // 保留位
+    }
+    string id = 1;
+    string vehicleId = 2; //	车辆编号
+    int32 taskId = 3; //	任务ID
+    int32 actionId = 4; //	子任务Id
+    OperationCode operationCode = 5; //	指令类型（见附录）
+    TASK_PerfResult result = 6; //	执行结果 refer to TASK_PerfResult
+    string signature = 7; //签名密文（暂不启用）
+
+}
+/**
+ * 码头编号
+ * @author  admin
+ * @create  2019/6/9 16:21
+ * @desc
+ **/
+enum Port_Id {
+    PortUnavaliable = 0; //无法获取
+    Port_OutSide = 1; //港外区域
+    Port_DSG = 2; //独山港
+    Port_YSG_1 = 3; //洋一
+    Port_YSG_4 = 4; //洋四
+    Port_SHSHG = 5; //深水港物流园区
+    Port_WGQ_2 = 6; //外二
+    Port_TAICANGGANG = 7; //太仓港
+
+}
+/**
+ * 车辆实时状态信息（车辆->fms）
+ * @author  admin
+ * @create  2018/12/27 16:21
+ * @desc
+ **/
+message DspFeedbackFrame {
+    string vehicleId = 1; //	车辆id                                                            (已有)
+    int32 taskId = 2; //	任务id                                                                (已有)
+    int32 actionId = 3; //	子任务id                                                              （已有)
+    VehicleStatus vehicleStatus = 4; //	车辆状态（0-空闲，1-等待装箱,2-等待卸箱，3-充电/加油,4-故障）
+    float energyLevel = 6; //	车辆当前能量（油量或电量）
+    WorkingMode workingMode = 5; //	当前工作模式（0-自动，1-手动，2-远程）
+    float mileage = 7; //	累计行驶里程（公里）
+    string curLaneId = 8; //	当前所在车道编号                                                     （已有）
+    string preLaneId = 9; //	上一个车道编号
+    string nextLaneId = 10; //	下一个车道编号
+    double longitude = 11; //	Gps经度（矫正过后，车辆本体采信的坐标，防止纯gps偏移）                    （已有）
+    double latitude = 12; //	Gps纬度（矫正过后，车辆本体采信的坐标，防止纯gps偏移）                    （已有）
+    int32 errorCode = 13; //	错误码
+    float speed = 14; //	实时速度（m/s）                                                         （已有）
+    float heading = 15; //	车头与正北夹角（弧度）                                                  （已有）
+    int32 containerWeight = 16; //	当前箱重（拼箱作业需加减计算）
+    bool withContainer = 17; //	是否载箱(车辆传感器判断是否载箱)
+    ContainerLocation containerLocation = 18; //载箱箱位
+    google.protobuf.Timestamp curtime = 19; //时间戳                                                 （已有）
+    string curBayId = 20; //车辆在箱区时的bay位号                                                      （已有）
+    Port_Id curPortId = 21; //当前车辆所在码头编号
+    string fleetId = 22; //当前车辆所在车队编号（不在车队则为空）
+    string signature = 23; //签名密文（暂不启用）
+    float subMileage=24;//小计里程（公里）
+}
+
+/**
+ * 申请进入作业道（车辆-》fms）
+
+ *
+ * @author admin
+ * @create 2018/12/13 17:22
+ * @desc
+ **/
+
+message RequireLane {
+    string id = 1;
+    string linkId = 2; //车道编号
+    string vehicleId = 3; //车辆编号
+    string signature = 4; //签名密文（暂不启用）
+}
+/**
+ * 车道申请结果反馈（fms->车辆）
+ *
+ * @author admin
+ * @create 2018/12/13 17:25
+ * @desc
+ **/
+message RequireLaneResult {
+    string id = 1;
+    string linkId = 2; //车道编号
+    string vehicleId = 3; //车辆编号
+    bool result = 4; //申请结果
+    string signature = 5; //签名密文（暂不启用）
+
+}
+
+/**
+ * 车辆跨港信息反馈（车->FMS）
+ *
+ * @author admin
+ * @create 2019/6/9 17:25
+ * @desc
+ **/
+message VehicleInOutPortMsg {
+    string id = 1; //指令流水号（uuid）
+    string vehicleId = 2; //车辆编号
+    int32 taskId = 3; //任务编号
+    int32 actionId = 4; //子任务编号
+    AcrossPort_type eventType = 5; //事件类型
+    Port_Id portId = 6; //事件发生港口ID（驶出的港口或即将到达的港口或进入的港口）
+    string signature = 7; //签名密文（暂不启用）
+
+    //事件类型
+    enum AcrossPort_type {
+        PortUnavaliable = 0; //无法获取
+        Leave_Port = 1; //到达出港闸机
+        Approaching_Port = 2; //即将到达目标港口
+        Enter_Port = 3; //到达入港闸机
+        Leave_Port_Success = 4; //成功通过出港闸机
+        Leave_Port_Fail = 5; //通过出港闸机失败
+        Enter_Port_Sucess = 6; //成功通过入港闸机
+        Enter_Port_Fail = 7; //通过入港闸机失败
+    }
+}
+
+/**
+ * 接收到指令的反馈（用于所有需要接收确认的指令）（车辆-》fms）
+ *
+ * @author admin
+ * @create 2019/6/9 17:25
+ * @desc
+ **/
+message OperationReceivedMsg {
+    string id = 1; //指令编号
+    string coId = 2; //接收到的指令编号
+}
+
+
+
+
+/**========================================================================================================================**/
+/**
+ * 车辆组队申请类型
+ * @author  admin
+ * @create
+ * @desc
+ **/
+enum FleetApplyType {
+    APPLY_NULL = 0; //无请求
+    APPLY_JOIN_FLEET = 1; //请求入队
+    APPLY_FLEET_HEADER = 2; //请求成为头车
+}
+
+/**队列行驶参考点**/
+message Fleet_node {
+    enum NodeType {
+        //参考点类型
+        NODE_INVAILD = 0; //无效
+        NODE_GROUPING = 1; //编队参考点
+        NODE_LEAVING = 2; //离队参考点
+    }
+    double posX = 1; //节点gpsX坐标
+    double posY = 2; //节点gpsY坐标
+    NodeType nodeType = 3; //节点类型(编队参考点，离队参考点）)
+}
+
+/**
+ * 车辆预编队指令（FMS->车辆）
+ * @author admin
+ * @create
+ * @desc
+ **/
+message VehicleFleetOperation {
+    string id = 1; //指令流水号（uuid）
+    string vehicleId = 2; //车辆编号
+    repeated string platoonMember = 3; //车队成员Id
+    int32 platoonNumber = 4; //车队编号
+    google.protobuf.Timestamp startTime = 5; //编队开始时间
+    Fleet_node startNode = 6; //开始编队参考点点
+    Fleet_node endNode = 7; //离队参考点
+    Port_Id srcPort = 8; //起始港口
+    Port_Id dstPort = 9; //目的港口
+    string signature = 10; //签名密文（暂不启用）
+}
+
+/**
+ * 车辆编队申请结果反馈（FMS->车辆）
+ * @author admin
+ * @create
+ * @desc
+ **/
+message VehicleFleetResult {
+    string id = 1; //指令流水号（uuid）
+    string vehicleId = 2; //车辆编号
+    int32 platoonNumber = 4; //车队编号
+    FleetApplyType applyInfo = 5; //请求类型
+    bool applyResult = 7; //申请结果
+    string signature = 10; //签名密文（暂不启用）
+}
+
+/**
+ * 车辆队列行驶状态反馈（车辆->FMS）  车辆组队状态开启后周期性发送，频率为1秒1次
+ * @author admin
+ * @create
+ * @desc
+ **/
+message VehicleFleetInfo {
+
+    /** 单车实际队列状态**/
+    enum VehicleFleetMode {
+        MAN_DRIVE = 0; //人工驾驶
+        AUTO_DRIVE = 1; //单车智驾
+        FLEET_HEADER = 2; //车队头车
+        FLEET_GROUPING = 3; //正在组队
+        FLEET_KEEP = 4; //队列保持
+        FLEET_LEAVING = 5; //正在离队
+        MODE_ERROR = 6; //异常
+    }
+
+
+    FleetApplyType applyInfo = 1; //车队请求信息
+    VehicleFleetMode actualDriveMode = 2; //车辆队列行驶状态
+    int32 platoonNumber = 3; //车队编号
+    int32 vehicleSquence = 4; //车辆在车队中的顺序
+    string vehicleId = 5; //车辆编号
+    string fmsMessageId = 6; //车辆当前响应的fms指令流水号
+
+}

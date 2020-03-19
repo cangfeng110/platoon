@@ -1,0 +1,50 @@
+syntax = "proto2";
+option optimize_for = LITE_RUNTIME;
+
+import "modules/ipc/message/protobuf/common/header.proto";
+import "modules/ipc/message/protobuf/common/reserved.proto";
+
+
+package atd.perception;
+
+message Grid {
+  required int32 rowindex=101;
+  required int32 columnindex=102;
+  optional float bf_local = 1;
+  optional float bf_move = 2;
+  optional float bf_free = 3;
+  optional float bf_occupy = 4;
+  optional float bf_free_lane =5;
+  optional float bf_free_lane_solid =6;
+  optional float bf_free_lane_dash =7;
+  optional float bf_free_lane_dsolid =8;
+  optional float bf_free_lane_edge =9;
+  optional float bf_free_lane_barrier =10;
+}
+
+message GridList {
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  repeated Grid onegrid = 3;
+}
+
+message GridDisplay {
+  required int32 rowindex=101;
+  required int32 columnindex=102;
+  optional int32 matchtype = 1;
+}
+
+message OneMatch {
+  optional float delta_x = 1;
+  optional float delta_y=2;
+  optional float delta_yaw=3;
+  optional float score=4;
+  repeated GridDisplay onegrid = 5;
+}
+
+message MatchDisplay {
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  repeated OneMatch onematch = 3;
+}
+

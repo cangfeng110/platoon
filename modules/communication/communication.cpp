@@ -2,22 +2,24 @@
 
 #include <string>
 #include <iostream>
+#include <sys/time.h>
+
+#include "modules/communication/datadefine.h"
+#include "modules/common/functiontool.h"
 
 #include "include/protocol/ProtocolChannel.h"
 #include "include/base/EventLoop.h"
 #include "include/base/Channel.h"
-#include "modules/common/functiontool.h"
-#include <sys/time.h>
 
-namespace platoon {
 
-namespace communication {
+namespace platoon 
+{
 
-communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("communication") {
-    // Logger
-    // if(CommuConfig::GetInstance()->debug_) {
-    //     base::Logging::setLogLevel(base::Logging::Debug);
-    // }
+namespace communication 
+{
+
+communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("communication") 
+{
     //Lcm
     if(!lcm_.good()) {
         LDIE << "lcm init error";
@@ -60,14 +62,16 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
 //
 //
 //
-communication::~communication() {
+communication::~communication() 
+{
     LINFO << "loop end";
 }
 
 //
 //
 //
-void communication::Loop() {
+void communication::Loop() 
+{
     LINFO << "loop start";
     loop_.loop();
     LINFO << "loop end";
@@ -80,7 +84,6 @@ void communication::HandleEgoVehicleGpsInfo(const lcm::ReceiveBuffer *rbuf,
                                     const VehicleGpsData *msg)
 {
     assert(channel == "localization_out_2_map");
-    //std::cout << "receive ego vehicle gps info." << std::endl;
     static int gps_count = 0;
     gps_count++;
     if (gps_count % m_debug_gps_HZ == 0)
@@ -96,9 +99,9 @@ void communication::HandleEgoVehicleGpsInfo(const lcm::ReceiveBuffer *rbuf,
 
 void communication::HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
                                      const std::string &channel,
-                                     const VehicleVcuData *msg) {
+                                     const VehicleVcuData *msg) 
+{
     assert(channel == "VCU_VEHICLE_INFO");
-    //std::cout << "receive ego vcu info." << std::endl;
     static int vcu_count = 0;
     vcu_count++;
     if (vcu_count % m_debug_vcu_HZ == 0)
@@ -131,24 +134,32 @@ void communication::HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
 //
 //function: broast ego vehicle gps info to ibox
 //
-void communication::BroastEgoVehicleInfo() {
+void communication::BroastEgoVehicleInfo() 
+{
     struct timeval tv;
     if (m_debug_flags & DEBUG_BroadcastEgoVehicleInfo)
         gettimeofday (&tv, NULL);
-    if(DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()){
+    if(DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate())
+    {
         if (m_debug_flags & DEBUG_BroadcastEgoVehicleInfo)
             printf ("broadcast ego gps %ld.%ld\n", tv.tv_sec, tv.tv_usec);
         handler_.BroastEgoVehicleInfo();
-    } else {
+    } 
+    else 
+    {
         if (m_debug_flags & DEBUG_BroadcastEgoVehicleInfo)
             printf ("ego gps gone %ld.%ld\n", tv.tv_sec, tv.tv_usec);
     }
 }
 
-void communication::PublishManagerInfo() {
+
+
+void communication::PublishManagerInfo() 
+{
     static int pmi_count = 0;
     manager_.UpdatePlatoonManagerInfo ();
-    if (DataContainer::GetInstance ()->manager_data_.isUpToDate ()) {
+    if (DataContainer::GetInstance ()->manager_data_.isUpToDate ()) 
+    {
         const PlatoonManagerInfo& data = DataContainer::GetInstance ()->manager_data_.getData ();
         lcm_.publish ("PLATOON_MANAGER_INFO", &data);
         pmi_count++;
@@ -162,37 +173,15 @@ void communication::PublishManagerInfo() {
 //
 //function: receive other vehicle info from ibox
 //
-void communication::ReceiveV2xOtherVehicleInfo() {
-    if(handler_.DecodeV2xVechileInfo() > 0) {
-        if(DataContainer::GetInstance()->v2x_other_vehicle_data_.isUpToDate()) {
-            for (auto temp : DataContainer::GetInstance()->v2x_other_vehicle_data_.getData()) {
+void communication::ReceiveV2xOtherVehicleInfo() 
+{
+    if(handler_.DecodeV2xVechileInfo() > 0) 
+    {
+        if(DataContainer::GetInstance()->v2x_other_vehicle_data_.isUpToDate()) 
+        {
+            for (auto temp : DataContainer::GetInstance()->v2x_other_vehicle_data_.getData()) 
+            {
                 const VehicleData &data = temp.second.getData();
-                //std::cout << "========= display ==========" << std::endl;                
-                // std::cout << "iVehicleID       : " << data.iVehicleID    << std::endl
-                //           << "fVehicleLength   : " << data.fVehicleLength << std::endl
-                //           << "fVehicleWidth    : " << data.fVehicleWidth << std::endl
-                //           << "iDriveModeStatus : " << (int)data.iDriveModeStatus << std::endl
-                //           << "fBrakePedalAngle : " << data.fBrakePedalAngle    << std::endl
-                //           << "dLongitude       : " << data.dLongitude          << std::endl
-                //           << "dLatitude        : " << data.dLatitude           << std::endl
-                //           << "ego_longitude    :  "<< DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().longitude <<std::endl
-                //           << "ego_latitude     :  "<< DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().latitude << std::endl
-                //           << "fLongituAcc      : " << data.fLongituAcc         << std::endl
-                //           << "fLateralAcc      : " << data.fLateralAcc         << std::endl
-                //           << "fHeading         : " << data.fHeading            << std::endl
-                //           << "fSpeed           : " << data.fSpeed              << std::endl
-                //           << "fSteeringAngle   : " << data.fSteeringAngle      << std::endl
-                //           << "fYawRate         : " << data.fYawRate            << std::endl
-                //           << "iGpsState        : " << (int)data.iGpsState      << std::endl
-                //           << "iGpsTime         : " << data.iGpsTime            << std::endl
-                //           << "iShiftPosition   : " << (int)data.iShiftPosition << std::endl;
-/*
-                 printf("long:%f\nlat:%f\nalt:%f\nlong:%f\nlat:%f\nalt%f\nheading%f\n",data.longitude,data.latitude,data.altitude,
-                            DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().longitude,
-                            DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().latitude,
-                            DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().height,
-                            DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().heading);
-*/
                 int publish_v2x_flag = lcm_.publish("V2X_OTHER_VEHICLE_INFO", &data);
                 //std::cout << "publish v2x flag is : " << publish_v2x_flag << std::endl;
             }   
@@ -200,7 +189,6 @@ void communication::ReceiveV2xOtherVehicleInfo() {
     }
 }
 
-#define INVALID_FLOAT 1E10;
 void communication::HandleTestVehicleInfo (const lcm::ReceiveBuffer *rbuf,
                                            const std::string &channel,
                                            const VehicleData *msg)
@@ -247,35 +235,6 @@ void communication::HandleTestVehicleInfo (const lcm::ReceiveBuffer *rbuf,
     }
     DataContainer::GetInstance()->v2x_other_vehicle_data_.setData(key, v2x_other_vehicle_data);
 }
-//
-//function:publish worldmodel info to channel
-//
-/* void communication::PublishWorldmodelInfo() {
-    if (DataContainer::GetInstance()->v2x_other_vehicle_data_.isUpToDate()) {
-        //LINFO << "publish worldmodle vehicle info to lcm";
-        WorldModelObjects temp = handler_.GetWorldmodleVehiles();
-        std::cout << "###########Publish publish worldmodle vehicle info to lcm#######" << std::endl
-                  <<"remote vehilce number is : " << temp.vehicle_num << std::endl;
-        if(temp.vehicle_num > 0){
-            for(auto it : temp.vehicles){
-                std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-                std::cout << "vehicle ID : " << it.vehicle_id << std::endl 
-                          <<"vehicle frenet dis is : " << it.frenet_lon_distance << std::endl
-                          << "history trajectory point is : " << it.point_num << std::endl;
-                // for(int i = 0; i < it.hisTrajectory.size(); i++) {
-                //     std::cout << "the "  << i << " trajectory relative x is :" << it.hisTrajectory[i].relative_x << std::endl;
-                //     std::cout << "the "  << i << " trajectory relative y is :" << it.hisTrajectory[i].relative_y << std::endl;
-                //     std::cout << "the "  << i << " trajectory relative heading is :" << it.hisTrajectory[i].relative_heading << std::endl;
-                // }
-                std::cout << "########################################################" << std::endl;
-            } 
-        }        
-        lcm_.publish("WORLDMODEL_OTHER_OBJECTS_INFO", &handler_.GetWorldmodleVehiles());
-    } else {
-//        LDEBUG << " worldmodel info is not update ";
-    }
-        
-} */
 
 } // namesapce communication
 

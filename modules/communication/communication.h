@@ -15,10 +15,13 @@
 #include "modules/communication/handler.h"
 #include "modules/communication/manager.h"
 
-namespace platoon {
-namespace communication {
+namespace platoon 
+{
+namespace communication 
+{
 
-class communication : public base::NonCopyable {
+class communication : public base::NonCopyable 
+{
 public:
     communication();
     ~communication();

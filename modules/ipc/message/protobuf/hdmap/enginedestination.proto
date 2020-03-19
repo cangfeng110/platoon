@@ -1,0 +1,62 @@
+syntax = "proto2";
+
+option optimize_for = LITE_RUNTIME;
+
+
+import "modules/ipc/message/protobuf/common/header.proto";
+import "modules/ipc/message/protobuf/common/reserved.proto";
+
+package atd.map;
+
+//destination is described by parking key
+message DesParkingKey {
+  optional int32 garagekey = 1;
+  optional int32 floorkey = 2;
+  optional int32 areakey = 3;
+  optional int32 lotkey=4;
+  optional string garagestr=5;
+  optional string floorstr=6;
+  optional string areastr=7;
+  optional string lotstr=8;
+}
+
+message DesPoint{
+  optional int32 longi=1;
+  optional int32 lati=2;
+  optional int32 level=3;
+}
+
+//destination is described by pointlist
+message DesPointList{
+  repeated DesPoint destpoint = 1;
+}
+
+//destination is described by task id
+message DesTaskID{
+  optional uint32 command = 1;
+  optional uint32 value = 2;
+  optional uint32 carrier_id = 3;
+  optional uint32 parkinglot_id = 4;
+  optional uint32 area_id = 5;
+  optional int32 layer_id = 6;
+  optional uint32 parkingspace_id = 7;
+}
+
+message EngineDestination {
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+
+  enum NaviSource {
+    UNKNOWN = 1;
+    DEBUG = 2;
+    APP = 3;
+    FICM = 4;
+    DRIVERSYS = 5;
+  }
+
+  optional NaviSource source = 3;
+  optional DesParkingKey des_parkingkey = 4;
+  optional DesPointList des_pointlist = 5;
+  optional DesTaskID des_taskid = 6;
+}
+

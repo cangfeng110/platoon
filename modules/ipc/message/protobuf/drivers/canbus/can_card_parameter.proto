@@ -1,0 +1,57 @@
+syntax = "proto2";
+
+package atd.drivers.canbus;
+
+message CANCardParameter {
+  enum CANCardBrand {
+    FAKE_CAN = 0;
+    ESD_CAN = 1;
+    SOCKET_CAN_RAW = 2;
+    CANNET_CAN =3;
+    LIKE_CAN=4;
+    DW_CAN=5;
+  }
+
+  enum CANCardType {
+    PCI_CARD = 0;
+    USB_CARD = 1;
+  }
+
+  enum CANChannelId {
+    CHANNEL_ID_ZERO = 0;
+    CHANNEL_ID_ONE = 1;
+    CHANNEL_ID_TWO = 2;
+    CHANNEL_ID_THREE = 3;
+  }
+
+  optional CANCardBrand brand = 1;
+  optional CANCardType type = 2;
+  optional CANChannelId channel_id = 3;
+  optional MiniCanCard  miniCan= 4;
+  optional bytes address=5;
+  optional int32 portNum=6;
+  optional string protocol=7;
+  optional string parameters=8;
+}
+
+message MiniCanCard{
+   enum BaudRate{
+	b0014_1M = 0;
+	b0016_800K = 1; 
+	b001C_500K = 2; 
+	b011C_250K = 3; 
+	b031C_125K = 4; 
+	b041C_100K = 5; 
+	b091C_50K = 6; 
+	b181C_20K = 7; 
+	b311C_10K = 8; 
+	bBFFF_5K = 9;
+}
+   optional BaudRate baurate = 1 [default=b0014_1M];
+   required uint32 nCanCardID = 2;
+   required uint32 nCardChannelID = 3;
+}
+
+
+
+

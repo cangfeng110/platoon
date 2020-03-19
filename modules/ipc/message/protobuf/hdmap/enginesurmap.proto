@@ -1,0 +1,33 @@
+syntax = "proto2";
+
+option optimize_for = LITE_RUNTIME;
+
+
+import "modules/ipc/message/protobuf/common/header.proto";
+import "modules/ipc/message/protobuf/common/reserved.proto";
+import "modules/ipc/message/protobuf/localization/pose.proto";
+import "modules/ipc/message/protobuf/common/geometry.proto";
+import "modules/ipc/message/protobuf/hdmap/engineremaindistance.proto";
+
+package atd.map;
+
+message SurElement {
+  optional int32 majortype = 1;
+  optional int32 minortype = 2;
+  repeated atd.common.Point2D onepoint = 3;
+  optional int32 elementid=4;
+}
+
+
+message SurElements {
+  optional int32 subcode = 1;
+  repeated SurElement oneelement = 2;
+}
+
+message EngineSurMap {
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  optional atd.localization.Pose pose = 3;
+  repeated SurElements elements = 4;
+  optional ONE_PARKING_SITE oneparkingsite = 5;
+}

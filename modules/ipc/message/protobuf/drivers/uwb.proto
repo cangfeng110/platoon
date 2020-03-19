@@ -1,0 +1,23 @@
+syntax = "proto2";
+
+package atd.drivers;
+
+option optimize_for = LITE_RUNTIME;
+
+import "modules/ipc/message/protobuf/common/header.proto";
+import "modules/ipc/message/protobuf/common/geometry.proto";
+import "modules/ipc/message/protobuf/common/reserved.proto";
+
+message Uwb {
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  optional atd.common.PointLLH uwbpoint = 3;
+  optional double heading=4;
+  optional int32 uwb_id=5;
+  optional double uwb_sendtime=6;
+  optional double longitude_std=7;
+  optional double latitude_std=8;
+  optional double heading_std=9;  
+  optional int32 nCredit=10;
+  optional int32 paddinggap=11;  
+}

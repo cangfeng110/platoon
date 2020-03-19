@@ -28,7 +28,7 @@ typedef platoon::protocol::Location                     Location;
 typedef platoon::protocol::WorldmodelVehicle            WorldModelObject;
 typedef platoon::protocol::WorldmodelVehicles           WorldModelObjects;
 
-typedef platoon::protocol::FmsInfo                      FmsInfo;
+typedef platoon::protocol::FmsInfo                      HmiFmsInfo;
 typedef platoon::protocol::EgoPlanningMsg               EgoPlanningMsg;
 typedef platoon::protocol::PlatoonManagerInfo           PlatoonManagerInfo;
 

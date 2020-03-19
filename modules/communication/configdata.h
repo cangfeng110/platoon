@@ -19,10 +19,15 @@ class ConfigData {
 public:
 //function
     static ConfigData *GetInstance();
+   
     int GetDebugFlags() const;
+ 
     int GetDebugThwHZ() const;
+  
     int GetDebugGpsHZ() const;
+  
     int GetDebugVcuHZ() const;
+  
     int GetDebugPmiHZ() const;
 
 // vehicle paraments config
@@ -34,6 +39,7 @@ public:
 
 // control config
     float keep_mode_threshold_;
+    bool hmi_fms_valid_;
     
 //communication config
     int local_port_;

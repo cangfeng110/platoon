@@ -1,0 +1,40 @@
+syntax = "proto2";
+
+import "modules/ipc/message/protobuf/common/header.proto";
+import "modules/ipc/message/protobuf/common/reserved.proto";
+
+package atd.drivers;
+
+option optimize_for = LITE_RUNTIME;
+
+message MOBILEYE_LANE_LINE {
+  optional int32 nLineType = 1;
+  optional int32 nQuality = 2;
+  optional float fWidth = 3;
+  optional int32 bLineCrossing = 4;
+  optional int32 nLineColor = 5;
+  optional float fTLC = 6;
+  optional float a = 7;
+  optional float b = 8;
+  optional float c = 9;
+  optional float d = 10;
+  optional float x0 = 11;
+  optional float x1 = 12;
+}
+
+message MOBI_LANES {
+  optional atd.common.Header header = 1;
+  optional int32 nConstructionFlag = 2;
+  optional int32 nRoadType = 3;
+  optional int32 bHighwayExitRight = 4;
+  optional int32 bHighwayExitLeft = 5;
+  optional float fLeftLaneDrivingSpeed = 6;
+  optional float fRightLaneDrivingSpeed = 7;
+  optional float fLeftLaneProbability = 8;
+  optional float fRightLaneProbability = 9;
+  optional MOBILEYE_LANE_LINE stLeftLine = 10;
+  optional MOBILEYE_LANE_LINE stRightLine = 11;
+  optional MOBILEYE_LANE_LINE stNextLeftLine = 12;
+  optional MOBILEYE_LANE_LINE stNextRightLine = 13;
+  optional atd.common.Reserved reservedmsg = 14;
+}

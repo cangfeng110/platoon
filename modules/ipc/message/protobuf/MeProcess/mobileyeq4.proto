@@ -1,0 +1,2340 @@
+syntax = "proto2";
+
+option optimize_for = LITE_RUNTIME;
+
+
+import "modules/ipc/message/protobuf/common/header.proto";
+import "modules/ipc/message/protobuf/common/reserved.proto";
+import "modules/ipc/message/protobuf/localization/pose.proto";
+import "modules/ipc/message/protobuf/common/geometry.proto";
+
+package atd.meprocess;
+
+message Dt_Record_App {
+// Report Message
+  enum Fatal_errorType {
+    APP_OK = 0;
+    APP_ERROR = 1;
+    APP_FS_ERROR = 10;
+    APP_CALIBRATION_ERROR = 11;
+    APP_GVPU_STATE_TERMINAL = 127;
+    EDR_WROTE_TO_FLASH = 129;
+    APP_INIT_FAILED = 20;
+    APP_INIT_CAMERA_INIT = 21;
+    APP_I2C_VIDEO_GRAB_FAILED = 50;
+    APP_I2C_CAMERA_SELF_RESET = 51;
+    APP_I2C_TIMEOUT_ERROR = 52;
+    APP_PATTERN_TEST = 70;
+    APP_CAM_PARAMS_CCFT_CRC_FAILED = 80;
+    PLL_COMPARISON_ERROR = 81;
+    APP_CPS_STL_FAILED = 82;
+    PV_GENERAL_ERROR = 90;
+    PV_VERIFICATION_ERROR = 91;
+  }
+  enum Minor_errorType {
+    BM_OK = 0;
+    BM_ERROR = 1;
+    BM_EM_ERROR = 5001;
+    BM_EM_ERR_FAILED_LOAD_SETTING = 5002;
+    BM_EM_ERR_FAILED_LOAD_REGISTRY = 5003;
+    BM_EM_ERR_FAILED_INIT_REGISTRY = 5004;
+    BM_EM_ERR_FAILED_INIT = 5005;
+    BM_EM_ERR_FAILED_INIT_BB = 5006;
+    BM_EM_ERR_FAILED_INIT_BB_REG = 5007;
+    BM_EM_ERR_FAILED_OPEN_BLACKBOX = 5008;
+    BM_EM_ERR_FAILED_INIT_EP = 5009;
+    BM_EM_ERR_FAILED_POST_INIT_EP = 5010;
+    BM_EM_ERR_FAILED_INIT_CREATE_LOGGER = 5011;
+    BM_EM_ERR_FAILED_INIT_IL = 5012;
+    BM_EM_ERR_FAILED_CHECK_REG_VERSIONS = 5013;
+    BM_EM_ERR_FAILED_NB_OPERATION = 5014;
+  }
+  enum Temperture_ddrType {
+    TEMP_ERROR = -1;
+    RANGE_OK = 0;
+    BELOW_SPEC = 1;
+    ABOVE_SPEC = 2;
+    ABOVE_85C = 3;
+    TEMP_EVEN_COLDER = 4;
+    TEMP_COOL = 5;
+    TEMP_RANGE_WARM = 6;
+    TEMP_RANGE_EVEN_WARMER = 7;
+  }
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_1 = 1;
+  // None [NA] [2.0|2.0]
+  optional int32 application_message_version = 2;
+  // Application main state. [NA] [0.0|255.0]
+  optional int32 main_state = 3;
+  // Application sub-state. [NA] [0.0|255.0]
+  optional int32 sub_state = 4;
+  // TAPI frame ID. Used for syncronization with algorithmic output. [NA] [0.0|4294967295.0]
+  optional float eyeq_process_index = 5;
+  // Time since init of the camera [millisec] [0.0|4294967295.0]
+  optional float eyeq_timestamp = 6;
+  // Time since init of the EyeQ [millisec] [0.0|4294967295.0]
+  optional float eyeq_current_timestamp = 7;
+  // Application Diagnostics (first short) [BITWIZE] [0.0|65535.0]
+  optional int32 application_diagnostics_part_1 = 8;
+  // Application Diagnostics (second short) [BITWIZE] [0.0|65535.0]
+  optional int32 application_diagnostics_part_2 = 9;
+  // None recoverable EyeQ error. Algorithmic processing is halted and only application message is sent. Recovery possible only after a reset.  Note - value zero means that there is no error. [ENUM] [0.0|129.0]
+  optional Fatal_errorType fatal_error = 10;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_2 = 11;
+  // BPP Minor error.  A non fatal error reported from one of EyeQ components. In this case, EyeQ main processing loop continues running as usual.  NOTE: For now mapped only to EDR errors. [ENUM] [0.0|5014.0]
+  optional Minor_errorType minor_error = 12;
+  // The temperature of the EyeQ (first sensor) [deg] [-128.0|127.0]
+  optional int32 eyeqtemperature1 = 13;
+  // The temperature of the EyeQ second sensor) [deg] [-128.0|127.0]
+  optional int32 eyeqtemperature2 = 14;
+  // DDR Temperture range enumeration [ENUM] [-1.0|7.0]
+  optional Temperture_ddrType temperture_ddr = 15;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_4 = 16;
+  // This byte represents CFG diagnostics status. Currently it used only for the verification process of the safety related parameters.  A nonzero value of any bit in the CFG status indicates an issue in the verification mechanism. [BITWIZE] [0.0|65535.0]
+  optional int32 cfg_status = 17;
+  // Not implemented [BITWIZE] [0.0|255.0]
+  optional int32 spihealthstatus = 18;
+  // This byte represents the SPI communication layer status. A nonzero value of any bit in the SPI status indicates an SPI issue. Note that once set, the bits will not be cleared in the next frames:  bit-0: SPI_CRC_BIT - CRC error occurred. bit-1: SPI_CRC_CONTINUOUS_BIT - 3 consecutive CRC errors occurred. bit-2: SPI_SEQ_BIT - sequence error occurred. bit-3: SPI_SEQ_CONTINUOUS_BIT - 3 consecutive sequence errors occurred. Bits 4-7: Reserved. [BITWIZE] [0.0|255.0]
+  optional int32 spierrors = 19;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_5 = 20;
+  // The supported cameras . Each supported Camera will have it's bit on. 0=Not Valid, 1- Valid bit 0  - camera1 information valid bit 1  - camera2 information valid  bit 2  - camera3 information valid  bit 3  - camera4 information valid  bit 4  - camera5 information valid  bit 5  - camera6 information valid  bit 6  - camera7 information valid  bit 7  - camera8 information valid  [BITWIZE] [0.0|7.0]
+  optional int32 valid_cameras_information = 21;
+  // Camera1 temperature. Note that 127 is the maximal reported value, even if the actual temperature is higher. [deg] [-128.0|127.0]
+  optional int32 camera1_temperature = 22;
+  // As described for camera1 [deg] [-128.0|127.0]
+  optional int32 camera2_temperature = 23;
+  // As described for camera1 [deg] [-128.0|127.0]
+  optional int32 camera3_temperature = 24;
+  // As described for camera1 [deg] [-128.0|127.0]
+  optional int32 camera4_temperature = 25;
+  // As described for camera1 [deg] [-128.0|127.0]
+  optional int32 camera5_temperature = 26;
+  // As described for camera1 [deg] [-128.0|127.0]
+  optional int32 camera6_temperature = 27;
+  // As described for camera1 [deg] [-128.0|127.0]
+  optional int32 camera7_temperature = 28;
+  // As described for camera1 [deg] [-128.0|127.0]
+  optional int32 camera8_temperature = 29;
+  // This byte represents video errors frames range: bits-0-3: The number of consecutive video frames with errors bits-4-7: The 4 LSB bits of the image frame counter of the first erroneous frame. [BITWIZE] [0.0|255.0]
+  optional int32 camera1_videoerrorrange = 30;
+  // As described for camera1 [BITWIZE] [0.0|255.0]
+  optional int32 camera2_videoerrorrange = 31;
+  // As described for camera1 [BITWIZE] [0.0|255.0]
+  optional int32 camera3_videoerrorrange = 32;
+  // As described for camera1 [BITWIZE] [0.0|255.0]
+  optional int32 camera4_videoerrorrange = 33;
+  // As described for camera1 [BITWIZE] [0.0|255.0]
+  optional int32 camera5_videoerrorrange = 34;
+  // As described for camera1 [BITWIZE] [0.0|255.0]
+  optional int32 camera6_videoerrorrange = 35;
+  // As described for camera1 [BITWIZE] [0.0|255.0]
+  optional int32 camera7_videoerrorrange = 36;
+  // As described for camera1 [BITWIZE] [0.0|255.0]
+  optional int32 camera8_videoerrorrange = 37;
+  // Internal camera error flag [BITWIZE] [0.0|4294967295.0]
+  optional float camera1_videoerrorflags_pt1 = 38;
+  // Internal camera error flag [BITWIZE] [0.0|4294967295.0]
+  optional float camera2_videoerrorflags_pt1 = 39;
+  // Internal camera error flag [BITWIZE] [0.0|4294967295.0]
+  optional float camera3_videoerrorflags_pt1 = 40;
+  // Internal camera error flag [BITWIZE] [0.0|4294967295.0]
+  optional float camera4_videoerrorflags_pt1 = 41;
+  // Internal camera error flag [BITWIZE] [0.0|4294967295.0]
+  optional float camera5_videoerrorflags_pt1 = 42;
+  // Internal camera error flag [BITWIZE] [0.0|4294967295.0]
+  optional float camera6_videoerrorflags_pt1 = 43;
+  // Internal camera error flag [BITWIZE] [0.0|4294967295.0]
+  optional float camera7_videoerrorflags_pt1 = 44;
+  // Internal camera error flag [BITWIZE] [0.0|4294967295.0]
+  optional float camera8_videoerrorflags_pt1 = 45;
+  // Internal camera error flag [BITWIZE] [0.0|4294967295.0]
+  optional float camera1_videoerrorflags_pt2 = 46;
+  // Internal camera error flag [BITWIZE] [0.0|4294967295.0]
+  optional float camera2_videoerrorflags_pt2 = 47;
+  // Internal camera error flag [BITWIZE] [0.0|4294967295.0]
+  optional float camera3_videoerrorflags_pt2 = 48;
+  // Internal camera error flag [BITWIZE] [0.0|4294967295.0]
+  optional float camera4_videoerrorflags_pt2 = 49;
+  // Internal camera error flag [BITWIZE] [0.0|4294967295.0]
+  optional float camera5_videoerrorflags_pt2 = 50;
+  // Internal camera error flag [BITWIZE] [0.0|4294967295.0]
+  optional float camera6_videoerrorflags_pt2 = 51;
+  // Internal camera error flag [BITWIZE] [0.0|4294967295.0]
+  optional float camera7_videoerrorflags_pt2 = 52;
+  // Internal camera error flag [BITWIZE] [0.0|4294967295.0]
+  optional float camera8_videoerrorflags_pt2 = 53;
+
+// Report Message
+  optional atd.common.Header header = 54;
+  optional atd.common.Reserved reservedmsg=55;
+}
+
+message Dt_Record_Common {
+// Report Message
+  enum Com_daytime_indicatorType {
+    DAY = 0;
+    NIGHT = 1;
+    DUSK = 2;
+  }
+  enum Com_hil_mode_statusType {
+    NOT_ACTIVE = 0;
+    ACTIVE = 1;
+  }
+  enum Com_exposure_typeType {
+    TEXTURE = 0;
+    COLOR = 1;
+  }
+  // None [NA] [0.0|0.0]
+  optional int32 com_zero_byte = 1;
+  // What version of this protocol we are up to [counter] [1.0|1.0]
+  optional int32 com_protocol_version = 2;
+  // synchronizes between the messages in the same frame [counter] [0.0|255.0]
+  optional int32 com_sync_frame_id = 3;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_1 = 4;
+  // timestamp of exposure start expressed in MCU time system [microsecond] [0.0|1.84467440737e+19]
+  optional double com_frame_mcu_ts_start = 5;
+  // Feedback of the last clock sync timestamp that was sent to the EyeQ from the MCU [microsecond] [0.0|1.84467440737e+19]
+  optional double com_last_mcu_sync_ts = 6;
+  // Error between the actual clock sync time that was sent to the EyeQ and what the EyeQ was expecting.  If the internal error exceeds the signal limits, the signal is clamped to its maximum. [microsecond] [-2047000.0|2047000.0]
+  optional float com_last_clock_sync_error = 7;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_2 = 8;
+  // Index of the frame by frame processed number. Only images processed by algo are assigned a number hence the output will be sequential. [counter] [0.0|4294967295.0]
+  optional float com_eyeq_frame_id = 9;
+  // Actual grab index from camera. Not every image is processed by algo however. This may not be sequential as some are dropped. This is what the logger sees on the headers [counter] [0.0|4294967295.0]
+  optional float com_cam_frame_id = 10;
+  // Check Enum Values  [ENUM] [0.0|2.0]
+  optional Com_daytime_indicatorType com_daytime_indicator = 11;
+  // Quality of Day time decision [NA] [0.0|1.0]
+  optional float com_daytime_ind_quality = 12;
+  // None [ENUM] [0.0|1.0]
+  optional Com_hil_mode_statusType com_hil_mode_status = 13;
+  // Which exposure this is [ENUM] [0.0|1.0]
+  optional Com_exposure_typeType com_exposure_type = 14;
+  // None [NA] [0.0|0.0]
+  optional float reserved_3 = 15;
+
+// Report Message
+  optional atd.common.Header header = 16;
+  optional atd.common.Reserved reservedmsg=17;
+}
+
+message CACommon {
+// Report Message
+  enum Ca_region_codeType {
+    WORLD = 0;
+    EUROPE_x000D_ = 1;
+    UK = 10;
+    GULF = 2;
+    USA_x000D_ = 3;
+    CANADA_x000D_ = 4;
+    JAPAN_x000D_ = 5;
+    CHINA_x000D_ = 6;
+    SOUTH_AFRICA_x000D_ = 7;
+    KOREA_x000D_ = 8;
+    AUSTRALIA_x000D_ = 9;
+  }
+  // None [NA] [0.0|0.0]
+  optional int32 zero_byte = 1;
+  // Denotes the protocol version [counter] [1.0|1.0]
+  optional int32 ca_protocol_version = 2;
+  // sync ID to be used to sync between signals in the system [counter] [-1.0|254.0]
+  optional int32 ca_sync_id = 3;
+  // Region code requierd for identification accuracy,  [ENUM] [0.0|10.0]
+  optional Ca_region_codeType ca_region_code = 4;
+  // Number of recognized land marks [counter] [0.0|10.0]
+  optional int32 ca_objects_count = 5;
+}
+
+message Dt_Record_ConstructionArea {
+// Report Message
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  //  [ ] 
+  optional CACommon stcacommon = 3;
+  //  [ ] 
+  repeated ConArea dt_array_14_ca = 4;
+}
+
+message ConArea {
+// Report Message
+  enum Ca_ca_object_typeType {
+    INVALID = 0;
+    ROAD_CLOSED = 1;
+    CONE = 2;
+    BAREL = 3;
+    OBSTRUCTION_LEFT = 4;
+    OBSTRUCTION_RIGHT = 5;
+  }
+  // Unique ID [counter] [0.0|254.0]
+  optional int32 ca_id = 1;
+  // Age of LM object in Frames [NA] [0.0|254.0]
+  optional int32 ca_frame_age = 2;
+  // None [ENUM] [0.0|7.0]
+  optional Ca_ca_object_typeType ca_ca_object_type = 3;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_1 = 4;
+  // Longitunial distance in real world from camerato CA object [m] [0.0|500.0]
+  optional float ca_long_distance = 5;
+  // STD [m] [0.0|500.0]
+  optional float ca_long_distancstd = 6;
+  // Lateral distnace in real world from camera to LM object  [m] [0.0|100.0]
+  optional float ca_lat_distance = 7;
+  // STD [m] [0.0|100.0]
+  optional float ca_lat_distancstd = 8;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_2 = 9;
+  // None [m] [0.0|100.0]
+  optional float ca_height = 10;
+  // STD [m] [0.0|100.0]
+  optional float ca_height_std = 11;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_3 = 12;
+  // physical height of the LM object it self [m] [0.0|100.0]
+  optional float ca_object_height = 13;
+  // STD [m] [0.0|100.0]
+  optional float ca_object_height_std = 14;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_4 = 15;
+  // physical width of the LM object it self [m] [0.0|100.0]
+  optional float ca_object_width = 16;
+  // STD [m] [0.0|100.0]
+  optional float ca_object_width_std = 17;
+  // None [NA] [0.0|0.0]
+  optional int32 ca_buffer = 18;
+}
+
+message Dt_Record_FCF {
+// Report Message
+  enum Fcf_vd_alert_fcvType {
+    NONE = 0;
+    AEB_VALIDATION = 1;
+    AEB_MAX_REL_V = 1024;
+    AEB_MIN_SPEED = 128;
+    AEB_MAX_DISTANCE = 16;
+    AEB_MIN_TIME_FOR_CCM_AFTER_CCM = 2;
+    AEB_MIN_REL_V = 2048;
+    AEB_LATERAL_AVOIDANCE = 256;
+    AEB_MAX_WARN_LENGTH = 32;
+    AEB_MAX_YAW_RATE = 4;
+    AEB_Safety_CRC = 4096;
+    AEB_MAX_SPEED_REDUCTION = 512;
+    AEB_MAX_SPEED = 64;
+    AEB_MAX_STEERING_ANGLE = 8;
+  }
+  enum Reserved_1Type {
+    NO_FUSION = 0;
+    AVOID = 1;
+    CONTINUE = 2;
+    START = 3;
+  }
+  enum Fcf_vd_aeb_supp_aType {
+    FCF_VD_AEB_Supp_A_NONE_ = 0;
+    FCF_VD_AEB_Supp_A_AEB_VALIDATION_ = 1;
+    FCF_VD_AEB_Supp_A_AEB_MAX_REL_V_ = 1024;
+    FCF_VD_AEB_Supp_A_AEB_MIN_SPEED_ = 128;
+    FCF_VD_AEB_Supp_A_AEB_MAX_DISTANCE_ = 16;
+    FCF_VD_AEB_Supp_A_AEB_MIN_TIME_FOR_CCM_AFTER_CCM_ = 2;
+    FCF_VD_AEB_Supp_A_AEB_MIN_REL_V_ = 2048;
+    FCF_VD_AEB_Supp_A_AEB_LATERAL_AVOIDANCE_ = 256;
+    FCF_VD_AEB_Supp_A_AEB_MAX_WARN_LENGTH_ = 32;
+    FCF_VD_AEB_Supp_A_AEB_MAX_YAW_RATE_ = 4;
+    FCF_VD_AEB_Supp_A_AEB_Safety_CRC_ = 4096;
+    FCF_VD_AEB_Supp_A_AEB_MAX_SPEED_REDUCTION_ = 512;
+    FCF_VD_AEB_Supp_A_AEB_MAX_SPEED_ = 64;
+    FCF_VD_AEB_Supp_A_AEB_MAX_STEERING_ANGLE_ = 8;
+  }
+  enum Fcf_vd_fcw_supp_aType {
+    FCF_VD_FCW_Supp_A_NONE_ = 0;
+    FCW_ACCELERETION_SUPPRESSION = 1;
+    FCW_NRTA_OOVER_SPEED = 1024;
+    FCW_MAXIMUM_TIME_FOR_WARNING = 128;
+    FCW_LATERAL_AVIODANCE = 16;
+    FCW_ACCELERETION_SUPPRESSION_LENGTH = 2;
+    FCW_ABOVE_MAX_DISTANCE = 2048;
+    FCW_NOT_READY_TO_ASSIST = 256;
+    FCW_CLUTCH_SUPPRESSIO = 32;
+    FCW_BRAKING_SUPPRESSION = 4;
+    FCW_NRTA_UNDER_SPEED = 512;
+    FCW_MINIMUM_TIME_BETWEEN_WARNINGS = 64;
+    BRAKING_SUPPRESSION_LENGTH = 8;
+  }
+  enum Fcf_vd_aeb_supp_bType {
+    FCF_VD_AEB_Supp_B_NONE_ = 0;
+    FCF_VD_AEB_Supp_B_AEB_VALIDATION_ = 1;
+    FCF_VD_AEB_Supp_B_AEB_MAX_REL_V_ = 1024;
+    FCF_VD_AEB_Supp_B_AEB_MIN_SPEED_ = 128;
+    FCF_VD_AEB_Supp_B_AEB_MAX_DISTANCE_ = 16;
+    FCF_VD_AEB_Supp_B_AEB_MIN_TIME_FOR_CCM_AFTER_CCM_ = 2;
+    FCF_VD_AEB_Supp_B_AEB_MIN_REL_V_ = 2048;
+    FCF_VD_AEB_Supp_B_AEB_LATERAL_AVOIDANCE_ = 256;
+    FCF_VD_AEB_Supp_B_AEB_MAX_WARN_LENGTH_ = 32;
+    FCF_VD_AEB_Supp_B_AEB_MAX_YAW_RATE_ = 4;
+    FCF_VD_AEB_Supp_B_AEB_Safety_CRC_ = 4096;
+    FCF_VD_AEB_Supp_B_AEB_MAX_SPEED_REDUCTION_ = 512;
+    FCF_VD_AEB_Supp_B_AEB_MAX_SPEED_ = 64;
+    FCF_VD_AEB_Supp_B_AEB_MAX_STEERING_ANGLE_ = 8;
+  }
+  enum Fcf_vd_fcw_supp_bType {
+    FCF_VD_FCW_Supp_B_NONE_ = 0;
+    FCF_VD_FCW_Supp_B_FCW_ACCELERETION_SUPPRESSION_ = 1;
+    FCF_VD_FCW_Supp_B_FCW_NRTA_OOVER_SPEED_ = 1024;
+    FCF_VD_FCW_Supp_B_FCW_MAXIMUM_TIME_FOR_WARNING_ = 128;
+    FCF_VD_FCW_Supp_B_FCW_LATERAL_AVIODANCE_ = 16;
+    FCF_VD_FCW_Supp_B_FCW_ACCELERETION_SUPPRESSION_LENGTH_ = 2;
+    FCF_VD_FCW_Supp_B_FCW_ABOVE_MAX_DISTANCE_ = 2048;
+    FCF_VD_FCW_Supp_B_FCW_NOT_READY_TO_ASSIST_ = 256;
+    FCF_VD_FCW_Supp_B_FCW_CLUTCH_SUPPRESSIO_ = 32;
+    FCF_VD_FCW_Supp_B_FCW_BRAKING_SUPPRESSION_ = 4;
+    FCF_VD_FCW_Supp_B_FCW_NRTA_UNDER_SPEED_ = 512;
+    FCF_VD_FCW_Supp_B_FCW_MINIMUM_TIME_BETWEEN_WARNINGS_ = 64;
+    FCF_VD_FCW_Supp_B_BRAKING_SUPPRESSION_LENGTH_ = 8;
+  }
+  enum Fcf_vd_aeb_supp_cType {
+    FCF_VD_AEB_Supp_C_NONE_ = 0;
+    FCF_VD_AEB_Supp_C_AEB_VALIDATION_ = 1;
+    FCF_VD_AEB_Supp_C_AEB_MAX_REL_V_ = 1024;
+    FCF_VD_AEB_Supp_C_AEB_MIN_SPEED_ = 128;
+    FCF_VD_AEB_Supp_C_AEB_MAX_DISTANCE_ = 16;
+    FCF_VD_AEB_Supp_C_AEB_MIN_TIME_FOR_CCM_AFTER_CCM_ = 2;
+    FCF_VD_AEB_Supp_C_AEB_MIN_REL_V_ = 2048;
+    FCF_VD_AEB_Supp_C_AEB_LATERAL_AVOIDANCE_ = 256;
+    FCF_VD_AEB_Supp_C_AEB_MAX_WARN_LENGTH_ = 32;
+    FCF_VD_AEB_Supp_C_AEB_MAX_YAW_RATE_ = 4;
+    FCF_VD_AEB_Supp_C_AEB_Safety_CRC_ = 4096;
+    FCF_VD_AEB_Supp_C_AEB_MAX_SPEED_REDUCTION_ = 512;
+    FCF_VD_AEB_Supp_C_AEB_MAX_SPEED_ = 64;
+    FCF_VD_AEB_Supp_C_AEB_MAX_STEERING_ANGLE_ = 8;
+  }
+  enum Fcf_vd_fcw_supp_cType {
+    FCF_VD_FCW_Supp_C_NONE_ = 0;
+    FCF_VD_FCW_Supp_C_FCW_ACCELERETION_SUPPRESSION_ = 1;
+    FCF_VD_FCW_Supp_C_FCW_NRTA_OOVER_SPEED_ = 1024;
+    FCF_VD_FCW_Supp_C_FCW_MAXIMUM_TIME_FOR_WARNING_ = 128;
+    FCF_VD_FCW_Supp_C_FCW_LATERAL_AVIODANCE_ = 16;
+    FCF_VD_FCW_Supp_C_FCW_ACCELERETION_SUPPRESSION_LENGTH_ = 2;
+    FCF_VD_FCW_Supp_C_FCW_ABOVE_MAX_DISTANCE_ = 2048;
+    FCF_VD_FCW_Supp_C_FCW_NOT_READY_TO_ASSIST_ = 256;
+    FCF_VD_FCW_Supp_C_FCW_CLUTCH_SUPPRESSIO_ = 32;
+    FCF_VD_FCW_Supp_C_FCW_BRAKING_SUPPRESSION_ = 4;
+    FCF_VD_FCW_Supp_C_FCW_NRTA_UNDER_SPEED_ = 512;
+    FCF_VD_FCW_Supp_C_FCW_MINIMUM_TIME_BETWEEN_WARNINGS_ = 64;
+    FCF_VD_FCW_Supp_C_BRAKING_SUPPRESSION_LENGTH_ = 8;
+  }
+  enum Fcf_vd_aeb_supp_dType {
+    FCF_VD_AEB_Supp_D_NONE_ = 0;
+    FCF_VD_AEB_Supp_D_AEB_VALIDATION_ = 1;
+    FCF_VD_AEB_Supp_D_AEB_MAX_REL_V_ = 1024;
+    FCF_VD_AEB_Supp_D_AEB_MIN_SPEED_ = 128;
+    FCF_VD_AEB_Supp_D_AEB_MAX_DISTANCE_ = 16;
+    FCF_VD_AEB_Supp_D_AEB_MIN_TIME_FOR_CCM_AFTER_CCM_ = 2;
+    FCF_VD_AEB_Supp_D_AEB_MIN_REL_V_ = 2048;
+    FCF_VD_AEB_Supp_D_AEB_LATERAL_AVOIDANCE_ = 256;
+    FCF_VD_AEB_Supp_D_AEB_MAX_WARN_LENGTH_ = 32;
+    FCF_VD_AEB_Supp_D_AEB_MAX_YAW_RATE_ = 4;
+    FCF_VD_AEB_Supp_D_AEB_Safety_CRC_ = 4096;
+    FCF_VD_AEB_Supp_D_AEB_MAX_SPEED_REDUCTION_ = 512;
+    FCF_VD_AEB_Supp_D_AEB_MAX_SPEED_ = 64;
+    FCF_VD_AEB_Supp_D_AEB_MAX_STEERING_ANGLE_ = 8;
+  }
+  enum Fcf_vd_fcw_supp_dType {
+    FCF_VD_FCW_Supp_D_NONE_ = 0;
+    FCF_VD_FCW_Supp_D_FCW_ACCELERETION_SUPPRESSION_ = 1;
+    FCF_VD_FCW_Supp_D_FCW_NRTA_OOVER_SPEED_ = 1024;
+    FCF_VD_FCW_Supp_D_FCW_MAXIMUM_TIME_FOR_WARNING_ = 128;
+    FCF_VD_FCW_Supp_D_FCW_LATERAL_AVIODANCE_ = 16;
+    FCF_VD_FCW_Supp_D_FCW_ACCELERETION_SUPPRESSION_LENGTH_ = 2;
+    FCF_VD_FCW_Supp_D_FCW_ABOVE_MAX_DISTANCE_ = 2048;
+    FCF_VD_FCW_Supp_D_FCW_NOT_READY_TO_ASSIST_ = 256;
+    FCF_VD_FCW_Supp_D_FCW_CLUTCH_SUPPRESSIO_ = 32;
+    FCF_VD_FCW_Supp_D_FCW_BRAKING_SUPPRESSION_ = 4;
+    FCF_VD_FCW_Supp_D_FCW_NRTA_UNDER_SPEED_ = 512;
+    FCF_VD_FCW_Supp_D_FCW_MINIMUM_TIME_BETWEEN_WARNINGS_ = 64;
+    FCF_VD_FCW_Supp_D_BRAKING_SUPPRESSION_LENGTH_ = 8;
+  }
+  enum Fcf_vd_aeb_supp_eType {
+    FCF_VD_AEB_Supp_E_NONE_ = 0;
+    FCF_VD_AEB_Supp_E_AEB_VALIDATION_ = 1;
+    FCF_VD_AEB_Supp_E_AEB_MAX_REL_V_ = 1024;
+    FCF_VD_AEB_Supp_E_AEB_MIN_SPEED_ = 128;
+    FCF_VD_AEB_Supp_E_AEB_MAX_DISTANCE_ = 16;
+    FCF_VD_AEB_Supp_E_AEB_MIN_TIME_FOR_CCM_AFTER_CCM_ = 2;
+    FCF_VD_AEB_Supp_E_AEB_MIN_REL_V_ = 2048;
+    FCF_VD_AEB_Supp_E_AEB_LATERAL_AVOIDANCE_ = 256;
+    FCF_VD_AEB_Supp_E_AEB_MAX_WARN_LENGTH_ = 32;
+    FCF_VD_AEB_Supp_E_AEB_MAX_YAW_RATE_ = 4;
+    FCF_VD_AEB_Supp_E_AEB_Safety_CRC_ = 4096;
+    FCF_VD_AEB_Supp_E_AEB_MAX_SPEED_REDUCTION_ = 512;
+    FCF_VD_AEB_Supp_E_AEB_MAX_SPEED_ = 64;
+    FCF_VD_AEB_Supp_E_AEB_MAX_STEERING_ANGLE_ = 8;
+  }
+  enum Fcf_vd_fcw_supp_eType {
+    FCF_VD_FCW_Supp_E_NONE_ = 0;
+    FCF_VD_FCW_Supp_E_FCW_ACCELERETION_SUPPRESSION_ = 1;
+    FCF_VD_FCW_Supp_E_FCW_NRTA_OOVER_SPEED_ = 1024;
+    FCF_VD_FCW_Supp_E_FCW_MAXIMUM_TIME_FOR_WARNING_ = 128;
+    FCF_VD_FCW_Supp_E_FCW_LATERAL_AVIODANCE_ = 16;
+    FCF_VD_FCW_Supp_E_FCW_ACCELERETION_SUPPRESSION_LENGTH_ = 2;
+    FCF_VD_FCW_Supp_E_FCW_ABOVE_MAX_DISTANCE_ = 2048;
+    FCF_VD_FCW_Supp_E_FCW_NOT_READY_TO_ASSIST_ = 256;
+    FCF_VD_FCW_Supp_E_FCW_CLUTCH_SUPPRESSIO_ = 32;
+    FCF_VD_FCW_Supp_E_FCW_BRAKING_SUPPRESSION_ = 4;
+    FCF_VD_FCW_Supp_E_FCW_NRTA_UNDER_SPEED_ = 512;
+    FCF_VD_FCW_Supp_E_FCW_MINIMUM_TIME_BETWEEN_WARNINGS_ = 64;
+    FCF_VD_FCW_Supp_E_BRAKING_SUPPRESSION_LENGTH_ = 8;
+  }
+  enum Fcf_vd_aeb_supp_fType {
+    FCF_VD_AEB_Supp_F_NONE_ = 0;
+    FCF_VD_AEB_Supp_F_AEB_VALIDATION_ = 1;
+    FCF_VD_AEB_Supp_F_AEB_MAX_REL_V_ = 1024;
+    FCF_VD_AEB_Supp_F_AEB_MIN_SPEED_ = 128;
+    FCF_VD_AEB_Supp_F_AEB_MAX_DISTANCE_ = 16;
+    FCF_VD_AEB_Supp_F_AEB_MIN_TIME_FOR_CCM_AFTER_CCM_ = 2;
+    FCF_VD_AEB_Supp_F_AEB_MIN_REL_V_ = 2048;
+    FCF_VD_AEB_Supp_F_AEB_LATERAL_AVOIDANCE_ = 256;
+    FCF_VD_AEB_Supp_F_AEB_MAX_WARN_LENGTH_ = 32;
+    FCF_VD_AEB_Supp_F_AEB_MAX_YAW_RATE_ = 4;
+    FCF_VD_AEB_Supp_F_AEB_Safety_CRC_ = 4096;
+    FCF_VD_AEB_Supp_F_AEB_MAX_SPEED_REDUCTION_ = 512;
+    FCF_VD_AEB_Supp_F_AEB_MAX_SPEED_ = 64;
+    FCF_VD_AEB_Supp_F_AEB_MAX_STEERING_ANGLE_ = 8;
+  }
+  enum Fcf_vd_fcw_supp_fType {
+    FCF_VD_FCW_Supp_F_NONE_ = 0;
+    FCF_VD_FCW_Supp_F_FCW_ACCELERETION_SUPPRESSION_ = 1;
+    FCF_VD_FCW_Supp_F_FCW_NRTA_OOVER_SPEED_ = 1024;
+    FCF_VD_FCW_Supp_F_FCW_MAXIMUM_TIME_FOR_WARNING_ = 128;
+    FCF_VD_FCW_Supp_F_FCW_LATERAL_AVIODANCE_ = 16;
+    FCF_VD_FCW_Supp_F_FCW_ACCELERETION_SUPPRESSION_LENGTH_ = 2;
+    FCF_VD_FCW_Supp_F_FCW_ABOVE_MAX_DISTANCE_ = 2048;
+    FCF_VD_FCW_Supp_F_FCW_NOT_READY_TO_ASSIST_ = 256;
+    FCF_VD_FCW_Supp_F_FCW_CLUTCH_SUPPRESSIO_ = 32;
+    FCF_VD_FCW_Supp_F_FCW_BRAKING_SUPPRESSION_ = 4;
+    FCF_VD_FCW_Supp_F_FCW_NRTA_UNDER_SPEED_ = 512;
+    FCF_VD_FCW_Supp_F_FCW_MINIMUM_TIME_BETWEEN_WARNINGS_ = 64;
+    FCF_VD_FCW_Supp_F_BRAKING_SUPPRESSION_LENGTH_ = 8;
+  }
+  // None [NA] [0.0|0.0]
+  optional int32 fcf_vd_zero_byte = 1;
+  // Denotes the protocol version [counter] [1.0|1.0]
+  optional int32 fcf_vd_protocol_version = 2;
+  // synchronizes between the messages in the same frame [counter] [0.0|255.0]
+  optional int32 fcf_vd_syncid = 3;
+  // ID of the Vehicle on which the activation was issued [counter] [0.0|255.0]
+  optional int32 fcf_vd_id_fcv = 4;
+  // AEB Suppresion Reason [BITWIZE] [0.0|4294967295.0]
+  optional float fcf_vd_alert_fcv = 5;
+  // Fusion suggestion for this set. [ENUM] [0.0|3.0]
+  optional Reserved_1Type reserved_1 = 6;
+  // None [NA] [0.0|0.0]
+  optional float fcf_vd_aeb_supp_fcv = 7;
+  // Alert for this set. [NA] [39270.0|43605.0]
+  optional int32 fcf_vd_alert_a = 8;
+  // ID of the Vehicle on which the activation was issued [counter] [0.0|255.0]
+  optional int32 fcf_vd_id_a = 9;
+  // Was the alert of type AEB [bool] [0.0|1.0]
+  optional bool fcf_vd_set_type_a = 10;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_2 = 11;
+  // AEB Suppresion Reason [BITWIZE] [0.0|4294967295.0]
+  optional float fcf_vd_aeb_supp_a = 12;
+  // FCW Suppresion Reason [BITWIZE] [0.0|4294967295.0]
+  optional float fcf_vd_fcw_supp_a = 13;
+  // Alert for this set. [NA] [39270.0|43605.0]
+  optional int32 fcf_vd_alert_b = 14;
+  // ID of the Vehicle on which the activation was issued [counter] [0.0|255.0]
+  optional int32 fcf_vd_id_b = 15;
+  // Was the alert of type AEB [bool] [0.0|1.0]
+  optional bool fcf_vd_set_type_b = 16;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_3 = 17;
+  // AEB Suppresion Reason [BITWIZE] [0.0|4294967295.0]
+  optional float fcf_vd_aeb_supp_b = 18;
+  // FCW Suppresion Reason [BITWIZE] [0.0|4294967295.0]
+  optional float fcf_vd_fcw_supp_b = 19;
+  // Alert for this set. [NA] [39270.0|43605.0]
+  optional int32 fcf_vd_alert_c = 20;
+  // ID of the Vehicle on which the activation was issued [counter] [0.0|255.0]
+  optional int32 fcf_vd_id_c = 21;
+  // Was the alert of type AEB [bool] [0.0|1.0]
+  optional bool fcf_vd_set_type_c = 22;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_4 = 23;
+  // AEB Suppresion Reason [BITWIZE] [0.0|4294967295.0]
+  optional float fcf_vd_aeb_supp_c = 24;
+  // FCW Suppresion Reason [BITWIZE] [0.0|4294967295.0]
+  optional float fcf_vd_fcw_supp_c = 25;
+  // Alert for this set. [NA] [39270.0|43605.0]
+  optional int32 fcf_vd_alert_d = 26;
+  // ID of the Vehicle on which the activation was issued [counter] [0.0|255.0]
+  optional int32 fcf_vd_id_d = 27;
+  // Was the alert of type AEB [bool] [0.0|1.0]
+  optional bool fcf_vd_set_type_d = 28;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_5 = 29;
+  // AEB Suppresion Reason [BITWIZE] [0.0|4294967295.0]
+  optional float fcf_vd_aeb_supp_d = 30;
+  // FCW Suppresion Reason [BITWIZE] [0.0|4294967295.0]
+  optional float fcf_vd_fcw_supp_d = 31;
+  // Alert for this set. [NA] [39270.0|43605.0]
+  optional int32 fcf_vd_alert_e = 32;
+  // ID of the Vehicle on which the activation was issued [counter] [0.0|255.0]
+  optional int32 fcf_vd_id_e = 33;
+  // Was the alert of type AEB [bool] [0.0|1.0]
+  optional bool fcf_vd_set_type_e = 34;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_6 = 35;
+  // AEB Suppresion Reason [BITWIZE] [0.0|4294967295.0]
+  optional float fcf_vd_aeb_supp_e = 36;
+  // FCW Suppresion Reason [BITWIZE] [0.0|4294967295.0]
+  optional float fcf_vd_fcw_supp_e = 37;
+  // Alert for this set. [NA] [39270.0|43605.0]
+  optional int32 fcf_vd_alert_f = 38;
+  // ID of the Vehicle on which the activation was issued [counter] [0.0|255.0]
+  optional int32 fcf_vd_id_f = 39;
+  // Was the alert of type AEB [bool] [0.0|1.0]
+  optional bool fcf_vd_set_type_f = 40;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_7 = 41;
+  // AEB Suppresion Reason [BITWIZE] [0.0|4294967295.0]
+  optional float fcf_vd_aeb_supp_f = 42;
+  // FCW Suppresion Reason [BITWIZE] [0.0|4294967295.0]
+  optional float fcf_vd_fcw_supp_f = 43;
+// Report Message
+  optional atd.common.Header header = 44;
+  optional atd.common.Reserved reservedmsg=45;
+}
+
+message VRUCommon {
+// Report Message
+  enum Fcf_vru_fcvType {
+    NO_FUSION = 0;
+    AVOID = 1;
+    CONTINUE = 2;
+    START = 3;
+  }
+  enum Fcf_vru_supress_fcvType {
+    MAX_SPEED = 0;
+    MIN_SPEED = 1;
+    BRAKE = 2;
+    MAX_YAW = 3;
+    REAR_GEAR = 4;
+    STEERING_ANGLE = 5;
+    RESERVED_1 = 6;
+  }
+  // None [NA] [0.0|0.0]
+  optional int32 fcf_vru_zero_byte = 1;
+  // Denotes the protocol version [counter] [1.0|1.0]
+  optional int32 fcf_vru_protocol_version = 2;
+  // sync ID to be used to sync between signals in the system [counter] [0.0|255.0]
+  optional int32 fcf_vru_sync_id = 3;
+  // ID for the MCP [counter] [0.0|255.0]
+  optional int32 fcf_vru_mcp_id = 4;
+  // TTC for MCP [sec] [0.0|9.99]
+  optional float fcf_vru_mcp_ttc = 5;
+  // Type of MCP. True = bicycle [bool] [0.0|1.0]
+  optional bool fcf_mcp_vru_isbicycles = 6;
+  // Fusion suggestion for this set. [ENUM] [0.0|3.0]
+  optional Fcf_vru_fcvType fcf_vru_fcv = 7;
+  // Alert suprees bitmap [BITWIZE] [0.0|32.0]
+  optional int32 fcf_vru_supress_fcv = 8;
+  // Is the target inside the current path [bool] [0.0|1.0]
+  optional bool fcf_vru_curr_in_path_fcv = 9;
+  // Is the target is predicted to be in the current path [bool] [0.0|1.0]
+  optional bool fcf_vru_pred_in_path_fcv = 10;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_1 = 11;
+}
+
+message Dt_Record_FCF_VRU {
+// Report Message
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  //  [ ] 
+  optional VRUCommon stvrucommon = 3;
+  //  [ ] 
+  repeated FCF_VRU dt_array_6_vru = 4;
+}
+
+message FCF_VRU {
+// Report Message
+  enum Fcf_vru_alert_lType {
+    NO_ALERT = 39270;
+    ALERT = 43605;
+  }
+  enum Fcf_vru_supress_lType {
+    MAX_SPEED = 0;
+    MIN_SPEED = 1;
+    BRAKE = 2;
+    MAX_YAW = 3;
+    REAR_GEAR = 4;
+    STEERING_ANGLE = 5;
+    RESERVED_1 = 6;
+  }
+  // Alert for this set. [ENUM] [39270.0|43605.0]
+  optional Fcf_vru_alert_lType fcf_vru_alert_l = 1;
+  // Alert suprees bitmap [BITWIZE] [0.0|32.0]
+  optional int32 fcf_vru_supress_l = 2;
+  // ttc threshold for the target [sec] [0.0|9.99]
+  optional float fcf_vru_ttc_thresh_l = 3;
+  // Is the target inside the current path [bool] [0.0|1.0]
+  optional bool fcf_vru_curr_in_path_l = 4;
+  // Is the target is predicted to be in the current path [bool] [0.0|1.0]
+  optional bool fcf_vru_pred_in_path_l = 5;
+  // None [NA] [0.0|0.0]
+  optional float fcf_vru_buffer_l = 6;
+}
+
+message Dt_Record_FailSafe {
+// Report Message
+  enum Fs_impacted_technologiesType {
+    ACC = 1;
+    RESERVED_1 = 10;
+    RESERVED_2 = 11;
+    RESERVED_3 = 12;
+    RESERVED_4 = 13;
+    RESERVED_5 = 14;
+    RESERVED_6 = 15;
+    RESERVED_7 = 16;
+    TSR = 2;
+    FLA = 3;
+    PED = 4;
+    LD = 5;
+    VD = 6;
+    RPE = 7;
+    FREE_SPACE = 8;
+    HEATER = 9;
+  }
+  enum Fs_rain_0Type {
+    NOT_READY = 0;
+    NONE = 1;
+    Fs_rain_0Type_25 = 2;
+    Fs_rain_0Type_50 = 3;
+    Fs_rain_0Type_75 = 4;
+    Fs_rain_0Type_99 = 5;
+  }
+  enum Fs_fog_0Type {
+    FS_Fog_0_NOT_READY_ = 0;
+    FS_Fog_0_NONE_ = 1;
+    FS_Fog_0_25_ = 2;
+    FS_Fog_0_50_ = 3;
+    FS_Fog_0_75_ = 4;
+    FS_Fog_0_99_ = 5;
+  }
+  enum Fs_splashes_0Type {
+    FS_Splashes_0_NOT_READY_ = 0;
+    FS_Splashes_0_NONE_ = 1;
+    FS_Splashes_0_25_ = 2;
+    FS_Splashes_0_50_ = 3;
+    FS_Splashes_0_75_ = 4;
+    FS_Splashes_0_99_ = 5;
+  }
+  enum Fs_self_glare_0Type {
+    FS_Self_Glare_0_NOT_READY_ = 0;
+    FS_Self_Glare_0_NONE_ = 1;
+    FS_Self_Glare_0_25_ = 2;
+    FS_Self_Glare_0_50_ = 3;
+    FS_Self_Glare_0_75_ = 4;
+    FS_Self_Glare_0_99_ = 5;
+  }
+  enum Fs_sun_ray_0Type {
+    FS_Sun_Ray_0_NOT_READY_ = 0;
+    FS_Sun_Ray_0_NONE_ = 1;
+    FS_Sun_Ray_0_25_ = 2;
+    FS_Sun_Ray_0_50_ = 3;
+    FS_Sun_Ray_0_75_ = 4;
+    FS_Sun_Ray_0_99_ = 5;
+  }
+  enum Fs_low_sun_0Type {
+    FS_Low_Sun_0_NOT_READY_ = 0;
+    FS_Low_Sun_0_NONE_ = 1;
+    FS_Low_Sun_0_25_ = 2;
+    FS_Low_Sun_0_50_ = 3;
+    FS_Low_Sun_0_75_ = 4;
+    FS_Low_Sun_0_99_ = 5;
+  }
+  enum Fs_blur_image_0Type {
+    FS_Blur_Image_0_NOT_READY_ = 0;
+    FS_Blur_Image_0_NONE_ = 1;
+    FS_Blur_Image_0_25_ = 2;
+    FS_Blur_Image_0_50_ = 3;
+    FS_Blur_Image_0_75_ = 4;
+    FS_Blur_Image_0_99_ = 5;
+  }
+  enum Fs_partial_blockage_0Type {
+    FS_Partial_Blockage_0_NOT_READY_ = 0;
+    FS_Partial_Blockage_0_NONE_ = 1;
+    FS_Partial_Blockage_0_25_ = 2;
+    FS_Partial_Blockage_0_50_ = 3;
+    FS_Partial_Blockage_0_75_ = 4;
+    FS_Partial_Blockage_0_99_ = 5;
+  }
+  enum Fs_full_blockage_0Type {
+    FS_Full_Blockage_0_NOT_READY_ = 0;
+    FS_Full_Blockage_0_NONE_ = 1;
+    FS_Full_Blockage_0_25_ = 2;
+    FS_Full_Blockage_0_50_ = 3;
+    FS_Full_Blockage_0_75_ = 4;
+    FS_Full_Blockage_0_99_ = 5;
+  }
+  enum Fs_frozen_windshield_0Type {
+    FS_Frozen_Windshield_0_NOT_READY_ = 0;
+    FS_Frozen_Windshield_0_NONE_ = 1;
+    FS_Frozen_Windshield_0_25_ = 2;
+    FS_Frozen_Windshield_0_50_ = 3;
+    FS_Frozen_Windshield_0_75_ = 4;
+    FS_Frozen_Windshield_0_99_ = 5;
+  }
+  enum Fs_out_of_calib_0Type {
+    FS_Out_Of_Calib_0_NOT_READY_ = 0;
+    FS_Out_Of_Calib_0_NONE_ = 1;
+    FS_Out_Of_Calib_0_25_ = 2;
+    FS_Out_Of_Calib_0_50_ = 3;
+    FS_Out_Of_Calib_0_75_ = 4;
+    FS_Out_Of_Calib_0_99_ = 5;
+  }
+  enum Fs_out_of_focus_0Type {
+    FS_Out_Of_Focus_0_NONE_ = 0;
+    TSR_OUT_OF_CALIB = 1;
+    TSR_OUT_OF_CALIB_AEB = 2;
+    TSR_OUT_OF_CALIB_YAW = 4;
+    TSR_OUT_OF_CALIB_HORIZON = 8;
+  }
+  // None [NA] [0.0|0.0]
+  optional int32 fs_zero_byte = 1;
+  // Version number of the failsafe message [NA] [1.0|1.0]
+  optional int32 fs_protocol_version = 2;
+  // sync ID to be used to sync between signals in the system [counter] [0.0|255.0]
+  optional int32 fs_sync_id = 3;
+  // number of FS available Cameras [counter] [0.0|15.0]
+  optional int32 fs_cameras_number = 4;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_1 = 5;
+  // The impacted technologies from the detected fail safes according to the Fail Safe ME schema. [BITWIZE] [0.0|65535.0]
+  optional int32 fs_impacted_technologies = 6;
+  // Camera ID according to etc [counter] [0.0|15.0]
+  optional int32 fs_camera_id_0 = 7;
+  // Detection of  rain or similar precipitation [ENUM] [0.0|5.0]
+  optional Fs_rain_0Type fs_rain_0 = 8;
+  // Detection of fog [ENUM] [0.0|5.0]
+  optional Fs_fog_0Type fs_fog_0 = 9;
+  // We can not detect the lower edges of vehicles due to water spray aka splashes [ENUM] [0.0|5.0]
+  optional Fs_splashes_0Type fs_splashes_0 = 10;
+  // A strong glare due to micro scratches on the windshield [ENUM] [0.0|5.0]
+  optional Fs_self_glare_0Type fs_self_glare_0 = 11;
+  // Sun glare which disrupts the image. The sun appears over the FOE [ENUM] [0.0|5.0]
+  optional Fs_sun_ray_0Type fs_sun_ray_0 = 12;
+  // Issued when visibility on the image is lowered such that detection of objects inside the Danger Zone (in-path and next lanes up-to some level) can't be fully performed. [ENUM] [0.0|5.0]
+  optional Fs_low_sun_0Type fs_low_sun_0 = 13;
+  // Low visibility due to partially covered lens. [ENUM] [0.0|5.0]
+  optional Fs_blur_image_0Type fs_blur_image_0 = 14;
+  // Takes 50 frames with no edges. Recovery is very quick (max 50 frames). Will be on when standing at night with no headlights. [ENUM] [0.0|5.0]
+  optional Fs_partial_blockage_0Type fs_partial_blockage_0 = 15;
+  // Significant failsafe indicating the windshield is frozen and this will impact all technologies [ENUM] [0.0|5.0]
+  optional Fs_full_blockage_0Type fs_full_blockage_0 = 16;
+  // The vision detected that the calibration is wrong (Auto Fix) [ENUM] [0.0|5.0]
+  optional Fs_frozen_windshield_0Type fs_frozen_windshield_0 = 17;
+  // The vision detected that the focus calibration is wrong  [ENUM] [0.0|5.0]
+  optional Fs_out_of_calib_0Type fs_out_of_calib_0 = 18;
+  // Specific TSR Out  Of Calib Signal. [BITWIZE] [0.0|8.0]
+  optional int32 fs_out_of_focus_0 = 19;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_2 = 20;
+
+// Report Message
+  optional atd.common.Header header = 21;
+  optional atd.common.Reserved reservedmsg=22;
+}
+
+message FSPCommon {
+// Report Message
+  // None [NA] [0.0|0.0]
+  optional int32 fsp_zero_byte = 1;
+  // Denotes the protocol version [counter] [1.0|1.0]
+  optional int32 fsp_protocol_version = 2;
+  // sync ID to be used to sync between signals in the system [counter] [-1.0|254.0]
+  optional int32 fsp_sync_id = 3;
+  // number of obsticles reported in the obsticles protocol [counter] [0.0|127.0]
+  optional int32 fsp_num_of_obstacles = 4;
+  // None [NA] [0.0|0.0]
+  optional bool reserved_1 = 5;
+}
+
+message Dt_Record_MeFreeSpace {
+// Report Message
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  //  [ ] 
+  optional FSPCommon stfspcommon = 3;
+  //  [ ] 
+  repeated FSPoint dt_array_120_fspoint = 4;
+}
+
+message FSPoint {
+// Report Message
+  enum Fsp_mobility_statusType {
+    NA_x000D_ = 0;
+    MOVING_x000D_ = 1;
+    NON_MOVING_x000D_ = 2;
+    NEVER_MOVED = 3;
+  }
+  enum Fsp_classification_typeType {
+    NOT_AVAILABLE_x000D_ = 0;
+    ELEVATED_ROAD_STRUCTURE_x000D_ = 1;
+    CURB_x000D_ = 2;
+    NON_ELEVATED_ROAD_EDGE_x000D_ = 3;
+    NO_OBSTACLE_UP_TO_VISIBILITY_x000D_ = 4;
+    UNKNOWN = 5;
+  }
+  // None [counter] [-1.0|254.0]
+  optional int32 fsp_id = 1;
+  // None [bool] [0.0|1.0]
+  optional bool fsp_is_valid = 2;
+  // The probability of the presence of obstacle [NA] [0.0|1.0]
+  optional float fsp_existence_prob = 3;
+  // The probability of the abscense of obstacle [NA] [0.0|1.0]
+  optional float fsp_emptiness_prob = 4;
+  // Enumeration of mobility status [ENUM] [0.0|3.0]
+  optional Fsp_mobility_statusType fsp_mobility_status = 5;
+  // Enumeration of classification type _x000D_ Future: _x000D_ Pedestrian_x000D_ Bicycle_x000D_ Motorcycle_x000D_ Car_x000D_ Truck_x000D_ Construction Zone Delimiters [ENUM] [0.0|11.0]
+  optional Fsp_classification_typeType fsp_classification_type = 6;
+  // Polar distance STD in meters [m] [0.0|50.0]
+  optional float fsp_range_std = 7;
+  // Polar distance to the obstacle in meters [m] [0.0|250.0]
+  optional float fsp_range = 8;
+  // None [m] [-1.0|5.0]
+  optional float fsp_height = 9;
+  // None [m] [0.0|1.0]
+  optional float fsp_height_std = 10;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_2 = 11;
+  // Angle between the left border of the current segment and the obstacle point. Resulotion is : 8/(2^20) [rad] [0.0|4.0]
+  optional float fsp_azimuth_angle = 12;
+  // list of objects buffer [NA] [0.0|0.0]
+  optional int32 fsp_buffer = 13;
+}
+
+message Dt_Record_HLB {
+// Report Message
+  enum Hlb_running_modeType {
+    INVALID_TYPE = 0;
+    HLB_OFF = 1;
+    HLB_INACTIVE = 2;
+    HLB_FULL = 3;
+  }
+  enum Hlb_inactive_reasonType {
+    INVALID_REASON = 0;
+    OBVIOUSLY_BRIGHT = 1;
+    LOW_DETECTION_RATE = 2;
+    OVER_FLOW = 3;
+    IN_GRACE = 4;
+    DEACTIVATED = 5;
+    DUSK_DELAY = 6;
+  }
+  enum Hlb_decisionType {
+    UNKNOWN = 0;
+    HIGH = 1;
+    LOW = 2;
+  }
+  enum Hlb_reasonType {
+    TAIL_LIGHT = 1;
+    LIT_NIGHT = 10;
+    LIT_NIGHT_US = 11;
+    LIT_NIGHT_ECE = 12;
+    IN_VERY_SHARPE_CURVE = 13;
+    IN_CURVE = 14;
+    IN_BLINKING_TRAFFICLIGHT_SCENE = 15;
+    APPROACHING_JUNCTION = 16;
+    ONCOMING = 2;
+    ONCOMING_GRACE = 3;
+    TAIL_LIGHT_GRACE = 4;
+    LOW_SPEED = 5;
+    STREET_LIGHTS = 6;
+    SL_SCENE_GRACE = 7;
+    BRIGHT_SCENE = 8;
+    OBVIOUSLY_BRIGHT_SCENE = 9;
+  }
+  // None [NA] [0.0|0.0]
+  optional int32 hlb_zero_byte = 1;
+  // Denotes the protocol version [counter] [1.0|1.0]
+  optional int32 hlb_protocol_version = 2;
+  // sync ID to be used to sync between signals in the system [counter] [0.0|255.0]
+  optional int32 hlb_sync_id = 3;
+  // INVALID_TYPE = -1 HLB_OFF  - during the day,  all hrSpots modules shouldn't run HLB_INACTIVE - only brightScene module is running HLB_FULL - all hrSpots is running [ENUM] [-1.0|2.0]
+  optional Hlb_running_modeType hlb_running_mode = 4;
+  // Reason for entering InActive State [ENUM] [0.0|7.0]
+  optional Hlb_inactive_reasonType hlb_inactive_reason = 5;
+  // None [ENUM] [0.0|2.0]
+  optional Hlb_decisionType hlb_decision = 6;
+  // None [NA] [0.0|0.0]
+  optional bool reserved_1 = 7;
+  // None [BITWIZE] [0.0|65535.0]
+  optional float hlb_reason = 8;
+// Report Message
+  optional atd.common.Header header = 9;
+  optional atd.common.Reserved reservedmsg=10;
+}
+
+message Dt_Record_LDW {
+// Report Message
+  enum Ldw_suppresion_reasonType {
+    NO_SUPP = 0;
+    SPEED = 1;
+    RIGHT_SUPP = 10;
+    MISS_LINE = 2;
+    LANE_WIDTH = 3;
+    STEERING_RATE = 4;
+    RIGHT_TURN_ACTIVE = 5;
+    LEFT_TURN_ACTIVE = 6;
+    BRAKE = 7;
+    ACCELERATION = 8;
+    LEFT_SUPP = 9;
+  }
+  enum Ldw_warning_status_leftType {
+    SUPPRESSED = 0;
+    ENABLED = 1;
+    ACTIVE = 2;
+  }
+  enum Ldw_warning_status_rightType {
+    LDW_Warning_Status_Right_SUPPRESSED_ = 0;
+    LDW_Warning_Status_Right_ENABLED_ = 1;
+    LDW_Warning_Status_Right_ACTIVE_ = 2;
+  }
+  // None [NA] [0.0|0.0]
+  optional int32 ldw_zero_byte = 1;
+  // Denotes the protocol version [counter] [1.0|1.0]
+  optional int32 ldw_protocol_version = 2;
+  // sync ID to be used to sync between signals in the system [counter] [0.0|255.0]
+  optional int32 ldw_sync_id = 3;
+  // True if left lane can be used for warning [bool] [0.0|1.0]
+  optional bool ldw_line_valid_left = 4;
+  // True if right lane can be used for warning [bool] [0.0|1.0]
+  optional bool ldw_line_valid_right = 5;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_1 = 6;
+  // 0=NO_SUPP 1=SPEED 2=MISS_LINE 3=LANE_WIDTH 4=STEERING_RATE 5=RIGHT_TURN_ACTIVE 6=LEFT_TURN_ACTIVE 7=BRAKE 8=ACCELERATION 9=LEFT_SUPP 10=RIGHT_SUPP  [BITWIZE] [0.0|1023.0]
+  optional int32 ldw_suppresion_reason = 7;
+  // Not line crossing. Refers to the time to whatever format of warning that will be issued. [sec] [0.0|2.0]
+  optional float ldw_time_to_warning_left = 8;
+  // Not line crossing. Refers to the time to whatever format of warning that will be issued. [sec] [0.0|2.0]
+  optional float ldw_time_to_warning_right = 9;
+  // ENUM Warning Status [ENUM] [0.0|2.0]
+  optional Ldw_warning_status_leftType ldw_warning_status_left = 10;
+  // ENUM Warning Status [ENUM] [0.0|2.0]
+  optional Ldw_warning_status_rightType ldw_warning_status_right = 11;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_2 = 12;
+// Report Message
+  optional atd.common.Header header = 13;
+  optional atd.common.Reserved reservedmsg=14;
+}
+
+message LSCommon {
+// Report Message
+  // None [NA] [0.0|0.0]
+  optional int32 zero_byte = 1;
+  // Denotes the protocol version [counter] [1.0|1.0]
+  optional int32 ls_protocol_version = 2;
+  // sync ID to be used to sync between signals in the system [counter] [0.0|255.0]
+  optional int32 ls_sync_id = 3;
+  // The max number of lines supported by this protocol [counter] [0.0|4.0]
+  optional int32 ls_adjacent_number = 4;
+  // True if this is a construction area scene. Road responcibility (includes information from TSR for cones) [bool] [0.0|1.0]
+  optional bool ls_ca_is_construction_area = 5;
+  // None [NA] [0.0|0.0]
+  optional int32 ls_header_buffer_1 = 6;
+}
+
+message LineParam
+{
+   optional bool valid=10;
+   optional float c0=1;
+   optional float c1=2;
+   optional float c2=3;
+   optional float c3=4;
+   optional float view_start=5;
+   optional float view_end=6;
+   optional int32 lineType=7;
+   optional int32 lineQuality=8;
+   optional float linewidth=9;
+   optional float c0_std=14;
+   optional float c1_std=11;
+   optional float c2_std=12;
+   optional float c3_std=13; 
+}
+
+message Dt_Record_Lane_Support {
+
+ enum CurHostLaneStutus
+{
+// Both L and R is Valid Existence probability>0.67;
+    PerfectSituation=0; 
+// IF L is invalid or Existence probability<0.67; then pre L based on lanewidth estimate and previous L line enve based on track ID of lane lines
+    PreLBasedOnLaneWidth=2;
+    PreRBaseOnLaneWidth=4;
+// Get this infomation from the SematicLine if the sematicline is related to current line.
+    ApprochLaneCrossing=8;
+// Line Crossing ,whitch is used when lane change.
+    LCrossing=16;
+    RCrossing=32;
+}
+
+// Report Message
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  //  [ ] 
+  optional LSCommon stlscommon = 3;
+  //  [ ] 
+  repeated LS_Host_Line dt_array_2_ls_host_line = 4;
+  //  [ ] 
+  repeated LS_Adjacent_Line dt_array_4_ls_adjacent_line = 6;
+
+// added 
+  optional LineParam LeftLine=7;
+  optional LineParam RightLine=8;
+  optional int32 MeLaneStatus=9;
+  optional LineParam NextLeftLine=10;
+  optional LineParam NextRightLine=11;
+  repeated LineParam RoleTypeLostAdjacentLine=12;
+}
+
+message LS_Host_Line {
+// Report Message
+  enum ColorType {
+    UNDECIDED = 0;
+    WHITE = 1;
+    YELLOW_ORANGE_RED = 2;
+    BLUE_GREEN = 3;
+  }
+  enum Prediction_typeType {
+// Need to change when new protocl applyed.
+    NONE = 0;
+    OCCLUDED = 2;
+    OTHER_SIDE = 4;
+    OVERRIDE = 8;
+    DIST_BASED_EXTRAPOLATION = 16;
+    HEADWAY_ORIENTED = 32;
+	//NONE=0;
+	//OTHER_SIDE=1;
+	//PARTIAL=3;
+  }
+  enum Type_classificationType {
+    Type_Classification_UNDECIDED_ = 0;
+    SOLID = 1;
+    DECELERATION = 10;
+    HOV_LANE = 11;
+    RESEREVED_1 = 12;
+    RESEREVED_2 = 13;
+    RESEREVED_3 = 14;
+    RESEREVED_4 = 15;
+    DASHEDUNDECIDED = 2;
+    ROAD_EDGE_NA = 3;
+    DLM = 4;
+    BOTTS = 5;
+    ELEVATED_STRUCTURE_NA = 6;
+    CURB_NA = 7;
+    CONES_POLES_NA = 8;
+    PARKING_CARS_NA = 9;
+  }
+  enum Dlm_typeType {
+    NOT_DLM = 0;
+    SOLID_DASHED = 1;
+    DASHED_SOLID = 2;
+    SOLID_SOLID = 3;
+    DASHED_DASHED = 4;
+    DLM_Type_UNDECIDED_ = 5;
+  }
+  enum Decel_typeType {
+    NO_DECEL = 0;
+    DECEL_Type_SOLID_ = 1;
+    DASHED = 2;
+    RESERVED_1 = 3;
+    RESERVED_2 = 4;
+    RESERVED_3 = 5;
+  }
+  // True if L host polynom  was found [bool] [0.0|1.0]
+  optional bool valid = 1;
+  // ID to be used for comparing frames [counter] [0.0|255.0]
+  optional int32 track_id = 2;
+  // Num of frames that this lane mark is tracked [frames] [0.0|255.0]
+  optional int32 age = 3;
+  // Existence probability of lane mark [NA] [0.0|1.0]
+  optional float existence_probability = 4;
+  // ENUM lane mark color [ENUM] [0.0|3.0]
+  optional ColorType color = 5;
+  // ENUM of prediction type if Lane mark is predicted -1=PRED_NONE 0=PRED_OCCLUDED 1=PRED_OTHER_SIDE, 2=PRED_OVERRIDE, 3=PRED_DIST_BASED_EXTRAPOLATION, 4=PRED_HEADWAY_ORIENTED,  [BITWIZE] [0.0|31.0]
+  optional int32 prediction_type = 6;
+  // None [NA] [0.0|0.0]
+  optional bool reserved_1 = 7;
+  // ENUM of Lane Mark Type Classification [ENUM] [0.0|15.0]
+  optional Type_classificationType type_classification = 8;
+  // in case of double lane mark what type of DLM (ENUM) [ENUM] [0.0|5.0]
+  optional Dlm_typeType dlm_type = 9;
+  // in case of deceleration what is the inner line type (ENUM) [ENUM] [0.0|5.0]
+  optional Decel_typeType decel_type = 10;
+  // Start of longitudinal view range of lane mark [m] [0.0|200.0]
+  optional float view_range_start = 11;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_2 = 12;
+  // End of  longitudinal view rane of lane mark [m] [0.0|200.0]
+  optional float view_range_end = 13;
+  // Is left lane mark crossed (Lane change) [bool] [0.0|1.0]
+  optional bool crossing = 14;
+  // The width of the lane mark in M  [meter] [0.0|0.7]
+  optional float marker_width = 15;
+  // The STD of the lane mark width  [meter] [0.0|0.5]
+  optional float marker_width_std = 16;
+  // None [NA] [0.0|0.0]
+  optional bool reserved_3 = 17;
+  // The average length of each section of the dashed line in case the lane mark is dashed in CM. This is a multi frame signal. [meter] [0.0|50.0]
+  optional float dash_average_length = 18;
+  // The average gap between of the sections of the dashed line in case the lane mark is dashed in CM.  This is a multi frame signal. [meter] [0.0|50.0]
+  optional float dash_average_gap = 19;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_4 = 20;
+  // The line position at dist=0. Free coefficient of the polynomial. [meter] [-10.0|10.0]
+  optional float line_c0 = 21;
+  // None [NA] [0.0|10.0]
+  optional float line_c0_std = 22;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_5 = 23;
+  // Multi frame estimation of host lane width to be used for prediction or another driving cue/ scene cue [meter] [0.0|4.0]
+  optional float estimated_width = 24;
+  // The line heading angle parameter at dist=0. Linear coefficient of the polynomial. Equals to arctan(headingAngle) [rad] [-0.357|0.357]
+  optional float line_c1 = 25;
+  // None [NA] [0.0|0.3]
+  optional float line_c1_std = 26;
+  // None [NA] [0.0|0.0]
+  optional bool reserved_6 = 27;
+  // The line curvature parameter at dist=0. Quadradic coefficient of the polynomial. Equals to 2*curvature [1/m] [-0.032|0.032]
+  optional double line_c2 = 28;
+  // None [NA] [0.0|0.01]
+  optional double line_c2_std = 29;
+  // The line curvature derivative parameter at dist=0. 3rd degree coefficient of the polynomial. Equals to 6*curvatureDerivative [1/m2] [-0.000122|0.000122]
+  optional double line_c3 = 30;
+  // None [NA] [0.0|1e-07]
+  optional double line_c3_std = 31;
+}
+
+message LS_Adjacent_Line {
+// Report Message
+  enum ColorType {
+    UNDECIDED = 0;
+    WHITE = 1;
+    YELLOW_ORANGE_RED = 2;
+    BLUE_GREEN = 3;
+  }
+  enum Prediction_typeType {
+    NONE = 0;
+    OCCLUDED = 1;
+    OTHER_SIDE = 2;
+    OVERRIDE = 3;
+    DIST_BASED_EXTRAPOLATION = 4;
+    HEADWAY_ORIENTED = 5;
+
+// TODO need to change to follow when new protocol applied
+    //NONE =0;
+    //FULL =1;
+  }
+  enum Type_classType {
+    Type_Class_UNDECIDED_ = 0;
+    SOLID = 1;
+    DECELERATION = 10;
+    HOV_LANE = 11;
+    RESEREVED_1 = 12;
+    RESEREVED_2 = 13;
+    RESEREVED_3 = 14;
+    RESEREVED_4 = 15;
+    DASHEDUNDECIDED = 2;
+    ROAD_EDGE_NA = 3;
+    DLM = 4;
+    BOTTS = 5;
+    ELEVATED_STRUCTURE_NA = 6;
+    CURB_NA = 7;
+    CONES_POLES_NA = 8;
+    PARKING_CARS_NA = 9;
+  }
+  enum Dlm_typeType {
+    NOT_DLM = 0;
+    SOLID_DASHED = 1;
+    DASHED_SOLID = 2;
+    SOLID_SOLID = 3;
+    DASHED_DASHED = 4;
+    DLM_Type_UNDECIDED_ = 5;
+  }
+  enum Decel_typeType {
+    NO_DECEL = 0;
+    DECEL_Type_SOLID_ = 1;
+    DASHED = 2;
+    RESERVED_1 = 3;
+    RESERVED_2 = 4;
+    RESERVED_3 = 5;
+  }
+  enum Line_roleType {
+    Line_Role_NONE_ = 0;
+    HOST_LEFT = 1;
+    Line_Role_RESERVED_2_ = 10;
+    Line_Role_RESERVED_3_ = 11;
+    RESERVED_4 = 12;
+    RESERVED_0 = 13;
+    RESERVED_6 = 14;
+    RESERVED_7 = 15;
+    HOST_RIGHT = 2;
+    NEXT_LEFT__LEFT_LANEMARK = 3;
+    NEXT_LEFT__RIGHT_LANEMARK = 4;
+    NEXT_RIGHT__LEFT_LANEMARK = 5;
+    NEXT_RIGHT__RIGHT_LANEMARK = 6;
+    LEFT_ROAD_EDGE = 7;
+    RIGHT_ROAD_EDGE = 8;
+    Line_Role_RESERVED_1_ = 9;
+  }
+  // ID to be used for comparing frames [counter] [0.0|255.0]
+  optional int32 lane_track_id = 1;
+  // Num of frames that this lane mark is tracked [frames] [0.0|255.0]
+  optional int32 age = 2;
+  // Existence probability of lane mark [NA] [0.0|1.0]
+  optional float exist_probability = 3;
+  // ENUM lane mark color [ENUM] [0.0|3.0]
+  optional ColorType color = 4;
+  // ENUM of prediction type if Lane mark is predicted -1=PRED_NONE 0=PRED_OCCLUDED 1=PRED_OTHER_SIDE, 2=PRED_OVERRIDE, 3=PRED_DIST_BASED_EXTRAPOLATION, 4=PRED_HEADWAY_ORIENTED,  [BITWIZE] [0.0|31.0]
+  optional int32 prediction_type = 5;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_13 = 6;
+  // Start of longitudinal view range of lane mark [m] [0.0|200.0]
+  optional float view_range_start = 7;
+  // End of  longitudinal view rane of lane mark [m] [0.0|200.0]
+  optional float view_range_end = 8;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_14 = 9;
+  // ENUM of Lane Mark Type Classification [ENUM] [0.0|15.0]
+  optional Type_classType type_class = 10;
+  // in case of double lane mark what type of DLM (ENUM) [ENUM] [0.0|5.0]
+  optional Dlm_typeType dlm_type = 11;
+  // in case of deceleration what is the inner line type (ENUM) [ENUM] [0.0|5.0]
+  optional Decel_typeType decel_type = 12;
+  // position in relevancy to host [ENUM] [0.0|15.0]
+  optional Line_roleType line_role = 13;
+  // The width of the lane mark in M  [meter] [0.0|0.7]
+  optional float marker_width = 14;
+  // The STD of the lane mark width  [meter] [0.0|0.5]
+  optional float marker_width_std = 15;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_15 = 16;
+  // The average length of each section of the dashed line in case the lane mark is dashed in CM. This is a multi frame signal. [meter] [0.0|50.0]
+  optional float dash_avg_length = 17;
+  // The average gap between of the sections of the dashed line in case the lane mark is dashed in CM.  This is a multi frame signal. [meter] [0.0|50.0]
+  optional float dash_avg_gap = 18;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_16 = 19;
+  // The line curvature derivative parameter at dist=0. 3rd degree coefficient of the polynomial. Equals to 6*curvatureDerivative [1/m2] [-0.000122|0.000122]
+  optional double line_c3 = 20;
+  // None [NA] [0.0|1e-07]
+  optional double line_c3_std = 21;
+  // The line curvature parameter at dist=0. Quadradic coefficient of the polynomial. Equals to 2*curvature [1/m] [-0.032|0.032]
+  optional double line_c2 = 22;
+  // None [NA] [0.0|0.01]
+  optional double line_c2_std = 23;
+  // The line heading angle parameter at dist=0. Linear coefficient of the polynomial. Equals to arctan(headingAngle) [rad] [-0.357|0.357]
+  optional float line_c1 = 24;
+  // None [NA] [0.0|0.3]
+  optional float line_c1_std = 25;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_17 = 26;
+  // The line position at dist=0. Free coefficient of the polynomial. [meter] [-10.0|10.0]
+  optional float line_c0 = 27;
+  // None [NA] [0.0|10.0]
+  optional float line_c0_std = 28;
+  // None [NA] [0.0|0.0]
+  optional int32 buffer = 29;
+}
+
+message ADVCommon {
+// Report Message
+  // None [NA] [0.0|0.0]
+  optional int32 ls_adv_zero_byte = 1;
+  // Denotes the protocol version [counter] [1.0|1.0]
+  optional int32 ls_adv_protocol_version = 2;
+  // sync ID to be used to sync between signals in the system [counter] [0.0|255.0]
+  optional int32 ls_adv__sync_id = 3;
+  // The max number of lines supported by this protocol [counter] [0.0|8.0]
+  optional int32 ls_intp_number = 4;
+  // True if this is a construction area scene. Road responcibility (includes information from TSR for cones) [bool] [0.0|1.0]
+  optional bool ls_ca_is_construction_area = 5;
+  // if output is valid  [bool] [0.0|1.0]
+  optional bool ls_road_vertical_surface_valid = 6;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_1 = 7;
+  // Forward view range of the road plane (Meter) [meter] [0.0|200.0]
+  optional int32 ls_road_vertical_surface_vr = 8;
+  // Linear coefficient - Pitch, angle between vehicle and the road in Rad. [meter] [-10.0|10.0]
+  optional float ls_road_vertical_surface_c0 = 9;
+  // Linear coefficient - Pitch, angle between vehicle and the road in Rad. [rad] [-0.785|0.785]
+  optional float ls_road_vertical_surfac_c1 = 10;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_2 = 11;
+  // Quadratic coefficient - Curvature of the road surface, equal to  1 / (2 * Radius) in units of 1/m [1/m] [-0.03|0.03]
+  optional double ls_road_vertical_surfac_c2 = 12;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_3 = 13;
+  // 3rd degree coefficient - The change of the curvature by distance (curvature derivative). 1/m2 [1/m2] [-0.0004|0.0004]
+  optional double ls_road_vertical_surfac_c3 = 14;
+  // if output is valid  [bool] [0.0|1.0]
+  optional bool ls_path_pred_valid = 15;
+  // The line position at dist=0. Free coefficient of the polynomial. [meter] [-10.0|10.0]
+  optional float ls_path_pred_c0 = 16;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_4 = 17;
+  // The line heading angle parameter at dist=0. Linear coefficient of the polynomial. Equals to arctan(headingAngle) [rad] [-0.357|0.357]
+  optional float ls_path_pred_c1 = 18;
+  // The line curvature parameter at dist=0. Quadradic coefficient of the polynomial. Equals to 2*curvature [1/m] [-0.032|0.032]
+  optional double ls_path_pred_c2 = 19;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_5 = 20;
+  // The line curvature derivative parameter at dist=0. 3rd degree coefficient of the polynomial. Equals to 6*curvatureDerivative [1/m2] [-0.000122|0.000122]
+  optional double ls_path_pred_c3 = 21;
+  // Confidence level [NA] [0.0|1.0]
+  optional float ls_path_pred_conf = 22;
+  // width from center line to lane border (Of the pathPrediction model) [meter] [0.0|2.0]
+  optional float ls_path_pred_half_width = 23;
+  // Highway merging from the left was found [bool] [0.0|1.0]
+  optional bool ls_intp_is_highway_merge_left = 24;
+  // Highway merging from the right was found [bool] [0.0|1.0]
+  optional bool ls_intp_is_highway_merge_right = 25;
+  // Highway exit on the left was found [bool] [0.0|1.0]
+  optional bool ls_intp_is_highway_exit_left = 26;
+  // Highway exit on the right was found [bool] [0.0|1.0]
+  optional bool ls_intp_is_highway_exit_right = 27;
+}
+
+message Dt_Record_LS_ADV {
+// Report Message
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  //  [ ] 
+  optional ADVCommon stadvcommon = 3;
+  //  [ ] 
+  repeated LS_INTP dt_array_8_ls_intp = 4;
+}
+
+message LS_INTP {
+// Report Message
+  enum Intp_typeType {
+    SPLIT = 0;
+    MERGE = 1;
+  }
+  enum Intp_line_roleType {
+    NONE = 0;
+    HOST_LEFT = 1;
+    RESERVED_2 = 10;
+    RESERVED_3 = 11;
+    RESERVED_4 = 12;
+    RESERVED_5 = 13;
+    RESERVED_6 = 14;
+    RESERVED_7 = 15;
+    HOST_RIGHT = 2;
+    NEXT_LEFT__LEFT_LANEMARK = 3;
+    NEXT_LEFT__RIGHT_LANEMARK = 4;
+    NEXT_RIGHT__LEFT_LANEMARK = 5;
+    NEXT_RIGHT__RIGHT_LANEMARK = 6;
+    LEFT_ROAD_EDGE = 7;
+    RIGHT_ROAD_EDGE = 8;
+    RESERVED_1 = 9;
+  }
+  // semantic type - 0 - split, 1 - merge [ENUM] [0.0|1.0]
+  optional Intp_typeType intp_type = 1;
+  // is the point is a transition area starting or ending [bool] [0.0|1.0]
+  optional bool intp_is_start = 2;
+  // info shouldn't be used if not valid [bool] [0.0|1.0]
+  optional bool intp_is_valid = 3;
+  // position in relevancy to host [ENUM] [0.0|15.0]
+  optional Intp_line_roleType intp_line_role = 4;
+  // lateral distance from camera to interest point [m] [-50.0|50.0]
+  optional float intp_lat_distance = 5;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_6 = 6;
+  // longitudinal distance from camera to interest point [m] [0.0|200.0]
+  optional float intp_long_distance = 7;
+  // None [NA] [0.0|0.0]
+  optional int32 intp_buffer = 8;
+}
+
+message RoadEdgeCommon {
+// Report Message
+  // None [NA] [0.0|0.0]
+  optional int32 ls_road_edge_zero_byte = 1;
+  // Denotes the protocol version [counter] [1.0|1.0]
+  optional int32 ls_road_edge_protocol_version = 2;
+  // sync ID to be used to sync between signals in the system [counter] [0.0|255.0]
+  optional int32 ls_road_edge_sync_id = 3;
+  // The max number of lines supported by this protocol [counter] [0.0|4.0]
+  optional int32 ls_road_edge_number = 4;
+  // None [NA] [0.0|0.0]
+  optional int32 ls_road_edge_header_buffer = 5;
+}
+
+message Dt_Record_LS_Road_Edge {
+// Report Message
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  //  [ ] 
+  optional RoadEdgeCommon stroadedgecommon = 3;
+  //  [ ] 
+  repeated RoadEdge dt_array_4_ls_road_edge = 4;
+}
+
+message RoadEdge {
+// Report Message
+  enum Ls_road_edge_type_avg__classType {
+    UNDECIDED = 0;
+    ROAD_EDGE = 3;
+    ELEVATED_STRUCTURE = 6;
+    CURB = 7;
+    CONES_POLES = 8;
+    PARKING_CARS = 9;
+  }
+  enum Ls_road_edge_prediction_typeType {
+    NONE = 0;
+    OCCLUDED = 1;
+    OTHER_SIDE = 2;
+    OVERRIDE = 3;
+    DIST_BASED_EXTRAPOLATION = 4;
+    HEADWAY_ORIENTED = 5;
+  }
+  enum Ls_road_edge_sideType {
+    UNKNOWN = 0;
+    LEFT = 1;
+    RIGHT = 2;
+  }
+  enum Ls_road_edge_indexType {
+    LS_Road_Edge_Index_UNKNOWN_ = 0;
+    FIRST = 1;
+    SECOND = 2;
+    RESERVED = 3;
+  }
+  // ID to be used for comparing frames [counter] [0.0|255.0]
+  optional int32 ls_road_edge_id = 1;
+  // Num of frames that this lane mark is tracked [frames] [0.0|255.0]
+  optional int32 ls_road_edge_age = 2;
+  // Existence probability of lane mark [NA] [0.0|1.0]
+  optional float ls_road_edge_exist_prob = 3;
+  // ENUM of Lane Mark Type Classification [ENUM] [0.0|12.0]
+  optional Ls_road_edge_type_avg__classType ls_road_edge_type_avg__class = 4;
+  // None [BITWIZE] [0.0|31.0]
+  optional int32 ls_road_edge_prediction_type = 5;
+  // The height is only for structural borders. [meter] [0.0|2.0]
+  optional float ls_road_edge_height = 6;
+  // Start of longitudinal view range of lane mark [m] [0.0|200.0]
+  optional float ls_road_edge_view_range_start = 7;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_1 = 8;
+  // End of  longitudinal view rane of lane mark [m] [0.0|200.0]
+  optional float ls_road_edge_view_range_end = 9;
+  // the side of the host in driving direction on which the road edge was found [ENUM] [0.0|2.0]
+  optional Ls_road_edge_sideType ls_road_edge_side = 10;
+  // the order of the road edge if we have few road edges from host towards  out of road. [ENUM] [0.0|3.0]
+  optional Ls_road_edge_indexType ls_road_edge_index = 11;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_2 = 12;
+  // The line curvature derivative parameter at dist=0. 3rd degree coefficient of the polynomial. Equals to 6*curvatureDerivative [1/m2] [-0.000122|0.000122]
+  optional double ls_road_edge_line_c3 = 13;
+  // None [NA] [0.0|1e-07]
+  optional double ls_road_edge_line_c3_std = 14;
+  // The line curvature parameter at dist=0. Quadradic coefficient of the polynomial. Equals to 2*curvature [1/m] [-0.032|0.032]
+  optional double ls_road_edge_line_c2 = 15;
+  // None [NA] [0.0|0.01]
+  optional double ls_road_edge_line_c2_std = 16;
+  // The line heading angle parameter at dist=0. Linear coefficient of the polynomial. Equals to arctan(headingAngle) [rad] [-0.357|0.357]
+  optional float ls_road_edge_line_c1 = 17;
+  // None [NA] [0.0|0.3]
+  optional float ls_road_edge_line_c1_std = 18;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_3 = 19;
+  // The line position at dist=0. Free coefficient of the polynomial. [meter] [-10.0|10.0]
+  optional float ls_road_edge_line_c0 = 20;
+  // None [NA] [0.0|10.0]
+  optional float ls_road_edge_line_c0_std = 21;
+  // None [NA] [0.0|0.0]
+  optional int32 ls_road_edge_buffer = 22;
+}
+
+message ObjCommon {
+// Report Message
+  enum Obj_vd_cipv_lostType {
+    NO_LOSS = 0;
+    LOST_TARGET_FOV_OUT = 1;
+    LOST_TARGET_FOV_IN = 2;
+  }
+  enum Obj_vd_allow_acceType {
+    FREE_SPACE = 0;
+    SPACE_NOT_FREE = 1;
+    FREE_SPACE_UNKNOWN = 2;
+  }
+  // None [NA] [0.0|0.0]
+  optional int32 obj_zero_byte = 1;
+  // Denotes the protocol version [counter] [1.0|1.0]
+  optional int32 obj_protocol_version = 2;
+  // sync ID to be used to sync between signals in the system [counter] [0.0|255.0]
+  optional int32 obj_sync_id = 3;
+  // counter of recognize VRU in the scene [counter] [0.0|10.0]
+  optional int32 obj_vru_count = 4;
+  // counter of recognize vehicles in the scene [counter] [0.0|10.0]
+  optional int32 obj_vd_count = 5;
+  // counter of recognize General Objects in the scene [counter] [0.0|10.0]
+  optional int32 obj_general_obj_count = 6;
+  // counter of recognize Animals in the scene [counter] [0.0|10.0]
+  optional int32 obj_animal_count = 7;
+  // None [NA] [0.0|255.0]
+  optional int32 obj_vd_niv_left = 8;
+  // None [NA] [0.0|255.0]
+  optional int32 obj_vd_niv_right = 9;
+  // isCipv (check for all vehicles) 6.3.1.5 [counter] [0.0|255.0]
+  optional int32 obj_vd_cipv_id = 10;
+  // CIPV loss (8.2) [ENUM] [0.0|2.0]
+  optional Obj_vd_cipv_lostType obj_vd_cipv_lost = 11;
+  // PSW RFD 8.1  [ENUM] [0.0|3.0]
+  optional Obj_vd_allow_acceType obj_vd_allow_acce = 12;
+  // None [NA] [0.0|0.0]
+  optional float obj_header_buffer = 13;
+}
+
+message Dt_Record_MeObjects {
+// Report Message
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  //  [ ] 
+  optional ObjCommon stobjcommon = 3;
+  //  [ ] 
+  repeated MeObject dt_array_20_meobject = 4;
+}
+
+message MeObject {
+// Report Message
+  enum Obj_measuring_statusType {
+    OLD_NEW = 1;
+    PREDICTED_MEASURED = 2;
+    NOTVALID_VALID = 3;
+  }
+  enum Obj_object_classType {
+    INVALID_Obj_Type=0;
+    CAR = 1;
+    TRUCK = 2;
+    BIKE = 3;
+    BICYCLE = 4;
+    PEDESTRIAN = 5;
+    GENERAL_OBJECT = 6;
+    ANIMAL = 7;
+    UNCERTAIN_VCL = 8;
+  }
+  enum Obj_lane_assignmentType {
+    UNKNOWN_lane_assign = 0;
+    LEFT_LEFT = 1;
+    LEFT = 2;
+    HOST = 3;
+    RIGHT = 4;
+    RIGHT_RIGHT=5;
+  }
+
+  enum Obj_motion_category{
+	INVALID=0;
+	UNDEFINED=1;
+	PASSING=2;
+	PASSING_IN=3;
+	PASSING_OUT=4;
+	CLOSE_CUT_IN=5;
+	MOVING_IN=6;
+	MOVING_OUT=7;
+	CROSSING=8;
+	LTAP=9;
+	RTAP=10;
+	MOVING=11;
+	PRECEDING=12;
+	ONCOMING=13;
+	}
+
+ enum Obj_motion_status{
+	INVALID_STATUS=0;
+	UNKONWN=1;
+	MOVING_motion_status=2;
+	STATIONARY=3;
+	STOPPED=4;
+	MOVING_SLOWLY=5;
+}
+
+enum Obj_motion_orientation{
+	INVALID_ORIENTATION_STATUS=0;
+	DRIFTING_RIGHT=1;
+	CROSSING_RIGHT=3;
+	OC_DRIFTING_RIGHT=5;
+	ONCOMMING=6;
+	OC_DRIFTING_LEFT=7;
+	CROSSING_LEFT=9;
+	DRIFTING_LEFT=11;
+	PRECEEDING=12;
+	UNKNOWN_ORIENTATION_STATUS=13;
+}
+  // OBJ detected ID + ID Manager (include PED VD GO Animals ID unification) [NA] [0.0|255.0]
+  optional int32 obj_id = 1;
+  // The existene probability of the vehicle [NA] [0.0|1.0]
+  optional float obj_existence_probability = 2;
+  // if this object has trigered the SDM alert for objects this flag will be turned on. [bool] [0.0|1.0]
+  optional bool obj_triggered_sdm = 3;
+  // MOBILITY: movementCategory [ENUM ] [0.0|12.0]
+  optional int32 obj_motion_category = 4;
+  // Frame age of the obstacle [Frame] [0.0|2047.0]
+  optional int32 obj_object_age = 5;
+  // Were the vehicle measurments predicted, old or not valid [BITWIZE] [0.0|7.0]
+  optional int32 obj_measuring_status = 6;
+  // ObsIF:ObsType [ENUM] [0.0|7.0]
+  optional Obj_object_classType obj_object_class = 7;
+  // Number of camera in cameras array on which this vehicle was detected (best choice) [NA] [0.0|1.0]
+  optional int32 obj_camera = 8;
+  // MOBILITY:Motion [ENUM ] [0.0|5.0]
+  optional int32 obj_motion_status = 9;
+  // MOBILITY:orientation [ENUM ] [0.0|8.0]
+  optional int32 obj_motion_oreintation = 10;
+  // VLI_INFO:Braking [bool] [0.0|1.0]
+  optional bool obj_brake_light = 11;
+  // VLI_INFO: blinkingRight [bool] [0.0|1.0]
+  optional bool obj_turn_indicator_right = 12;
+  // VLI_INFO: blinkingLeft [bool] [0.0|1.0]
+  optional bool obj_turn_indicator_left = 13;
+  // VLI_INFO:Valid [bool] [0.0|1.0]
+  optional bool obj_light_indicator_validity = 14;
+  // 6.3.1.9 [bool] [0.0|1.0]
+  optional bool obj_right_out_of_image = 15;
+  // 6.3.1.9 [bool] [0.0|1.0]
+  optional bool obj_left_out_of_image = 16;
+  // LANE DATA:laneAssgoinment [ENUM] [0.0|5.0]
+  optional Obj_lane_assignmentType obj_lane_assignment = 17;
+  // LANE DATA:laneAssgoinment [bool] [0.0|1.0]
+  optional bool obj_lane_assignment_v = 18;
+  // 6.3.1.9 [bool] [0.0|1.0]
+  optional bool obj_top_out_of_image = 19;
+  // 6.3.1.9 [bool] [0.0|1.0]
+  optional bool obj_bottom_out_of_image = 20;
+  // 6.3.1.9 [bool] [0.0|1.0]
+  optional bool obj_top_out_of_image_v = 21;
+  // 6.3.1.9 [bool] [0.0|1.0]
+  optional bool obj_bottom_out_of_image_v = 22;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_1 = 23;
+  // 6.3 General Data [s] [0.0|100.0]
+  optional int32 obj_age_seconds = 24;
+  // 6.3 General Data [bool] [0.0|1.0]
+  optional bool obj_age_seconds_v = 25;
+  // PHYSICAL STATES:PS_width [m] [0.4|2.95]
+  optional float obj_width = 26;
+  // PHYSICAL STATES:PS_width [bool] [0.0|1.0]
+  optional bool obj_width_v = 27;
+  // PHYSICAL STATES:PS_width [m] [0.0|2.0]
+  optional float obj_width_std = 28;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_2 = 29;
+  // PHYSICAL STATES:PS_length (VD +bicycle [m] [1.2|21.0]
+  optional float obj_length = 30;
+  // PHYSICAL STATES:PS_length [bool] [0.0|1.0]
+  optional bool obj_length_v = 31;
+  // PHYSICAL STATES:PS_length [m] [0.0|10.0]
+  optional float obj_length_std = 32;
+  // PHYSICAL STATES:PS_height [m] [0.0|2.95]
+  optional float obj_height = 33;
+  // PHYSICAL STATES:PS_height [bool] [0.0|1.0]
+  optional bool obj_height_v = 34;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_3 = 35;
+  // PHYSICAL STATES:PS_height [m] [0.0|2.0]
+  optional float obj_height_std = 36;
+  // PHYSICAL STATES:PS_longGroundSpeed [m/s] [-65.0|65.0]
+  optional float obj_absolute_long_velocity = 37;
+  // PHYSICAL STATES:PS_longGroundSpeed [bool] [0.0|1.0]
+  optional bool obj_absolute_long_velocity_v = 38;
+  // PHYSICAL STATES:PS_longGroundSpeed [m/s] [0.0|65.0]
+  optional float obj_abs_long_velocity_std = 39;
+  // PHYSICAL STATES:PS_latGroundSpeed [m/s] [-50.0|50.0]
+  optional float obj_absolute_lat_velocity = 40;
+  // PHYSICAL STATES:PS_latGroundSpeed [bool] [0.0|1.0]
+  optional bool obj_absolute_lat_velocity_v = 41;
+  // PHYSICAL STATES:PS_latGroundSpeed [m/s] [0.0|50.0]
+  optional float obj_abs_lat_velocity_std = 42;
+  // PHYSICAL STATES:PS_latGroundAcceleration [m/s2] [-10.3|7.3]
+  optional float obj_absolute_lat_acc = 43;
+  // PHYSICAL STATES:PS_latGroundAcceleration [bool] [0.0|1.0]
+  optional bool obj_absolute_lat_acc_v = 44;
+  // PHYSICAL STATES:PS_latGroundAcceleration [m/s2] [0.0|7.3]
+  optional float obj_absolute_lat_acc_std = 45;
+  // PHYSICAL STATES:PS_targetAcceleration [m] [-10.3|7.3]
+  optional float obj_absolute_acceleration = 46;
+  // PHYSICAL STATES:PS_targetAcceleration [bool] [0.0|1.0]
+  optional bool obj_absolute_acceleration_v = 47;
+  // PHYSICAL STATES:PS_targetAcceleration [m] [0.0|7.3]
+  optional float obj_absolute_acce_std = 48;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_4 = 49;
+  // None [s] [-8.0|8.0]
+  optional float obj_inv_ttc = 50;
+  // None [bool] [0.0|1.0]
+  optional bool obj_inv_ttc_v = 51;
+  // PHYSICAL STATES:PS_longRelSpeed [m/s] [-120.0|130.0]
+  optional float obj_relative_long_velocity = 52;
+  // PHYSICAL STATES:PS_longRelSpeed [bool] [0.0|1.0]
+  optional bool obj_relative_long_velocity_v = 53;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_5 = 54;
+  // PHYSICAL STATES:PS_longRelSpeed [m/s] [0.0|130.0]
+  optional float obj_relative_long_velo_std = 55;
+  // PHYSICAL STATES:PS_latRelSpeed [m/s] [-50.0|50.0]
+  optional float obj_relative_lat_velocity = 56;
+  // PHYSICAL STATES:PS_latRelSpeed [bool] [0.0|1.0]
+  optional bool obj_relative_lat_velocity_v = 57;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_6 = 58;
+  // PHYSICAL STATES:PS_latRelSpeed [m/s] [0.0|50.0]
+  optional float obj_relative_lat_velocity_std = 59;
+  // PHYSICAL STATES:PS_longDist [m] [-200.0|250.0]
+  optional float obj_long_distance = 60;
+  // PHYSICAL STATES:PS_longDist [bool] [0.0|1.0]
+  optional bool obj_long_distance_v = 61;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_7 = 62;
+  // PHYSICAL STATES:PS_longDist [m] [0.0|250.0]
+  optional float obj_long_distance_std = 63;
+  // PHYSICAL STATES:PS_latDist [m] [-100.0|100.0]
+  optional float obj_lat_distance = 64;
+  // PHYSICAL STATES:PS_latDist [bool] [0.0|1.0]
+  optional bool obj_lat_distance_v = 65;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_8 = 66;
+  // PHYSICAL STATES:PS_latDist [m] [0.0|100.0]
+  optional float obj_lat_distance_std = 67;
+  // PHYSICAL STATES:PS_targetSpeed [m/s2] [-65.0|65.0]
+  optional float obj_absolute_speed = 68;
+  // PHYSICAL STATES:PS_targetSpeed [bool] [0.0|1.0]
+  optional bool obj_absolute_speed_v = 69;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_9 = 70;
+  // PHYSICAL STATES:PS_targetSpeed [m/s2] [0.0|65.0]
+  optional float obj_absolute_speed_std = 71;
+  // PHYSICAL STATES:PS_heading [rad] [-3.14|3.14]
+  optional float obj_heading = 72;
+  // PHYSICAL STATES:PS_heading [bool] [0.0|1.0]
+  optional bool obj_heading_v = 73;
+  // PHYSICAL STATES:PS_heading [rad] [0.0|3.14]
+  optional float obj_heading_std = 74;
+  // None [NA] [0.0|0.0]
+  optional bool reserved_10 = 75;
+  // 6.3.6.3 [rad/s] [-2.234|2.2318]
+  optional float obj_angle_rate = 76;
+  // 6.3.6.3 [bool] [0.0|1.0]
+  optional bool obj_angle_rate_v = 77;
+  // 6.3.6.3 [rad/s] [0.0|2.2318]
+  optional float obj_angle_rate_std = 78;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_11 = 79;
+  // ANGULAR STATES: angleRight [rad ] [-1.571|1.571]
+  optional float obj_angle_right = 80;
+  // ANGULAR STATES: angleRight [bool] [0.0|1.0]
+  optional bool obj_angle_right_v = 81;
+  // ANGULAR STATES: angleRight [rad ] [0.0|1.571]
+  optional float obj_angle_right_std = 82;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_12 = 83;
+  // ANGULAR STATES: angleLeft [rad ] [-1.571|1.571]
+  optional float obj_angle_left = 84;
+  // ANGULAR STATES: angleLeft [bool] [0.0|1.0]
+  optional bool obj_angle_left_v = 85;
+  // ANGULAR STATES: angleLeft [rad] [0.0|1.571]
+  optional float obj_angle_left_std = 86;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_13 = 87;
+  // ANGULAR STATES: angleSide [rad] [-1.571|1.571]
+  optional float obj_angle_side = 88;
+  // ANGULAR STATES: angleSide [bool] [0.0|1.0]
+  optional bool obj_angle_side_v = 89;
+  // ANGULAR STATES: angleSide [rad] [0.0|1.571]
+  optional float obj_angle_side_std = 90;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_14 = 91;
+  // ANGULAR STATES: angleMid [rad] [-1.571|1.571]
+  optional float obj_angle_mid = 92;
+  // ANGULAR STATES: angleMid [bool] [0.0|1.0]
+  optional bool obj_angle_mid_v = 93;
+  // ANGULAR STATES: angleMid [rad] [0.0|1.571]
+  optional float obj_angle_mid_std = 94;
+  // 6.3 Measurements and semantic data [bool] [0.0|1.0]
+  optional bool obj_is_in_drivable_area = 95;
+  // 6.3 Measurements and semantic data [bool] [0.0|1.0]
+  optional bool obj_is_in_drivable_area_v = 96;
+  // 6.3 Measurements and semantic data [bool] [0.0|1.0]
+  optional bool obj_is_veryclose = 97;
+  // 6.3 Measurements and semantic data [bool] [0.0|1.0]
+  optional bool obj_is_veryclose_v = 98;
+}
+
+message SLDCommon {
+// Report Message
+  // None [NA] [0.0|0.0]
+  optional int32 sld_zero_byte = 1;
+  // None [counter] [1.0|1.0]
+  optional int32 sld_protocol_version = 2;
+  // sync ID to be used to sync between signals in the system [counter] [0.0|255.0]
+  optional int32 sld_sync_id = 3;
+  // Number of lanes in close range to the left of host [counter] [0.0|5.0]
+  optional int32 sld_num_of_lanes_close_left = 4;
+  // Number of lanes in close range to the right of host [counter] [0.0|5.0]
+  optional int32 sld_num_of_lanes_close_right = 5;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_1 = 6;
+  // Number of lanes in far range to the left of host [counter] [0.0|5.0]
+  optional int32 sld_num_of_lanes_far_left = 7;
+  // Number of lanes in far range to the right of host [counter] [0.0|5.0]
+  optional int32 sld_num_of_lanes_far_right = 8;
+  // is there hard-sholder on the right in close view [bool] [0.0|1.0]
+  optional bool sld_has_shoulder_right_close = 9;
+  // right hard-shoulder width in close view [meter] [0.0|3.0]
+  optional float sld_shoulder_right_width_close = 10;
+  // is there hard-sholder on the right in far view [bool] [0.0|1.0]
+  optional bool sld_has_shoulder_right_far = 11;
+  // right hard-shoulder width in far view [meter] [0.0|3.0]
+  optional float sld_shoulder_right_width_far = 12;
+  // None [NA] [0.0|0.0]
+  optional int32 sld_header_buffer = 13;
+}
+
+message Dt_Record_SL_Descrip {
+// Report Message
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  //  [ ] 
+  optional SLDCommon stsldcommon = 3;
+  //  [ ] 
+  repeated SLD dt_array_10_sld = 4;
+}
+
+message SLD {
+// Report Message
+  enum Sld_role_0Type {
+    LEFT_2 = 0;
+    LEFT_1 = 1;
+    HOST = 2;
+    RIGHT_1 = 3;
+    RIGHT_2 = 4;
+  }
+  enum Sld_view_0Type {
+    UNKNOWN = 0;
+    FAR = 1;
+    CLOSE = 2;
+  }
+  enum Sld_direction_0Type {
+    SLD_Direction_0_UNKNOWN_ = 0;
+    STRAIGHT = 1;
+    RIGHT = 2;
+    LEFT = 4;
+  }
+  enum Sld_type_0Type {
+    UNKNOWN_CLASS = 0;
+    REGULAR = 1;
+    NO_LANE = 10;
+    RESERVED_0 = 11;
+    RESERVED_1 = 12;
+    RESERVED_2 = 13;
+    RESERVED_3 = 14;
+    RESERVED_4 = 15;
+    RESERVED_5 = 16;
+    SHOULDER = 2;
+    OPENING = 3;
+    CLOSING = 4;
+    BICYCLE_LANE = 5;
+    PARKING = 6;
+    CARPOOL = 7;
+    BAY = 8;
+    BUS_LANE = 9;
+  }
+  // Lane existence probability (value between 0-1) [NA] [0.0|1.0]
+  optional float sld_existence_probability_0 = 1;
+  // Lane non-existence probability (value between 0-1) [NA] [0.0|1.0]
+  optional float sld_nonexistence_probability_0 = 2;
+  // The lane role within the road in regards to ego [ENUM] [0.0|4.0]
+  optional Sld_role_0Type sld_role_0 = 3;
+  // Was the lane assginment for this object part of close or far detection. [ENUM] [0.0|2.0]
+  optional Sld_view_0Type sld_view_0 = 4;
+  // The driving orientation of the lane [bitwize] [0.0|3.0]
+  optional int32 sld_orientation_0 = 5;
+  // driving orientation probability [NA] [0.0|1.0]
+  optional float sld_orientation_probability_0 = 6;
+  // To which directions can the driver proceed from this lane. Can be any combination of left,right,straight  [BITWIZE] [0.0|7.0]
+  optional int32 sld_direction_0 = 7;
+  // None [NA] [0.0|0.0]
+  optional bool reserved_2 = 8;
+  // Probability that the direction decision is correct. [NA] [0.0|1.0]
+  optional float sld_direction_probability_0 = 9;
+  // Type of the lane (which is a combination of semantic type, and orientation).  [BITWIZE] [0.0|65535.0]
+  optional int32 sld_type_0 = 10;
+  // probability that the type classification is correct. [NA] [0.0|1.0]
+  optional float sld_type_probability_0 = 11;
+  // None [NA] [0.0|0.0]
+  optional int32 sld_buffer_0 = 12;
+}
+
+message SLCommon {
+// Report Message
+  // None [NA] [0.0|0.0]
+  optional int32 sl_zero_byte = 1;
+  // Denotes the protocol version [counter] [1.0|1.0]
+  optional int32 sl_protocol_version = 2;
+  // sync ID to be used to sync between signals in the system [counter] [0.0|255.0]
+  optional int32 sl_sync_id = 3;
+  // Number of approved stop lines [counter] [0.0|10.0]
+  optional int32 sl_approved_lines = 4;
+  // None [NA] [0.0|0.0]
+  optional int32 sl_header_buffer = 5;
+}
+
+message Dt_Record_SematicLine {
+// Report Message
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  //  [ ] 
+  optional SLCommon stslcommon = 3;
+  //  [ ] 
+  repeated SematicLine dt_array_10_sematicline = 4;
+}
+
+message SematicLine {
+// Report Message
+  enum Sl_typeType {
+    SOLID = 0;
+    DASHED = 8;
+    TRIANGULAR = 9;
+  }
+  enum Sl_colorType {
+    GREEN_BLUE = 0;
+    WHITE = 1;
+    YELLOW_ORANGE_RED = 2;
+  }
+  enum Sl_measure_statusType {
+    UNKNOWN = 0;
+    IN_IMAGE = 1;
+    PREDICTED = 2;
+  }
+  //  unique id [counter] [0.0|255.0]
+  optional int32 sl_id = 1;
+  // roadMark type (TSR Signs ENUM) [ENUM] [0.0|9.0]
+  optional Sl_typeType sl_type = 2;
+  // roadMark  color [ENUM] [0.0|2.0]
+  optional Sl_colorType sl_color = 3;
+  // stopLineMeasuringStatus status - Is stop line location measurement based on location in image (status=1) or predicted based on vehicle motion (status=2) [ENUM] [0.0|2.0]
+  optional Sl_measure_statusType sl_measure_status = 4;
+  //  lateral distance (in meters) at the center on the object from camera  [meter] [0.0|100.0]
+  optional float sl_lat_distance = 5;
+  // real world width (in Z axis) of the stop line in meters, without considering the angle. [meter] [0.0|1.0]
+  optional float sl_width = 6;
+  // real world length (in X axis) of the stop line in meters. [meter] [0.0|10.0]
+  optional float sl_length = 7;
+  // Longitudinal distance (in meters) at the center on the object from camera  [meter] [0.0|200.0]
+  optional float sl_long_dist = 8;
+  // Longitudinal std (in meters) at the center on the object [meter] [0.0|200.0]
+  optional float sl_long_dist_std = 9;
+  //  Is the stop line detected in proximity to a junction (currently close to: Traffic light, stop sign or yield sign) [bool] [0.0|1.0]
+  optional bool sl_close_to_junc = 10;
+  // probability that the object is actually a real roadMark [NA] [0.0|1.0]
+  optional float sl_probability = 11;
+  // stop line angle in real world in radians. [rad] [-3.0|3.0]
+  optional float sl_angle = 12;
+  // STD [rad] [-3.0|3.0]
+  optional float sl_angle_std = 13;
+  // Is the stop line relevant for the driver (Should the driver stop or yield on this stop line).  [bool] [0.0|1.0]
+  optional bool sl_is_relevant = 14;
+}
+
+message SMCommon {
+// Report Message
+  // None [NA] [0.0|0.0]
+  optional int32 sm_zero_byte = 1;
+  // Denotes the protocol version [counter] [1.0|1.0]
+  optional int32 sm_protocol_version = 2;
+  // sync ID to be used to sync between signals in the system [counter] [0.0|255.0]
+  optional int32 sm_sync_id = 3;
+  // Number of approved arrows [counter] [0.0|20.0]
+  optional int32 sm_approved_marks = 4;
+  // None [NA] [0.0|0.0]
+  optional int32 sm_header_buffer = 5;
+}
+
+message Dt_Record_SematicMark {
+// Report Message
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  //  [ ] 
+  optional SMCommon stsmcommon = 3;
+  //  [ ] 
+  repeated SematicMark dt_array_20_sematicmark = 4;
+}
+
+message SematicMark {
+// Report Message
+  //  unique id [counter] [0.0|255.0]
+  optional int32 sm_id = 1;
+  // roadMark type (TSR Signs ENUM) [NA] [0.0|1023.0]
+  optional int32 sm_type = 2;
+  //  lateral distance (in meters) at the center on the object from camera  [meter] [0.0|100.0]
+  optional float sm_lat_distance = 3;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_2 = 4;
+  // Longitudinal distance (in meters) at the center on the object from camera  [meter] [0.0|200.0]
+  optional float sm_long_distance = 5;
+  // probability that the object is actually a real roadMark [NA] [0.0|1.0]
+  optional float sm_confidence = 6;
+  // None [NA] [0.0|0.0]
+  optional int32 sm_buffer = 7;
+}
+
+message TFLCommon {
+// Report Message
+  // None [NA] [0.0|0.0]
+  optional int32 tfl_zero_byte = 1;
+  // Denotes the protocol version [counter] [1.0|1.0]
+  optional int32 tfl_protocol_version = 2;
+  // sync ID to be used to sync between signals in the system [counter] [0.0|255.0]
+  optional int32 tfl_sync_id = 3;
+  // Number of TFL Objects [counter] [0.0|20.0]
+  optional int32 tfl_number_of_objects = 4;
+  // None [NA] [0.0|0.0]
+  optional int32 tfl_header_buffer = 5;
+}
+
+message Dt_Record_TFL {
+// Report Message
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  //  [ ] 
+  optional TFLCommon sttflcommon = 3;
+  //  [ ] 
+  repeated TFL dt_array_10_tfl = 4;
+}
+
+message TFL {
+// Report Message
+  enum Tfl_colorType {
+    UNKNOWN_x000D_ = 0;
+    RED_x000D_ = 1;
+    YELLOW_x000D_ = 2;
+    GREEN_x000D_ = 3;
+    RED_YELLOW = 4;
+  }
+  enum Tfl_relevance_directionType {
+    TFL_Relevance_Direction_UNKNOWN_x000D__ = 0;
+    FORWARED_CENTER_x000D_ = 1;
+    FORWARED_RIGHT = 16;
+    LEFT_x000D_ = 2;
+    RIGHT_x000D_ = 4;
+    FORWARED_LEFT_x000D_ = 8;
+  }
+  enum Tfl_structure_orientationType {
+    TFL_Structure_Orientation_UNKNOWN_x000D__ = 0;
+    VERTICAL_x000D_ = 1;
+    HORIZENTAL = 2;
+  }
+  enum Tfl_modeType {
+    TFL_Mode_UNKNOWN_x000D__ = 0;
+    CONTINUOUS_x000D_ = 1;
+    BLINKING = 2;
+  }
+  enum Tfl_shapeType {
+    TFL_Shape_UNKNOWN_x000D__ = 0;
+    CIRCULAR_x000D_ = 1;
+    DIAGONAL_x000D_ = 16;
+    FORWARED_x000D_ = 2;
+    ARROW_x000D_ = 32;
+    TFL_Shape_LEFT_x000D__ = 4;
+    PEDS = 64;
+    TFL_Shape_RIGHT_x000D__ = 8;
+  }
+  // unique id for life of light [counter] [0.0|255.0]
+  optional int32 tfl_object_id = 1;
+  // unique id for life of light - indicates which lightbox the spot is identified with [counter] [0.0|255.0]
+  optional int32 tfl_lightbox_id = 2;
+  // None [NA] [0.0|1.0]
+  optional float tfl_existence_probability = 3;
+  // quality signal [NA] [0.0|1.0]
+  optional float tfl_relevance_probability = 4;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_1 = 5;
+  // Colour of traffic light [ENUM] [0.0|4.0]
+  optional Tfl_colorType tfl_color = 6;
+  // Bit0=Main_x000D_ Bit1=Narrow_x000D_ Bit2=Fisheye_x000D_ 3-7= future [BITWIZE] [0.0|255.0]
+  optional int32 tfl_camera_source = 7;
+  // an indication of the direction of the lane to which the traffic light is relevant [BITWIZE] [0.0|63.0]
+  optional int32 tfl_relevance_direction = 8;
+  // Structure_Orientation [ENUM] [0.0|2.0]
+  optional Tfl_structure_orientationType tfl_structure_orientation = 9;
+  // the quality of the relevance direction signal [NA] [0.0|1.0]
+  optional float tfl_rel_dir_quality = 10;
+  // None [ENUM] [0.0|2.0]
+  optional Tfl_modeType tfl_mode = 11;
+  // None [NA] [0.0|0.0]
+  optional bool reserved_2 = 12;
+  // width of traffic light (day only) [m] [0.0|0.96875]
+  optional float tfl_width = 13;
+  // None [m] [0.0|0.3]
+  optional float tfl_width_std = 14;
+  // height of traffic light (day only) [m] [0.0|1.55]
+  optional float tfl_height = 15;
+  // None [m] [0.0|0.3]
+  optional float tfl_height_std = 16;
+  // Longitudinal distance [m] [0.0|255.9375]
+  optional float tfl_long_distance = 17;
+  // Longitudinal distance - STD [m] [0.0|40.0]
+  optional float tfl_long_distance_std = 18;
+  // Height from Camera [m] [0.0|31.875]
+  optional float tfl_rel_height = 19;
+  // Height from Camera - STD [m] [0.0|5.0]
+  optional float tfl_rel_height_std = 20;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_3 = 21;
+  // Lateral distance - Right is positive  [m] [-256.0|255.875]
+  optional float tfl_lat_distance = 22;
+  // Lateral distance - Right is positive - STD [m] [0.0|40.0]
+  optional float tfl_lat_distance_std = 23;
+  // Circular/Forward/Left/Right supported for I290 [BITWIZE] [0.0|255.0]
+  optional int32 tfl_shape = 24;
+}
+
+message TSRCommon {
+// Report Message
+  // None [NA] [0.0|0.0]
+  optional int32 zero_byte = 1;
+  // Denotes the protocol version [counter] [1.0|1.0]
+  optional int32 tsr_protocol_version = 2;
+  // sync ID to be used to sync between signals in the system [counter] [0.0|255.0]
+  optional int32 tsr_sync_id = 3;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_1 = 4;
+  // Number of approved signed in the scene [counter] [0.0|100.0]
+  optional int32 tsr_apr__sign_count = 5;
+  // Number of Filtered signs which were seen in the scene [counter] [0.0|100.0]
+  optional int32 tsr_filtered_sign_count = 6;
+  // Number of signs are still being tracked in the scene [counter] [0.0|100.0]
+  optional int32 tsr_undertracking_sign_count = 7;
+  // None [NA] [0.0|0.0]
+  optional int32 tsr_header_buffer = 8;
+}
+
+message Dt_Record_TSR {
+// Report Message
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  //  [ ] 
+  optional TSRCommon sttsrcommon = 3;
+  //  [ ] 
+  repeated TSR dt_array_20_tsr = 4;
+}
+
+message TSR {
+// Report Message
+  enum Tsr_relevancyType {
+    RELEVANT_SIGN = 0;
+    HIGHWAY_EXIT_SIGN = 1;
+    OTHER_FILTER_REASON = 10;
+    LANE_ASSIGNMENT_SIGN = 2;
+    PARALLEL_ROAD_SIGN = 3;
+    SIGN_ON_TURN = 4;
+    FAR_IRRELEVANT_SIGN = 5;
+    INTERNAL_SIGN_CONTRADICTION = 6;
+    ERROR_SIGN_CODE = 7;
+    CIPV_IN_FRONT = 8;
+    CONTRADICT_ARROW_SIGN= 9;
+  }
+  enum Tsr_filter_typeType {
+    NO_SLI_FILTER = 0;
+    TRUCK = 1;
+    EMBEDDED = 2;
+    MINIMUN = 3;
+    ROAD_NUMBER = 4;
+    RESERVED_1 = 5;
+    RESERVED_2 = 6;
+    RESERVED_3 = 7;
+  }
+  enum Tsr_sign_shapeType {
+    UNKNON = 0;
+    CIRCLE = 1;
+    RECTANGLE = 2;
+    TRIANGLE_UP = 3;
+    TRIANGLE_DOWN = 4;
+    DIAMOND = 5;
+    RESERVED_0 = 6;
+    TSR_Sign_Shape_RESERVED_2_ = 7;
+    TSR_Sign_Shape_RESERVED_3_ = 8;
+  }
+  enum Tsr_sign_structureType {
+    UNKNOWN = 0;
+    STANDARD = 1;
+    VARIABLE = 2;
+    ELECTRONIC = 3;
+  }
+  // Unique ID to be used with frame ID from common messages [counter] [0.0|255.0]
+  optional int32 tsr_id = 1;
+  // Which camera was used for vision analysis of the current sign (List of cameras differ by project specifics) [NA] [0.0|11.0]
+  optional int32 tsr_camera_source = 2;
+  // Sign descriptive name (TSR Signs ENUM) [NA] [0.0|1023.0]
+  optional int32 tsr_sign_name = 3;
+  // ENUM description see below [ENUM] [0.0|13.0]
+  optional Tsr_relevancyType tsr_relevancy = 4;
+  // None [ENUM] [0.0|7.0]
+  optional Tsr_filter_typeType tsr_filter_type = 5;
+  // None [NA] [0.0|0.0]
+  optional bool reserved_3 = 6;
+  // First Supplementary Sign descriptive name (TSR Signs ENUM) [NA] [0.0|255.0]
+  optional int32 tsr_sup1_signname = 7;
+  // None [NA] [0.0|1.0]
+  optional float tsr_sup1_confidence = 8;
+  // Second Supplementary Sign descriptive name (TSR Signs ENUM) [NA] [0.0|255.0]
+  optional int32 tsr_sup2_signname = 9;
+  // None [NA] [0.0|1.0]
+  optional float tsr_sup2_confidence = 10;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_4 = 11;
+  // Sign Shape (ENUM) [ENUM] [0.0|8.0]
+  optional Tsr_sign_shapeType tsr_sign_shape = 12;
+  // Sign structure (ENUM) [ENUM] [0.0|3.0]
+  optional Tsr_sign_structureType tsr_sign_structure = 13;
+  // Currently not implemented = 1 [NA] [0.0|1.0]
+  optional float tsr_confidence = 14;
+  // Longitudinal distance to sign (on the ground ) in CM [m] [0.0|200.0]
+  optional float tsr_sign_long_distance = 15;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_5 = 16;
+  // Lateral distance to sign (on the ground) in CM [m] [-32.0|31.0]
+  optional float tsr_sign_lateral_distance = 17;
+  // Sign Height in CM [m] [-15.0|15.0]
+  optional float tsr_sign_height = 18;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_6 = 19;
+  // Longitudinal distance to sign (on the ground ) in CM STD Kalman [m] [0.0|200.0]
+  optional float tsr_sign_long_distance_std = 20;
+  // Lateral distance to sign (on the ground) in CM STD Kalman [m] [-32.0|31.0]
+  optional float tsr_sign_lat_distance_std = 21;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_7 = 22;
+  // Sign Height in CM STD Kalman [m] [-15.0|15.0]
+  optional float tsr_sign_height_std = 23;
+  // Sign Panel width  in CM [m] [0.0|8.0]
+  optional float tsr_sign_panel_width = 24;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_8 = 25;
+  // Sign Panel height in CM [m] [0.0|8.0]
+  optional float tsr_sign_panel_height = 26;
+  // Sign Panel width  in CM STD [m] [0.0|8.0]
+  optional float tsr_sign_panel_width_std = 27;
+  // STD [m] [0.0|8.0]
+  optional float tsr_sign_panel_height_std = 28;
+  // None [NA] [0.0|0.0]
+  optional int32 reserved_9 = 29;
+  // For now supported for under tracking objects only From multi frame  approval time. Number of Frames. [counter] [0.0|2147483649.0]
+  optional float tsr_tracking_age = 30;
+}
+
+

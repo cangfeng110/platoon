@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+package atd.common;
+
+option optimize_for = LITE_RUNTIME;
+
+import "modules/ipc/message/protobuf/common/header.proto";
+import "modules/ipc/message/protobuf/localization/pose.proto";
+
+message DriveEvent {
+  optional atd.common.Header header = 1;
+  optional string event = 2;
+  optional atd.localization.Pose location = 3;
+}

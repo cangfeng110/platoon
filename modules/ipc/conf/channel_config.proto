@@ -1,0 +1,133 @@
+syntax = "proto2";
+
+//option optimize_for = LITE_RUNTIME;
+
+package atd.ipc;
+
+// Property of a certain Input/Output that will be used by a module.
+message ChannelConfig {
+  enum MessageType {
+    //lcm 900-940
+    LCM_Vcu=900;
+    LCM_Ins=902;
+    LCM_Mobileye=903;
+    LCM_Ultrasonic=904;
+    LCM_Uwb=905;
+    LCM_OFILMloc=906;
+    LCM_MELaneLines=907;
+    LCM_USDistance=908;
+    LCM_LogitechCamera=909;
+    LCM_RawIns=910;
+    LCM_LocMap=911;
+    LCM_NaviRoute=912;
+
+    LCM_MapRDisOnePark=913;
+    LCM_MapRDisTsr=914;
+    LCM_MapTargetLanes=915;
+    LCM_ProxyRequest=916;
+    LCM_RawIns300C=917;
+    LCM_Coupleout=918;
+    LCM_AdpStatus = 919;
+    LCM_OFILMParkingSearch=940;
+    LCM_EKFOut = 999;
+    LCM_MomentaLoc = 998;
+    LCM_OWNSINS=997;
+
+    LCM_MEFreeSpace=920;
+    LCM_MEObjects=921;
+
+    LCM_PerceptionLines=922;
+    LCM_BoschObjects=923;
+    LCM_RDAObjects=924;
+    LCM_FSDAObjects=925;
+    LCM_PerceptionTSR=926;
+
+    LCM_SV51FrontMwr=928;
+    LCM_SV51FrontLeftMwr=929;
+    LCM_SV51FrontRightMwr=930;
+    LCM_SV51RearLeftMwr=931;
+    LCM_SV51RearRightMwr=932;
+
+    LCM_PerceptionObjects=933;
+    LCM_TRACKED_OBJECTS=934;
+    
+
+    //basic 1-9
+    SystemStatus=1;
+    Monitor=2;
+    //proto_driver 10-30
+    FixMsg = 10;
+    DriverIns=11;
+    DriverUwb = 12;
+    IMU = 13;
+    DelimitedMsg=14;
+    DriverMobileyeLane=15;
+    DriverUltrasonic=16;
+    DriverVcu = 17;
+    Drivermomentaloc = 18;
+
+    //proto_dr  30-39
+    DrList=30;
+    DrInsList=31;
+    //proto_loc 40-49
+    Pfs=40;
+    PfsAfterMatch=41;
+    GridList=42;
+    Localization=43;
+    LocalizationAbs=44;
+    GridListMatchDisplay=45;
+    LocalizationMapMatch=46;
+    //proto_map 50-69
+    EngineLocMap=50;
+    EngineTargetLanes=51;
+    EngineTargetArrows=52;
+    EngineRemainDistance=53;
+    EngineSurMap=54;
+    EngineLocMapBuffer=55;
+    EngineTargetLanesBuffer=56;
+    EngineTargetArrowsBuffer=57;
+    EngineRemainDistanceBuffer=58;
+    EngineSurMapBuffer=59;
+    EngineDestination=60;
+    GridLog=61;
+
+    //proto_EyeQ4 70~90
+    MeFreeSpace=70;
+    ConstructionArea=71;
+    MeHLB=72;
+    Lane_Support=73;
+    MeLDW=75;
+    LS_ADV=76;
+    MeLsRoadEdge=77;
+    SematicLine=78;
+    SematicMark=79;
+    SL_Descrip=80;
+    MeObjects=81;
+    TFL=82;
+    TSR=83;
+    MeApplication=84;
+    MeCommon=85;
+    FCFVD=86;
+    FCF_VRU=87;
+    FailSafe=88;
+  }
+  enum Mode {
+    RECEIVE_ONLY = 0;
+    PUBLISH_ONLY = 1;
+    DUPLEX = 2;
+    RTE_RECEIVE_ONLY = 3;
+  }
+  required MessageType type = 1;
+  required Mode mode = 2;
+  // The max number of received messages to keep in the adapter, this field
+  // is not useful for PUBLISH_ONLY mode messages.
+  optional int32 message_history_limit = 3 [default = 10];
+  optional bool latch = 4 [default=false];
+}
+
+// A config to specify which messages a certain module would consume and
+// produce.
+message ChannelManagerConfig {
+  repeated ChannelConfig config = 1;
+  required bool is_lcm = 2;  // Whether the message comes from LCM
+}

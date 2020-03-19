@@ -1,0 +1,52 @@
+syntax = "proto2";
+option optimize_for = LITE_RUNTIME;
+
+package atd.ipc.monitor;
+
+import "modules/ipc/message/protobuf/common/header.proto";
+import "modules/ipc/message/protobuf/common/reserved.proto";
+message MonitorMessageItem {
+  enum MessageSource {
+    UNKNOWN = 1;
+    CANBUS = 2;
+    CONTROL = 3;
+    DECISION = 4;
+    LOCALIZATION = 5;
+    PLANNING = 6;
+    PREDICTION = 7;
+    SIMULATOR = 8;
+    HWSYS = 9;
+    ROUTING = 10;
+    MONITOR = 11;
+    HMI = 12;
+    DR = 13;
+    PERCEPTION=14;
+    MAP=15;
+    MAPBUFFER=16;
+    MATCH=17;
+    LOCALIZATIONABS =18;
+    TEST_ON_PC = 19;
+    FMS_TCP=20;
+  }
+
+  optional MessageSource source = 1 [ default = UNKNOWN ];
+
+  optional string msg = 2;
+
+  enum LogLevel {
+      INFO = 0;
+      WARN = 1;
+      ERROR = 2;
+      FATAL = 3;
+      DEBUG1 = 4;
+      DEBUG2 = 5;
+      DEBUG3 = 6;
+  }
+  optional LogLevel log_level = 3 [ default = INFO ];
+}
+
+message MonitorMessage {
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  repeated MonitorMessageItem item = 3;
+}

@@ -1,0 +1,34 @@
+syntax = "proto2";
+
+option optimize_for = LITE_RUNTIME;
+
+
+import "modules/ipc/message/protobuf/common/header.proto";
+import "modules/ipc/message/protobuf/common/reserved.proto";
+import "modules/ipc/message/protobuf/localization/pose.proto";
+import "modules/ipc/message/protobuf/common/geometry.proto";
+
+package atd.map;
+
+message LocElement {
+  optional int32 majortype = 1;
+  optional int32 minortype = 2;
+  repeated atd.common.Point2D onepoint = 3;
+}
+
+
+message LocElements {
+  optional int32 subcode = 1;
+  repeated LocElement oneelement = 2;
+}
+
+message EngineLocMap {
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  optional atd.localization.Pose pose = 3;
+  repeated LocElements elements = 4;
+  
+  //trajectory match
+  optional double map_weight = 5;
+  optional atd.localization.Pose map = 6;
+}

@@ -1,0 +1,47 @@
+syntax = "proto2";
+
+import "modules/ipc/message/protobuf/common/header.proto";
+import "modules/ipc/message/protobuf/common/reserved.proto";
+
+
+package atd.dr;
+option optimize_for = LITE_RUNTIME;
+
+message DrStep {
+  optional double cur_timestamp = 2;
+  optional float delta_x = 3;
+  optional float delta_y = 4;
+  optional float delta_yaw = 5;
+  optional float sum_x =6;
+  optional float sum_y =7;
+  optional float sum_yaw = 8;
+  optional float belief=9;
+}
+
+message Debug_drstep {
+  optional double timediff = 2;
+  optional float wheel_speed = 3;
+  optional float move_radius = 4;
+}
+
+message DrStep_ins {
+  optional double cur_timestamp = 2;
+  optional double utm_x = 3;
+  optional double utm_y = 4;
+  optional float heading = 5;
+  optional float sum_x =6;
+  optional float sum_y =7;
+  optional float sum_yaw = 8;
+  optional float belief=9;
+}
+
+
+message DrList {
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  optional double latest_timestamp = 3;
+  optional double oldest_timestamp = 4;
+  repeated DrStep onedr = 5;
+  repeated DrStep_ins onedr_ins = 6;
+  optional Debug_drstep debug_onedr=7;
+}

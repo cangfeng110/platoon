@@ -1,0 +1,116 @@
+syntax = "proto2";
+
+option optimize_for = LITE_RUNTIME;
+
+
+import "modules/ipc/message/protobuf/common/header.proto";
+import "modules/ipc/message/protobuf/common/reserved.proto";
+import "modules/ipc/message/protobuf/localization/pose.proto";
+
+package atd.mwrprocess;
+
+message Dt_Rrecord_MRRP0Obj
+{
+enum Status_FLag_1
+{
+	null=0;
+	TemporaryFlat=2;
+	TrackingTargetIsMoving=4;
+	TrackingTargetIsMovable=8;
+	TargetIsNew=16;
+}
+
+enum Status_FLag_2
+{
+	NormalThresholdflat=1;
+
+	TargetIsExtrapolated=8;
+}
+
+    optional int32 synchronize_counter=1;
+    optional float distance=2;
+    optional int32 status_flag_1=3;
+    optional float lateral_location=4;
+    optional int32 status_flag_2=5;
+    optional float relative_speed=6;
+    optional bool isUpdated=7;	
+};
+
+message Dt_Rrecord_MRRP1Obj
+{
+enum Status_Flag_5
+{
+	Low_threshold_flag=1; //when target power is higher than low threshold
+}
+
+    optional int32 synchronize_counter=1;
+    optional float relative_acceleration=2;
+    optional int32 target_probability=3;
+    optional int32 status_flag_5=4;
+    optional int32 pedestrian_likelihood=5;//Pedestrain likelihood>=2-> Object can be used for vechicle control when it's fused with camera object ,radar only pedestrain object should not be used for vehicle control
+    optional float lateral_speed=6;
+    optional bool isUpdated=7;
+};
+
+message Dt_Rrecord_MRRP2Obj
+{
+    optional int32 synchronize_counter=1;
+    optional float immediate_distance=2;
+    optional float immediate_lateral_lo=3;
+    optional bool isUpdated=4;
+};
+
+message Dt_Rrecord_MRRP3Obj
+{
+enum Status_Flag_3
+{
+   // when target power is higher than low threshold
+   lowThreshExtrapolation=2;
+   //when target power is higher than low threshold
+   lowThreshholdFlag=4;
+   //when the target is detected as a object which can go through(ex. manhole,signboard)
+   SignboardFlag=64;
+   //when the target is detected as a object which can go through(ex. manhole),signboard
+   ManholeFlag=128;
+}
+
+enum Radar_Fusion // bit5,and bit6 
+{
+   There_is_no_Obj=0;
+   Long_MidFusion=1;
+   Long=2;
+   Mid=3;
+}
+    optional int32 synchronize_counter=1;
+    optional float relative_acceleration=2;
+    optional int32 target_probability=3;
+    optional int32 Vehicle_Likelihood=6;  //vehicle_Likelihood :when the  target is detected as vehicle,the vehicle likelihood>=5
+    optional bool Lowthreshold_manhole=7;
+    optional Radar_Fusion radar_fusion_status=8; 
+    optional int32 status_flag_3=4;
+    optional int32 status_flag_4=5;  
+    optional bool isUpdated=9;
+}
+
+message MidRangeObj
+{
+  optional Dt_Rrecord_MRRP0Obj Part0=1;
+  optional Dt_Rrecord_MRRP1Obj Part1=2;
+}
+
+message LongRangeObj
+{
+  optional Dt_Rrecord_MRRP0Obj Part0=1;
+  optional Dt_Rrecord_MRRP2Obj Part2=2;
+  optional Dt_Rrecord_MRRP3Obj Part3=3;
+}
+
+message FrontDensoMRRObjs
+{
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  repeated LongRangeObj LongRangeObj_0_7=3;
+  repeated MidRangeObj MidRangeObj_8_15=4;
+}
+
+

@@ -6,15 +6,15 @@ namespace communication
 {
     FmsData* FmsData::instance_ = new FmsData(); 
 
-    inline FmsData* FmsData::GetInstance()
+    FmsData* FmsData::GetInstance()
     {
         return instance_;
     }
 
-    inline void FmsData::DecreaseTtl()
+    void FmsData::DecreaseTtl()
     {
-        fms_pre_info_.decreaseTTL();
-        fms_apply_info_.decreaseTTL();
+        //fms_pre_info_.decreaseTTL();
+        //fms_apply_info_.decreaseTTL();
     }
 
 

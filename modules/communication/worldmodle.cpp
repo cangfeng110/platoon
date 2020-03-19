@@ -2,7 +2,7 @@
 
 #include <math.h>
 
-#include "modules/common/functiontool.h"
+#include "modules/customfunction/functiontool.h"
 
 namespace platoon
 {

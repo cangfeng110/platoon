@@ -1,0 +1,27 @@
+syntax = "proto2";
+
+package atd.common;
+option optimize_for = LITE_RUNTIME;
+
+import "modules/ipc/message/protobuf/common/header.proto";
+import "modules/ipc/message/protobuf/common/reserved.proto";
+
+message FixMsg {
+    optional atd.common.Header header = 1;
+    optional atd.common.Reserved reservedmsg=2;
+    repeated testarray onearray=3;
+    required float msg_num_float_32 = 5;
+    required double msg_num_float_64 = 6;
+}
+
+message DelimitedMsg {
+    optional atd.common.Header header = 1;
+    optional atd.common.Reserved reservedmsg=2;
+    required bytes msg_bytes = 3;
+    required string msg_string = 4;
+}
+
+message testarray {
+    required float msg_1 = 1;
+    required double msg_2 = 2;
+}

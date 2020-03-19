@@ -1,0 +1,40 @@
+syntax = "proto2";
+
+package atd.drivers;
+
+option optimize_for = LITE_RUNTIME;
+
+import "modules/ipc/message/protobuf/common/header.proto";
+//import "modules/ipc/message/protobuf/common/geometry.proto";
+import "modules/ipc/message/protobuf/common/reserved.proto";
+
+
+message Momentaloc {
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  
+  optional double     image_time=3;
+
+  optional double     send_time=4;
+
+  optional float      x=5;
+
+  optional float      y=6;
+
+  optional float      z=7;
+
+  optional float      theta=8;
+
+  optional int32     init_valid=9;
+
+  optional int32     now_valid=10;
+
+  optional float      std_pos=11;
+
+  optional float      quality=12;
+
+  repeated double     reseved_float=13;
+
+  repeated int32     reseved_int=14;
+
+}

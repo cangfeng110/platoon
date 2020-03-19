@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+import "modules/ipc/message/protobuf/common/header.proto";
+import "modules/ipc/message/protobuf/common/reserved.proto";
+
+package atd.drivers;
+
+option optimize_for = LITE_RUNTIME;
+
+message ULTRASONIC_DIS {
+  repeated float ExParam = 1;
+  optional int32 bOutRange = 2;
+  optional float fDist = 3;
+}
+
+message Perception_ULTRASONIC {
+  optional atd.common.Header header = 1;
+  repeated ULTRASONIC_DIS gstProbes = 2;
+  optional atd.common.Reserved reservedmsg=3;
+}

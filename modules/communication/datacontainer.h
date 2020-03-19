@@ -19,10 +19,10 @@ public:
     templateDataContainer<VehicleGpsData> ego_vehicle_gps_data_;
 
     // v2x other vehicle information from ibox
-    templateDataContainer_Map<VehicleData> v2x_other_vehicle_data_;
+    templateDataContainer_Map<VehicleData> v2x_other_vehicles_data_;
 
     //one platoon vehicles
-    templateDataContainer_Map<VehicleData> paltoon_vheicles_data_;
+    templateDataContainer_Map<VehicleData> platoon_vehicles_data_;
 
     // other vehicle information in ego vehicle coordination system
     templateDataContainer_Map<WorldModelObject> worldmodle_other_vehicle_data_;

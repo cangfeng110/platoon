@@ -52,6 +52,7 @@
         "cstddef": "cpp",
         "algorithm": "cpp",
         "memory": "cpp",
-        "*.h++": "cpp"
+        "*.h++": "cpp",
+        "random": "cpp"
     }
 }

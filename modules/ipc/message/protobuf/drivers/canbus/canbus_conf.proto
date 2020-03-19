@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+package atd.canbus;
+
+option optimize_for = LITE_RUNTIME;
+
+import "modules/ipc/message/protobuf/canbus/vehicle_parameter.proto";
+
+message CanbusConf {
+  optional atd.canbus.VehicleParameter vehicle_parameter = 1;
+  //optional atd.drivers.canbus.CANCardParameter can_card_parameter = 2;
+  optional bool enable_debug_mode = 3 [default = false];
+  optional bool enable_receiver_log = 4 [default = false];
+  optional bool enable_sender_log = 5 [default = false];
+}

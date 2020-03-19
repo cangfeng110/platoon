@@ -1,0 +1,66 @@
+syntax = "proto2";
+
+option optimize_for = LITE_RUNTIME;
+
+
+import "modules/ipc/message/protobuf/common/header.proto";
+import "modules/ipc/message/protobuf/common/reserved.proto";
+import "modules/ipc/message/protobuf/localization/pose.proto";
+import "modules/ipc/message/protobuf/common/geometry.proto";
+import "modules/ipc/message/protobuf/hdmap/enginesurmap.proto";
+import "modules/ipc/message/protobuf/MeProcess/mobileyeq4.proto";
+
+
+package atd.map;
+
+message LaneChangeDecision {
+  optional int32 leftBG = 1;
+  optional int32 centerBG = 2;
+  optional int32 rightBG = 3;
+  optional float RemainLength=4;
+  optional float leftTurnAreaLength=5;
+  optional float rightTurnAreaLength=6;
+}
+
+message TargetLane {
+ optional bool bLine=1;
+ optional int32 nLineType=2;
+ optional int32 nArrayLength=3;
+ repeated atd.common.Point2D point = 4;
+ repeated atd.common.Point2D point_EC = 5;
+}
+
+message EyeQLaneCenter{
+ required atd.meprocess.LineParam centerlaneParam=1;
+ optional atd.meprocess.LineParam leftlaneParam=2;
+ optional atd.meprocess.LineParam rightlaneParam=3; 
+}
+
+
+message TargetArrow{
+  optional int32 level = 1;//1=grid level or 2=section level
+  optional int32 guide_info = 2;//1=(available)green;2=red(recommand);3=black(forbidden);4=gray(not good)
+  optional atd.common.Arrow2D targetarrow = 3;
+  optional double target_diff=5;
+  repeated atd.common.Arrow2D centerlane=6;
+  repeated atd.common.Point2D leftlane=7;
+  repeated atd.common.Point2D rightlane=8;
+}
+
+message EngineTargetLanes {
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  optional atd.localization.Pose pose = 3;
+  //mode1
+  optional TargetLane leftleftlane = 4;
+  optional TargetLane leftlane = 5;
+  optional TargetLane rightlane = 6;
+  optional TargetLane rightrightlane = 7;
+  optional LaneChangeDecision lanechange=8;
+  //mode2
+  repeated TargetArrow target=9;
+  // for parking gate 
+  repeated SurElements elements = 10;
+  optional EyeQLaneCenter eyeQLaneParam=110;
+}
+

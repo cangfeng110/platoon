@@ -1,0 +1,36 @@
+syntax = "proto2";
+
+package atd.drivers;
+
+option optimize_for = LITE_RUNTIME;
+
+import "modules/ipc/message/protobuf/common/header.proto";
+//import "modules/ipc/message/protobuf/common/geometry.proto";
+import "modules/ipc/message/protobuf/common/reserved.proto";
+
+
+message Vcu {
+  optional atd.common.Header header = 1;
+  optional atd.common.Reserved reservedmsg=2;
+  optional float fSteeringAngle=3;
+  optional float fSpeed=4;
+  optional float fYawRate=5;
+  optional float fFrontLeftWheelSpeed=6;
+  optional float fFrontRightWheelSpeed=7;
+  optional float fRearLeftWheelSpeed=8;
+  optional float fRearRightWheelSpeed=9;
+  optional int32 nShifterPosition=10;
+  optional int32 nLeftDirectionLamp=11;
+  optional int32 nRightDirectionLamp=12;
+  optional int32 nMainBeamLamp=13;
+  optional int32 nDippedBeamLamp=14;
+  optional int32 nWiperState=15;
+  optional float fLateralAccel=16;
+  optional float fLongituAccel=17;
+  optional int32 nLeftDrivenWheelPulseCounters=18;
+  optional int32 nRightDrivenWheelPulseCounters=19;
+  optional int32 nLeftNonDrivenWheelPulseCounters=20;
+  optional int32 nRightNonDrivenWheelPulseCounters=21;
+  optional int32 nDriveMode=22;
+
+}

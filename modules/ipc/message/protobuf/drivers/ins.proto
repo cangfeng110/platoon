@@ -1,0 +1,102 @@
+syntax = "proto2";
+
+package atd.drivers;
+
+option optimize_for = LITE_RUNTIME;
+
+import "modules/ipc/message/protobuf/common/header.proto";
+import "modules/ipc/message/protobuf/common/geometry.proto";
+
+import "modules/ipc/message/protobuf/common/reserved.proto";
+
+message InsStat {
+  optional atd.common.Header header = 1;
+  optional uint32 ins_status = 2;
+  optional uint32 pos_type = 3;
+}
+
+// Solution from a inertial navigation system (INS), which usually fuses GNSS
+// and IMU measurements.
+message Ins {
+  optional atd.common.Header header = 1;
+
+  // The time of position measurement, seconds since the GPS epoch (01/06/1980).
+  optional double measurement_time = 2;  // In seconds.
+
+  // INS solution type.
+  enum Type {
+    // Do NOT use.
+    // Invalid solution due to insufficient observations, no initial GNSS, ...
+    INVALID = 0;
+
+    // Use with caution. The covariance matrix may be unavailable or incorrect.
+    // High-variance result due to aligning, insufficient vehicle dynamics, ...
+    CONVERGING = 1;
+
+    // Safe to use. The INS has fully converged.
+    GOOD = 2;
+  }
+  optional Type type = 3;
+
+  // Position of the IMU.
+  optional atd.common.PointLLH position = 4;
+
+  // Roll/pitch/yaw that represents a rotation of the intrinsic sequence z-y-x.
+  // Note: our definition differs from what NovAtel and aviation use.
+
+  // Roll/pitch/yaw in radians.
+  optional atd.common.Point3D euler_angles = 5;
+  // West/north/up in meters per second.
+  optional atd.common.Point3D linear_velocity = 6;
+  // Around forward/left/up axes in radians per second.
+  optional atd.common.Point3D angular_velocity = 7;
+  // Forward/left/up in meters per square second.
+  optional atd.common.Point3D linear_acceleration = 8;
+
+  // The size of a covariance matrix field may be
+  //  3: then the elements are xx, yy, zz.
+  //  9: then the elements are xx, xy, xz, yx, yy, yz, zx, zy, zz.
+  // If the field size is not 3 or 9, treat the field invalid.
+
+  // 3-by-3 covariance matrix, in m^2.
+  repeated float position_covariance = 9 [packed = true];
+
+  // 3-by-3 covariance matrix, in rad^2.
+  repeated float euler_angles_covariance = 10 [packed = true];
+
+  // 3-by-3 covariance matrix, in m^2/s^2.
+  repeated float linear_velocity_covariance = 11 [packed = true];
+
+  // 3-by-3 covariance matrix, in rad^2/s^2.
+  repeated float angular_velocity_covariance = 12 [packed = true];
+
+  // 3-by-3 covariance matrix, in m^2/s^4.
+  repeated float linear_acceleration_covariance = 13 [packed = true];
+
+  optional atd.common.Reserved reservedmsg=14;
+
+  optional int32 nNavStatus=15;
+
+  optional int32 bInitStatusPosition=16;
+
+  optional int32 bInitStatusVel=17;
+
+  optional int32 bInitStatusRP=18;
+
+  optional int32 bInitStatusH=19;
+
+  optional double dGPSTime=20;
+
+  repeated double stdstd=21;
+
+  optional int32 iGPSPositionMode=22;
+
+  optional int32 iGPSVelMode=23;
+
+  optional int32 iDaulAntennaOrientationMode=24;
+
+  optional int32 iSINSMode=25;
+
+
+
+}
