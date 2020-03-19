@@ -7,9 +7,12 @@ namespace platoon
 {
 namespace communication
 {
-    typedef VehicleFleetOperation                FMSPreFormationInfo;
-    typedef VehicleFleetResult                   FMSApplyResultInfo;
-    typedef VehicleFleetInfo                     ToFMSInfo;
+    typedef VehicleFleetOperation                                   FMSPreFormationInfo;
+    typedef Fleet_node                                              RefPoint;
+    typedef VehicleFleetResult                                      FMSApplyResultInfo;
+    typedef VehicleFleetInfo                                        ToFMSInfo;
+    typedef VehicleFleetInfo::VehicleFleetMode                      FmsDriveMode;
+    typedef FleetApplyType                                          FmsApplyOrder;
 }//namespace communication
 }//namespace platoon
 

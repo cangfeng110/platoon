@@ -81,7 +81,7 @@ float Manager::FrontDis ()
     }
     int front_id = platoon_id_map_[_ID - 1];
     VehicleData front_vehicle = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[front_id].getData();
-    const VehicleGpsData ego_vehicle_location = DataContainer::GetInstance ()->ego_vehicle_gps_data_.getData ();
+    const VehicleGpsData& ego_vehicle_location = DataContainer::GetInstance ()->ego_vehicle_gps_data_.getData ();
     platoon::common::TransfromGpsAbsoluteToEgoRelaCoord (front_vehicle.relative_x, front_vehicle.relative_y,
                                                                  ego_vehicle_location.heading,
                                                                  ego_vehicle_location.longitude, ego_vehicle_location.latitude,
@@ -125,7 +125,7 @@ void Manager::CalculateID ()
     {
         return;
     }
-    const VehicleGpsData ego_vehicle_location = DataContainer::GetInstance ()->ego_vehicle_gps_data_.getData ();
+    const VehicleGpsData& ego_vehicle_location = DataContainer::GetInstance ()->ego_vehicle_gps_data_.getData ();
     if (DataContainer::GetInstance ()->platoon_vehicles_data_.isUpToDate ())
     {
         other_vehicles.clear ();
@@ -177,8 +177,6 @@ float Manager::CalThreshold()
     if (DataContainer::GetInstance()->ego_vehicle_vcu_data_.isUpToDate())
     {
         const VehicleVcuData& ego_vehicle_vcu_data = DataContainer::GetInstance ()->ego_vehicle_vcu_data_.getData ();
-        if (ego_vehicle_vcu_data.fSpeed < 0.5)
-            return INVALID_FLOAT;
         float threshold_dis = ego_vehicle_vcu_data.fSpeed * ConfigData::GetInstance ()->keep_mode_threshold_ 
                                   + m_safe_distance_;
         return threshold_dis;
@@ -199,7 +197,7 @@ bool Manager::IfAbnormal()
     for (int i = 1; i < _ID; i++)
     {
         int vehicle_id = platoon_id_map_[i];
-        const VehicleData temp = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[vehicle_id].getData();
+        const VehicleData& temp = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[vehicle_id].getData();
         bool if_disconnect = !(DataContainer::GetInstance()->platoon_vehicles_data_.getData()[vehicle_id].isUpToDate());
         bool if_abnormal = (DriveMode(temp.actual_drive_mode) == Abnormal) ? true : false;
         bool if_cut_in = (temp.cut_in_flag == 1) ? true : false;
@@ -217,7 +215,7 @@ void Manager::ProcessCommand ()
     }
 
     DriveMode old_drive_mode = desire_drive_mode;
-    EgoPlanningMsg ego_planning_msg = DataContainer::GetInstance ()->planning_data_.getData ();
+    const EgoPlanningMsg& ego_planning_msg = DataContainer::GetInstance ()->planning_data_.getData ();
     actual_drive_mode = (DriveMode)ego_planning_msg.actual_drive_mode;
     float thw_dis = THWDis ();
     float front_dis = FrontDis ();
@@ -255,7 +253,7 @@ void Manager::ProcessCommand ()
                     break;
 
                 int front_id = platoon_id_map_[_ID - 1];
-                VehicleData front_vehicle = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[front_id].getData();
+                const VehicleData& front_vehicle = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[front_id].getData();
                 DriveMode front_drive_mode = (DriveMode)front_vehicle.actual_drive_mode;
                 if (front_drive_mode == Leader || front_drive_mode == KeepQueue || front_drive_mode == Enqueue)
                 {
@@ -281,10 +279,19 @@ void Manager::ProcessCommand ()
             }
             break;
         case Enqueue:
-            
-            if (front_dis <= threshold_dis)
+            if (IfAbnormal())
             {
-                desire_drive_mode = KeepQueue;
+                desire_drive_mode = Abnormal;
+            }  
+            else
+            {
+                float threshold_dis = CalThreshold();
+                if (abs(threshold_dis - INVALID_FLOAT) <= Epslion)
+                    break;
+                if (front_dis <= threshold_dis)
+                {
+                    desire_drive_mode = KeepQueue;
+                }
             }
             /* if (fabs(thw - INVALID_FLOAT) < Epslion || fabs(time_to_front - INVALID_FLOAT) < Epslion)
             {
@@ -296,8 +303,15 @@ void Manager::ProcessCommand ()
             } */
             break;
         case Dequeue:
-            if (front_dis >= thw_dis)
-                desire_drive_mode = Auto;
+            if (IfAbnormal())
+            {
+                 desire_drive_mode = Abnormal;
+            }
+            else
+            {
+                if (front_dis >= thw_dis)
+                    desire_drive_mode = Auto;
+            }
             /* if (fabs(thw - INVALID_FLOAT) < Epslion || fabs(time_to_front - INVALID_FLOAT) < Epslion)
             {
                 break;
@@ -308,37 +322,43 @@ void Manager::ProcessCommand ()
             } */
             break;
         case KeepQueue:
-            if (m_fms_order_ == F_Dequeue)
+            if (IfAbnormal())
             {
-               /*  int i = _ID - 1;
-                if (i < other_vehicles.size ())
+                desire_drive_mode = Abnormal;
+            }
+            else
+            {
+                if (m_fms_order_ == F_Dequeue)
                 {
-                    if(other_vehicles[i].actual_drive_mode == Manual ||
-                       other_vehicles[i].actual_drive_mode == Auto ||
-                       other_vehicles[i].actual_drive_mode == Leader)
-                       desire_drive_mode = Dequeue;
-                } 
-                else if(i == other_vehicles.size ())  */
-                if (_ID < platoon_id_map_.size())
-                {
-                    int after_id = platoon_id_map_[_ID + 1];
-                    DriveMode after_mode = DriveMode(DataContainer::GetInstance()->platoon_vehicles_data_.getData()[after_id].getData().actual_drive_mode);
-                    if (after_mode == Manual || after_mode == Auto || after_mode == Leader)
+                    if (_ID <= platoon_id_map_.size())
+                    {
+                        int after_id = platoon_id_map_[_ID + 1];
+                        DriveMode after_mode = DriveMode(DataContainer::GetInstance()->platoon_vehicles_data_.getData()[after_id].getData().actual_drive_mode);
+                        if (after_mode == Manual || after_mode == Auto || after_mode == Leader)
+                            desire_drive_mode = Dequeue;
+                    }
+                    else if (_ID > platoon_id_map_.size())
                         desire_drive_mode = Dequeue;
                 }
-                else if (_ID > platoon_id_map_.size())
+                else if (m_fms_order_ == F_DisBand)
+                {
                     desire_drive_mode = Dequeue;
-            }
-            else if (m_fms_order_ == F_DisBand)
-            {
-                desire_drive_mode = Dequeue;
-            }
-            else 
-            {
-
+                }
             }
             break;
         case Abnormal:
+            if (front_dis >= thw_dis)
+            {
+                desire_drive_mode = Auto;
+            }
+            else 
+            {
+                if(!IfAbnormal())
+                {
+                    desire_drive_mode = Enqueue;
+                }
+            }
+            break;
         default:
             //ignore command
             break;
@@ -353,8 +373,8 @@ void Manager::ProcessCommand ()
 
 void Manager::UpdatePlatoonManagerInfo ()
 {
-    // the id only can change in the Auto mode
-    if (actual_drive_mode == Auto)
+    // the id only can change in the Auto/manual mode
+    if (actual_drive_mode == Auto || actual_drive_mode == Manual)
     {
          CalculateID ();
     }
@@ -367,82 +387,45 @@ void Manager::UpdatePlatoonManagerInfo ()
     }
     PlatoonManagerInfo platoon_manager_info;
     platoon_manager_info.desire_drive_mode = desire_drive_mode;
-    platoon_manager_info.vehicle_num = _ID - 1;
+    platoon_manager_info.platoon_number = FmsData::GetInstance()->fms_pre_info_.getData().platoonnumber();
+    platoon_manager_info.vehicle_sequence = _ID;
+    platoon_manager_info.vehicle_num = platoon_id_map_.size();
     platoon_manager_info.leader_frenet_dis = 1.0e10;
     platoon_manager_info.front_frenet_dis = 1.0e10;
     //assign leader/front vehicle id 
     platoon_manager_info.leader_vehicle.vehicle_id = -1;
     platoon_manager_info.front_vehicle.vehicle_id = -1;
-#if 1
-    /* int i;
-    for (i = _ID - 2; i >= 0; i--)
-    {
-        if (other_vehicles[i].actual_drive_mode == Leader)
-        {
-            platoon_manager_info.leader_vehicle = other_vehicles[i];
-            int leader_id = other_vehicles[i].vehicle_id;
-            platoon_manager_info.leader_frenet_dis = m_worldmodle_.GetFrenetDis(leader_id);
-            platoon_manager_info.vehicle_num = _ID - (i + 1);
-            break;
-        }
-    }
-    if (_ID >= 2)
-    {
-        platoon_manager_info.front_vehicle = other_vehicles[_ID - 2];//_ID surely >= 2
-        int front_id = other_vehicles[_ID - 2].vehicle_id;
-        platoon_manager_info.front_frenet_dis = m_worldmodle_.GetFrenetDis(front_id);
-    } */
+
+    /**
+     * updata leader front vehicle info
+    */
     if (_ID == 1) //ego is leader
         return;
     // ID >= 2
     int leader_id = platoon_id_map_[1];
     int front_id = platoon_id_map_[_ID - 1];
-    bool leader_invalid = DataContainer::GetInstance()->v2x_other_vehicle_data_.getData()[leader_id].isUpToDate();
-    bool front_invalid = DataContainer::GetInstance()->v2x_other_vehicle_data_.getData()[front_id].isUpToDate();
-    if (leader_invalid)
-        platoon_manager_info.leader_vehicle = DataContainer::GetInstance()->v2x_other_vehicle_data_.getData()[leader_id].getData();
-    if (front_invalid)
-        platoon_manager_info.front_vehicle = DataContainer::GetInstance()->v2x_other_vehicle_data_.getData()[front_id].getData();
-#else
-    switch (desire_drive_mode)
+    platoon_manager_info.leader_frenet_dis = m_worldmodle_.GetFrenetDis(leader_id);
+    platoon_manager_info.front_frenet_dis = m_worldmodle_.GetFrenetDis(front_id);
+    bool leader_valid = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[leader_id].isUpToDate();
+    bool front_valid = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[front_id].isUpToDate();
+    if (leader_valid)
+        platoon_manager_info.leader_vehicle = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[leader_id].getData();
+    if (front_valid)
+        platoon_manager_info.front_vehicle = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[front_id].getData();
+
+    /**
+     * judge other vehicle info if valid
+    */
+    vehicle_status_.clear();
+    for (auto map_it : DataContainer::GetInstance()->platoon_vehicles_data_.getData())
     {
-        case Manual:
-            break;
-        case Auto:
-            break;
-        case Leader://no leader, no front
-            break;
-        case KeepQueue:
-            //leader_vehicle + front vehicle
-            {
-                int i;
-                for (i = _ID - 2; i >= 0; i--)
-                {
-                    if (other_vehicles[i].actual_drive_mode == Leader)
-                    {
-                        platoon_manager_info.leader_vehicle = other_vehicles[i];
-                        int leader_id = other_vehicles[i].vehicle_id; 
-                        platoon_manager_info.leader_frenet_dis = m_worldmodle_.GetFrenetDis(leader_id);
-                        platoon_manager_info.vehicle_num = _ID - (i + 1);
-                        break;
-                    }
-                }
-            }
-            //fall through
-        case Enqueue:
-        case Dequeue:
-            //front_vehicle
-            {
-                platoon_manager_info.front_vehicle = other_vehicles[_ID - 2];//_ID surely >= 2
-                int front_id = other_vehicles[_ID - 2].vehicle_id;
-                platoon_manager_info.front_frenet_dis = m_worldmodle_.GetFrenetDis(front_id);
-            }
-            break;
-        case Abnormal:
-        default:
-            break;
+        if (map_it.second.isUpToDate())
+            vehicle_status_.push_back(map_it.second.getData().vehicle_id);
+        else
+            vehicle_status_.push_back(0 - map_it.second.getData().vehicle_id);
     }
-#endif
+    platoon_manager_info.vehicle_communication_status = vehicle_status_;
+    
     DataContainer::GetInstance ()->manager_data_.setData (platoon_manager_info);
 }
 

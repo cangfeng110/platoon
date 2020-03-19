@@ -20,7 +20,7 @@ public:
 
     templateDataContainer<FMSPreFormationInfo> fms_pre_info_;
 
-    templateDataContainer<FMSApplyResultInfo> fms_apply_info_;
+    templateDataContainer<FMSApplyResultInfo> fms_apply_result_;
 
     templateDataContainer<HmiFmsInfo> hmi_fms_info;
 

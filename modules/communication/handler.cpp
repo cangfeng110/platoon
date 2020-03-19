@@ -135,7 +135,7 @@ int Handler::BroastEgoVehicleInfo()
     //fms info 
     if (FmsData::GetInstance()->fms_pre_info_.isUpToDate()) 
     {
-        const FMSPreFormationInfo fms_pre_info = FmsData::GetInstance()->fms_pre_info_.getData();
+        const FMSPreFormationInfo& fms_pre_info = FmsData::GetInstance()->fms_pre_info_.getData();
         ego_vehicle_info.platoon_number = fms_pre_info.platoonnumber();
     } 
     else 
@@ -182,7 +182,7 @@ int Handler::BroastEgoVehicleInfo()
     if(m_debug_flags & DEBUG_BroadcastEgoVehicleInfo)
     {
         using namespace std;
-        //cout << "++++Display ego vehicle info++++" << endl;
+        cout << "++++Display ego vehicle info++++" << endl;
         printf ("ego vehicle gps_time is : %f\n", ego_vehicle_info.gps_time);
         printf ("ego vehicle longitude is : %f\n", ego_vehicle_info.longitude);
         printf ("ego vehicle latitude is  : %f\n", ego_vehicle_info.latitude);
@@ -276,12 +276,14 @@ int Handler::DecodeV2xVechileInfo()
         }
         DataContainer::GetInstance()->v2x_other_vehicles_data_.setData(key, v2x_other_vehicle_data);
 
+        std::string if_platoon = "No";
         /* storage the platoon number is equal vehicle to platoon_vehicles_dara_*/
         if (FmsData::GetInstance()->fms_pre_info_.isUpToDate()) 
         {
             int ego_platoon_number = FmsData::GetInstance()->fms_pre_info_.getData().platoonnumber();
             if (ego_platoon_number == v2x_other_vehicle_data.platoon_number) 
             {
+                if_platoon = "Yes";
                 DataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
             }
         }
@@ -291,10 +293,11 @@ int Handler::DecodeV2xVechileInfo()
             using namespace std;
             cout << "-----------Display other vehicle info--------------" << endl;
             cout << "other vehicle id is : " << key << endl;
-            cout << "other vehicle longitude is : " << v2x_other_vehicle_data.longitude << endl;
-            cout << "other vehicle latitude is : " << v2x_other_vehicle_data.latitude << endl;
-            cout << "other vehicle speed is(km/h): " << v2x_other_vehicle_data.speed * 3.6 << endl;
-            cout << "other vehicle relative_x is : " << v2x_other_vehicle_data.relative_x << endl << endl;
+            cout << "if a platoon vehicel : " << if_platoon << endl;
+            printf ("other vehicle longitude is : %f\n", v2x_other_vehicle_data.longitude);
+            printf ("other vehicle latitude is  : %f\n", v2x_other_vehicle_data.latitude);
+            printf ("other vehicle speed is(km/h) : %f\n", v2x_other_vehicle_data.speed * 3.6);
+            printf ("other vehicle relative_x is: %f\n\n", v2x_other_vehicle_data.relative_x);
         }
         return 1;
     }

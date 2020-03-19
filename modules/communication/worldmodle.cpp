@@ -10,8 +10,8 @@ namespace communication
 {
 
 void WorldModle::GetWorldmodleVehiles() {
-    if (DataContainer::GetInstance()->v2x_other_vehicle_data_.isUpToDate()) {
-        for(auto map_it : DataContainer::GetInstance()->v2x_other_vehicle_data_.getData()) {
+    if (DataContainer::GetInstance()->platoon_vehicles_data_.isUpToDate()) {
+        for(auto map_it : DataContainer::GetInstance()->platoon_vehicles_data_.getData()) {
             const VehicleData v2x_other_vehicle_data = map_it.second.getData();
             const int key = v2x_other_vehicle_data.vehicle_id;
             WorldModelObject worldmodel_vehicle_data =

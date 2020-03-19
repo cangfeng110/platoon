@@ -27,6 +27,22 @@ namespace platoon
         F_Dequeue = 3,
         F_DisBand = 4,
     };
+
+    enum ApplyOrder
+    {
+        NoApply = 0,
+        BeJoiner = 1,
+        BeLeader = 2,
+    };
+
+    enum ApplyResult
+    {   
+        NoAnser = 0,
+        NoJoiner = 1,
+        NoLeader = 2,
+        AllowJoin = 3,
+        AllowLeader = 4,
+    };
 }
 
 #endif

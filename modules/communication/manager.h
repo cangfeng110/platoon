@@ -34,7 +34,7 @@ private:
      * if normal, storage vehicle id
      * else, storage -vehicel_id;
      */
-    std::vector<int> vehicle_status_;
+    std::vector<int8_t> vehicle_status_;
 
     /** 
      * this map storae all the platoon vehicle id and platoon id 
