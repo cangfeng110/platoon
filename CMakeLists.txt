@@ -9,11 +9,7 @@ add_compile_options(-std=c++11)
 include_directories("/include/" ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
-
-#add ipc
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/common)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/ipc)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/worldmodel)
+set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/customfunction)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/include/base)

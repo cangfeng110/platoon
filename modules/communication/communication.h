@@ -37,7 +37,7 @@ private:
                                   const VehicleVcuData *msg);
     void HandleFmsInfo(const lcm::ReceiveBuffer *rbuf,
                                   const std::string &channel,
-                                  const FmsInfo *msg);
+                                  const HmiFmsInfo *msg);
     void HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
                             const std::string &channel,
                             const EgoPlanningMsg *msg);

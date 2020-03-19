@@ -2,6 +2,7 @@
 #define _FMS_DATA_
 
 #include "modules/template/templateDataContainer.h"
+#include "modules/communication/datadefine.h"
 
 #include "include/proto/ProtoClassNameyTypeDefine.h"
 #include "include/proto/DataMessageProto.pb.h"
@@ -16,11 +17,14 @@ class FmsData
 {
 
 public:
+
     templateDataContainer<FMSPreFormationInfo> fms_pre_info_;
 
     templateDataContainer<FMSApplyResultInfo> fms_apply_info_;
 
     templateDataContainer<HmiFmsInfo> hmi_fms_info;
+
+    templateDataContainer<FmsOrder> fms_order_;
 
     static FmsData* GetInstance();
 

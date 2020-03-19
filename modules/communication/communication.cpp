@@ -5,7 +5,8 @@
 #include <sys/time.h>
 
 #include "modules/communication/datadefine.h"
-#include "modules/common/functiontool.h"
+#include "modules/customfunction/functiontool.h"
+#include "modules/communication/fmsdata.h"
 
 #include "include/protocol/ProtocolChannel.h"
 #include "include/base/EventLoop.h"
@@ -113,10 +114,14 @@ void communication::HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
 
 void communication::HandleFmsInfo(const lcm::ReceiveBuffer *rbuf,
                               const std::string &channel,
-                              const FmsInfo *msg)
+                              const HmiFmsInfo *msg)
 {
     assert(channel == "FMS_INFO");
-    manager_.SetFmsInfo (*msg);
+    if ( FmsData::GetInstance()->hmi_fms_info.getData().fms_order != msg->fms_order)
+        std::cout << "HMI FMS order changed : " << msg->fms_order << std::endl;
+    if (FmsData::GetInstance()->hmi_fms_info.getData().safe_distance != msg->safe_distance)
+        std::cout << "safe distance changed : " << msg->safe_distance << std::endl;
+    FmsData::GetInstance()->hmi_fms_info.setData(*msg);
 }
 
 void communication::HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
@@ -177,9 +182,9 @@ void communication::ReceiveV2xOtherVehicleInfo()
 {
     if(handler_.DecodeV2xVechileInfo() > 0) 
     {
-        if(DataContainer::GetInstance()->v2x_other_vehicle_data_.isUpToDate()) 
+        if(DataContainer::GetInstance()->v2x_other_vehicles_data_.isUpToDate()) 
         {
-            for (auto temp : DataContainer::GetInstance()->v2x_other_vehicle_data_.getData()) 
+            for (auto temp : DataContainer::GetInstance()->v2x_other_vehicles_data_.getData()) 
             {
                 const VehicleData &data = temp.second.getData();
                 int publish_v2x_flag = lcm_.publish("V2X_OTHER_VEHICLE_INFO", &data);
@@ -233,7 +238,7 @@ void communication::HandleTestVehicleInfo (const lcm::ReceiveBuffer *rbuf,
         v2x_other_vehicle_data.relative_x = INVALID_FLOAT;
         v2x_other_vehicle_data.relative_y = INVALID_FLOAT;
     }
-    DataContainer::GetInstance()->v2x_other_vehicle_data_.setData(key, v2x_other_vehicle_data);
+    DataContainer::GetInstance()->v2x_other_vehicles_data_.setData(key, v2x_other_vehicle_data);
 }
 
 } // namesapce communication

@@ -111,10 +111,6 @@ float Manager::FrontDis ()
     return fabs(front_vehicle.relative_x - 17.0) / speed; */
 }
 
-void Manager::SetSafeDis(float safe_dis)
-{
-    m_safe_distance_ = safe_dis;
-}
 
 static bool
 compare_relative_x (const VehicleData& a,  const VehicleData& b)
@@ -176,7 +172,22 @@ void Manager::CalculateID ()
     }
     ++_ID;//if no platoon_vehicles_data or ego is the first _ID = 1
 }
-
+float Manager::CalThreshold()
+{
+    if (DataContainer::GetInstance()->ego_vehicle_vcu_data_.isUpToDate())
+    {
+        const VehicleVcuData& ego_vehicle_vcu_data = DataContainer::GetInstance ()->ego_vehicle_vcu_data_.getData ();
+        if (ego_vehicle_vcu_data.fSpeed < 0.5)
+            return INVALID_FLOAT;
+        float threshold_dis = ego_vehicle_vcu_data.fSpeed * ConfigData::GetInstance ()->keep_mode_threshold_ 
+                                  + m_safe_distance_;
+        return threshold_dis;
+    }
+    else
+    {
+        return INVALID_FLOAT;
+    }
+}
 /**
  * result: 
  * true present abnormal 
@@ -204,11 +215,16 @@ void Manager::ProcessCommand ()
     {
         return;
     }
+
     DriveMode old_drive_mode = desire_drive_mode;
     EgoPlanningMsg ego_planning_msg = DataContainer::GetInstance ()->planning_data_.getData ();
     actual_drive_mode = (DriveMode)ego_planning_msg.actual_drive_mode;
     float thw_dis = THWDis ();
     float front_dis = FrontDis ();
+    if (FmsData::GetInstance()->hmi_fms_info.isUpToDate())
+    {
+        m_safe_distance_ = FmsData::GetInstance()->hmi_fms_info.getData().safe_distance;
+    }
     static int debug_count = 0;
     debug_count++;
     if (debug_count % m_debug_thw_HZ == 0)
@@ -219,7 +235,7 @@ void Manager::ProcessCommand ()
     /**
      * >>>>>>>>>>>
     */
-    m_fms_order_ = F_DisBand;
+    m_fms_order_ = FmsData::GetInstance()->fms_order_.getData();
 
     switch (actual_drive_mode)
     {
@@ -265,9 +281,7 @@ void Manager::ProcessCommand ()
             }
             break;
         case Enqueue:
-            const VehicleVcuData& ego_vehicle_vcu_data = DataContainer::GetInstance ()->ego_vehicle_vcu_data_.getData ();
-            float threshold_dis = ego_vehicle_vcu_data.fSpeed * ConfigData::GetInstance ()->keep_mode_threshold_ 
-                                  + m_safe_distance_;
+            
             if (front_dis <= threshold_dis)
             {
                 desire_drive_mode = KeepQueue;
@@ -318,6 +332,10 @@ void Manager::ProcessCommand ()
             else if (m_fms_order_ == F_DisBand)
             {
                 desire_drive_mode = Dequeue;
+            }
+            else 
+            {
+
             }
             break;
         case Abnormal:
