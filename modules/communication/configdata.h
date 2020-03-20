@@ -40,6 +40,8 @@ public:
 // control config
     float keep_mode_threshold_;
     bool hmi_fms_valid_;
+    int enqueue_threshold_;
+    int dequeue_threshold_;
     
 //communication config
     int local_port_;

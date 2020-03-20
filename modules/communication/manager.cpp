@@ -278,11 +278,15 @@ void Manager::ProcessCommand ()
                 desire_drive_mode = Auto;
             }
             break;
-        case Enqueue:
+        case Enqueue: //add abnormal and dequeue
             if (IfAbnormal())
             {
                 desire_drive_mode = Abnormal;
             }  
+            else if (m_fms_order_ == F_DisBand)
+            {
+                desire_drive_mode = Dequeue;
+            }
             else
             {
                 float threshold_dis = CalThreshold();
@@ -346,13 +350,14 @@ void Manager::ProcessCommand ()
                 }
             }
             break;
-        case Abnormal:
+        case Abnormal: //if fms order is F_Disband , no back to enqueue;
             if (front_dis >= thw_dis)
             {
                 desire_drive_mode = Auto;
             }
             else 
-            {
+            {   if (m_fms_order_ == F_DisBand)
+                    return;
                 if(!IfAbnormal())
                 {
                     desire_drive_mode = Enqueue;
@@ -387,7 +392,10 @@ void Manager::UpdatePlatoonManagerInfo ()
     }
     PlatoonManagerInfo platoon_manager_info;
     platoon_manager_info.desire_drive_mode = desire_drive_mode;
-    platoon_manager_info.platoon_number = FmsData::GetInstance()->fms_pre_info_.getData().platoonnumber();
+    if ( FmsData::GetInstance()->fms_pre_info_.isUpToDate())
+        platoon_manager_info.platoon_number = FmsData::GetInstance()->fms_pre_info_.getData().platoonnumber();
+    else 
+        platoon_manager_info.platoon_number = 0;
     platoon_manager_info.vehicle_sequence = _ID;
     platoon_manager_info.vehicle_num = platoon_id_map_.size();
     platoon_manager_info.leader_frenet_dis = 1.0e10;

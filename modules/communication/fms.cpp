@@ -18,6 +18,10 @@ FMS::FMS() : m_fms_order_(F_Invalid)
     m_hmi_fms_valid_ = ConfigData::GetInstance()->hmi_fms_valid_;
 }
 
+/**
+ * update reference point when need to cal apply info or cal if disband
+ * 
+*/
 void FMS::UpdatePoint()
 {
     if (FmsData::GetInstance()->fms_pre_info_.isUpToDate())
@@ -51,6 +55,8 @@ ApplyResult FMS::CalApplyResult()
                 return NoJoiner;
             else if (temp.applyinfo() == FmsApplyOrder(BeLeader))
                 return NoLeader;
+            else 
+                return NoAnser;
         }
     }
     else
@@ -58,7 +64,9 @@ ApplyResult FMS::CalApplyResult()
         return NoAnser;
     }
 }
-
+/**
+ * only in Auto mode need to call this function
+*/
 void FMS::CalApplyInfo()
 {
     UpdatePoint();
@@ -86,7 +94,7 @@ void FMS::CalApplyInfo()
                                                                 ego_vehicle_location.height,
                                                                 m_enqueue_point_[0], m_enqueue_point_[1],
                                                                 ego_vehicle_location.height);
-                if (abs(relative_x) < 200)
+                if (abs(relative_x) < ConfigData::GetInstance()->enqueue_threshold_)
                 {
                     ApplyResult result = CalApplyResult();
                     if (result == AllowJoin || result == AllowLeader || result == NoJoiner)
@@ -114,9 +122,13 @@ void FMS::CalApplyInfo()
     }
 }
 
+/**
+ * true present need disband
+ * false present don't need disband
+*/
 bool FMS::CalIfDisBand()
 {   
-    double ref_longtitude, ref_latitude, ref_altitude;
+    double ref_longtitude, ref_latitude, ref_altitude, ref_heading;
 
     if (!DataContainer::GetInstance()->planning_data_.isUpToDate())
     {
@@ -128,10 +140,23 @@ bool FMS::CalIfDisBand()
         if (!DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate())
             return false;
         ref_longtitude = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().longitude;
+        ref_latitude = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().latitude;
+        ref_altitude = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().height;
+        ref_heading = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().heading;
+    }
+    else 
+    {
+        if (!DataContainer::GetInstance()->manager_data_.isUpToDate())
+            return false;
+        const PlatoonManagerInfo& manager_info = DataContainer::GetInstance()->manager_data_.getData();
+        if (manager_info.leader_vehicle.vehicle_id < 0)
+            return false;
+        ref_longtitude = manager_info.leader_vehicle.longitude;
+        ref_latitude = manager_info.leader_vehicle.latitude;
+        ref_altitude = manager_info.leader_vehicle.altitude;
+        ref_heading = manager_info.leader_vehicle.heading;
     }
 
-    const VehicleData& leader_info = DataContainer::GetInstance()->manager_data_.getData().leader_vehicle; 
-    const VehicleGpsData& ego_vehicle_location = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
     UpdatePoint();
 
     if (m_dequeue_point_.size() < 2) // no dequeue point
@@ -140,12 +165,12 @@ bool FMS::CalIfDisBand()
     }  
     double relative_x, relative_y;
     platoon::common::TransfromGpsAbsoluteToEgoRelaCoord (relative_x, relative_y,
-                                                    leader_info.heading,
-                                                    leader_info.longitude, leader_info.latitude,
-                                                    leader_info.altitude,
-                                                    m_dequeue_point_[0], m_dequeue_point_[1],
-                                                    leader_info.altitude);
-    if (abs(relative_x) < 200)
+                                                        ref_heading,
+                                                        ref_longtitude, ref_latitude,
+                                                        ref_altitude,
+                                                        m_dequeue_point_[0], m_dequeue_point_[1],
+                                                        ref_altitude);
+    if (abs(relative_x) < ConfigData::GetInstance()->dequeue_threshold_)
     {
         return true;
     }
@@ -153,10 +178,95 @@ bool FMS::CalIfDisBand()
         return false;
 }
 
+/**
+ * when the apply result has be responed, this function is  recalled
+ * */
+void FMS::ResetApplyResult()
+{
+    FMSApplyResultInfo result;
+    result = FmsData::GetInstance()->fms_apply_result_.getData();
+    result.set_applyinfo(FmsApplyOrder(0));
+    result.set_applyresult(false);
+    FmsData::GetInstance()->fms_apply_result_.setData(result);
+}
 
 void FMS::CalFmsOrder()
 {
+    if (ConfigData::GetInstance()->hmi_fms_valid_)
+    {
+        m_fms_order_ = FmsOrder(FmsData::GetInstance()->hmi_fms_info.getData().fms_order);
+    }
+    else
+    {
+        if (!DataContainer::GetInstance()->planning_data_.isUpToDate())
+            return;
+        DriveMode ego_drive_mode = DriveMode(DataContainer::GetInstance()->planning_data_.getData().actual_drive_mode);
+        if (ego_drive_mode == Auto)
+        {
+            ApplyResult result = CalApplyResult();
+            if (result == AllowLeader)
+            {
+                m_fms_order_ = F_Leader;
+                ResetApplyResult();
+            }
+            else if (result == AllowJoin)
+            {
+                m_fms_order_ = F_Enqueue;
+                ResetApplyResult();
+            }   
+        }
+        else if (ego_drive_mode == Enqueue || ego_drive_mode == KeepQueue
+                 || ego_drive_mode == Abnormal || ego_drive_mode == Leader)
+        {
+            if (CalIfDisBand())
+                m_fms_order_ = F_DisBand;  
+        } 
+    } 
+    FmsData::GetInstance()->fms_order_.setData(m_fms_order_);
+}
+
+/**
+ * update fms order 20 HZ
+*/
+void FMS::UpdateFmsOrder()
+{
+    CalFmsOrder();
+}
+
+/**
+ * update to fms info 20 HZ
+*/
+void FMS::UpdateToFmsInfo()
+{
     
+    m_to_fms_info_.set_vehicleid(ConfigData::GetInstance()->vehicle_license_);
+
+    CalApplyInfo();
+
+    if (DataContainer::GetInstance()->planning_data_.isUpToDate())
+    {
+        FmsDriveMode ego_drive_mode = FmsDriveMode(DataContainer::GetInstance()->planning_data_.getData().actual_drive_mode);
+        m_to_fms_info_.set_actualdrivemode(ego_drive_mode);
+    }
+
+    if (DataContainer::GetInstance()->manager_data_.isUpToDate())
+    {
+        int vehicle_squence = DataContainer::GetInstance()->manager_data_.getData().vehicle_sequence;
+        int platoon_number = DataContainer::GetInstance()->manager_data_.getData().platoon_number;
+        m_to_fms_info_.set_vehiclesquence(vehicle_squence);
+        m_to_fms_info_.set_platoonnumber(platoon_number);
+    }
+
+    if (FmsData::GetInstance()->fms_apply_result_.isUpToDate())
+    {
+        std::string  order_id = FmsData::GetInstance()->fms_apply_result_.getData().id();
+        m_to_fms_info_.set_fmsmessageid(order_id); 
+    }
+}
+
+const ToFMSInfo& FMS::GetToFmsInfo() const
+{
+    return m_to_fms_info_;
 }
 
 

@@ -53,6 +53,12 @@
         "algorithm": "cpp",
         "memory": "cpp",
         "*.h++": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "hash_map": "cpp",
+        "hash_set": "cpp",
+        "csignal": "cpp",
+        "forward_list": "cpp",
+        "unordered_set": "cpp",
+        "codecvt": "cpp"
     }
 }

@@ -24,13 +24,14 @@ private:
     ApplyResult CalApplyResult();
     void CalApplyInfo();
     bool CalIfDisBand();
+    void ResetApplyResult();
     void CalFmsOrder();
     
 public:
     FMS();
     const ToFMSInfo& GetToFmsInfo() const;
     void UpdateToFmsInfo();
-
+    void UpdateFmsOrder();
 };
 
 }//communication

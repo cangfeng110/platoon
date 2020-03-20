@@ -41,6 +41,8 @@ ConfigData::ConfigData() {
         const libconfig::Setting& control_config = cfg.lookup("control");
         control_config.lookupValue("keep_mode_threshold", keep_mode_threshold_);
         control_config.lookupValue("hmi_fms_valid", hmi_fms_valid_);
+        control_config.lookupValue("dequeue_threshold", enqueue_threshold_);
+        control_config.lookupValue("dequeue_threshold", dequeue_threshold_);
 
         const libconfig::Setting& communication_config = cfg.lookup("communication");
         communication_config.lookupValue("local_port", local_port_);
