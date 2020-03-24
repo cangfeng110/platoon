@@ -30,7 +30,7 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     //receive ego gps/vcu information from lcm
     lcm_.subscribe("VCU_VEHICLE_INFO", &communication::HandleEgoVehicleVcuInfo, this);
     lcm_.subscribe("localization_out_2_map", &communication::HandleEgoVehicleGpsInfo, this);
-    lcm_.subscribe("FMS_INFO", &communication::HandleFmsInfo, this);
+    lcm_.subscribe("FMS_INFO", &communication::HandleHmiFmsInfo, this);
     lcm_.subscribe("EGO_PLANNINGMSG_FOR_PLATOON", &communication::HandlePlanningInfo, this);
     
     // lcm channel
@@ -49,11 +49,13 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     // broad ego vehicle vcu info to ibox, 50Hz
     loop_.runEvery(1000 / (ConfigData::GetInstance ()->broadcast_HZ_), std::bind(&communication::BroastEgoVehicleInfo, this));
 
+    //publish manager info to planning model
     loop_.runEvery(20, std::bind(&communication::PublishManagerInfo, this));
 
     //receive fms info from lcm
     loop_.runEvery(1000, std::bind(&FmsHandler::ReceiveFmsPreInfo, fms_handler_));
     loop_.runEvery(1000, std::bind(&FmsHandler::ReceiveFmsApplyBack, fms_handler_));
+    
     //publish to fms info
     to_fms_ptr_ = std::make_shared<ToFMSInfo>();
     loop_.runEvery(1000, std::bind(&communication::PublishToFmsInfo, this));
@@ -119,15 +121,15 @@ void communication::HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
     DataContainer::GetInstance()->ego_vehicle_vcu_data_.setData(*msg);
 }
 
-void communication::HandleFmsInfo(const lcm::ReceiveBuffer *rbuf,
+void communication::HandleHmiFmsInfo(const lcm::ReceiveBuffer *rbuf,
                               const std::string &channel,
                               const HmiFmsInfo *msg)
 {
     assert(channel == "FMS_INFO");
     if ( FmsData::GetInstance()->hmi_fms_info.getData().fms_order != msg->fms_order)
-        std::cout << "HMI FMS order changed : " << msg->fms_order << std::endl;
+        std::cout << "asdf HMI FMS order changed : " << msg->fms_order << std::endl;
     if (FmsData::GetInstance()->hmi_fms_info.getData().safe_distance != msg->safe_distance)
-        std::cout << "safe distance changed : " << msg->safe_distance << std::endl;
+        std::cout << "asdf safe distance changed : " << msg->safe_distance << std::endl;
     FmsData::GetInstance()->hmi_fms_info.setData(*msg);
 }
 

@@ -75,8 +75,6 @@ float Manager::FrontDis ()
 {
     if(_ID <= 1)
     {
-        if (m_debug_flags & DEBUG_TimeToFront)
-            printf ("_ID : %d\n", _ID);
         return INVALID_FLOAT;
     }
     int front_id = platoon_id_map_[_ID - 1];
@@ -171,6 +169,10 @@ void Manager::CalculateID ()
         }  
     }
     ++_ID;//if no platoon_vehicles_data or ego is the first _ID = 1
+    if (m_debug_flags & DEBUG_CalculateID)
+    {
+        printf("ego vehicle id is : %d\n", _ID);
+    }
 }
 float Manager::CalThreshold()
 {
@@ -205,6 +207,10 @@ bool Manager::IfAbnormal()
             return true;
     }
     return result;
+    if (m_debug_flags & DEBUG_IfAbnormal)
+    {
+        std::cout << "is abnormal ? :" << result << std::endl;
+    }
 }
 
 void Manager::ProcessCommand ()
@@ -227,7 +233,8 @@ void Manager::ProcessCommand ()
     debug_count++;
     if (debug_count % m_debug_thw_HZ == 0)
     {
-        printf ("asdf thw dis is : %f, front dis is : %f\n", thw_dis , front_dis);
+        printf ("asdf thw dis is : %f, front dis is : %f, safe distance is : %f\n", 
+                thw_dis , front_dis, m_safe_distance_);
     }
 
     /**
@@ -290,6 +297,10 @@ void Manager::ProcessCommand ()
             else
             {
                 float threshold_dis = CalThreshold();
+                if (debug_count % m_debug_thw_HZ == 0)
+                {
+                    printf ("asdf threshold dis is(enqueue to keep) :  %f\n", threshold_dis);
+                }
                 if (abs(threshold_dis - INVALID_FLOAT) <= Epslion)
                     break;
                 if (front_dis <= threshold_dis)
@@ -412,15 +423,57 @@ void Manager::UpdatePlatoonManagerInfo ()
     // ID >= 2
     int leader_id = platoon_id_map_[1];
     int front_id = platoon_id_map_[_ID - 1];
-    platoon_manager_info.leader_frenet_dis = m_worldmodle_.GetFrenetDis(leader_id);
-    platoon_manager_info.front_frenet_dis = m_worldmodle_.GetFrenetDis(front_id);
+
+    if (m_debug_flags & DEBUG_ManagerInfo)
+    {
+        using namespace std;
+        cout << "Display Manager ifno" << endl;
+        cout << "desire drive mode is : " << platoon_manager_info.desire_drive_mode << endl
+             << "platoon number is : " << platoon_manager_info.platoon_number << endl
+             << "vehicel sequence is : " << platoon_manager_info.vehicle_sequence << endl;
+    }
+
     bool leader_valid = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[leader_id].isUpToDate();
     bool front_valid = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[front_id].isUpToDate();
-    if (leader_valid)
-        platoon_manager_info.leader_vehicle = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[leader_id].getData();
-    if (front_valid)
-        platoon_manager_info.front_vehicle = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[front_id].getData();
 
+    if (leader_valid)
+    {
+        platoon_manager_info.leader_vehicle = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[leader_id].getData();
+        platoon_manager_info.leader_frenet_dis = m_worldmodle_.GetFrenetDis(leader_id);
+        if (m_debug_flags & DEBUG_ManagerInfo)
+        {
+            printf ("leader vehicle id is : %d\n", platoon_manager_info.leader_vehicle.vehicle_id);
+            printf ("leader vehicle gps_time is : %f\n", platoon_manager_info.leader_vehicle.gps_time);
+            printf ("leader vehicle longitude is : %f\n", platoon_manager_info.leader_vehicle.longitude);
+            printf ("leader vehicle latitude is  : %f\n", platoon_manager_info.leader_vehicle.latitude);
+            printf ("leader vehicle altitude is  : %f\n",platoon_manager_info.leader_vehicle.altitude);
+            printf ("leader vehicle heading is(rad) : %f\n", platoon_manager_info.leader_vehicle.heading);
+            printf ("leader vehicle speed is(km/h) : %f\n", platoon_manager_info.leader_vehicle.speed * 3.6);
+            printf ("leader vehicle acc is : %f\n", platoon_manager_info.leader_vehicle.longtitude_acc);
+            printf ("leader vehicle relative_x is : %f\n",platoon_manager_info.leader_vehicle.relative_x);
+            printf ("leader vehicle relative_y is : %f\n\n",platoon_manager_info.leader_vehicle.relative_y);
+        }
+    }
+        
+    if (front_valid)
+    {
+        platoon_manager_info.front_vehicle = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[front_id].getData();
+        platoon_manager_info.front_frenet_dis = m_worldmodle_.GetFrenetDis(front_id);
+        if (m_debug_flags & DEBUG_ManagerInfo)
+        {
+            printf ("front vehicle id is : %d\n", platoon_manager_info.front_vehicle.vehicle_id);
+            printf ("front vehicle gps_time is : %f\n", platoon_manager_info.front_vehicle.gps_time);
+            printf ("front vehicle longitude is : %f\n", platoon_manager_info.front_vehicle.longitude);
+            printf ("front vehicle latitude is  : %f\n", platoon_manager_info.front_vehicle.latitude);
+            printf ("front vehicle altitude is  : %f\n",platoon_manager_info.front_vehicle.altitude);
+            printf ("front vehicle heading is(rad) : %f\n", platoon_manager_info.front_vehicle.heading);
+            printf ("front vehicle speed is(km/h) : %f\n", platoon_manager_info.front_vehicle.speed * 3.6);
+            printf ("front vehicle acc is : %f\n", platoon_manager_info.front_vehicle.longtitude_acc);
+            printf ("front vehicle relative_x is : %f\n",platoon_manager_info.front_vehicle.relative_x);
+            printf ("front vehicle relative_y is : %f\n\n",platoon_manager_info.front_vehicle.relative_y);
+        }
+    }
+        
     /**
      * judge other vehicle info if valid
     */
@@ -428,9 +481,26 @@ void Manager::UpdatePlatoonManagerInfo ()
     for (auto map_it : DataContainer::GetInstance()->platoon_vehicles_data_.getData())
     {
         if (map_it.second.isUpToDate())
+        {
             vehicle_status_.push_back(map_it.second.getData().vehicle_id);
+            if (m_debug_flags & DEBUG_V2XCommunication)
+            {
+                struct timeval tv;
+                gettimeofday (&tv, NULL);
+                printf ("V %d: has data %ld.%ld\n", map_it.second.getData().vehicle_id, tv.tv_sec, tv.tv_usec);
+            }
+        }
         else
-            vehicle_status_.push_back(0 - map_it.second.getData().vehicle_id);
+        {
+            if (m_debug_flags & DEBUG_V2XCommunication)
+            {
+                struct timeval tv;
+                gettimeofday (&tv, NULL);
+                printf ("V %d: lost>500 %ld.%ld\n", map_it.second.getData().vehicle_id, tv.tv_sec, tv.tv_usec);
+                vehicle_status_.push_back(0 - map_it.second.getData().vehicle_id);
+            }
+        }
+            
     }
     platoon_manager_info.vehicle_communication_status = vehicle_status_;
     

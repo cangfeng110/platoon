@@ -51,22 +51,25 @@ ConfigData::ConfigData() {
         communication_config.lookupValue("broadcast_HZ", broadcast_HZ_);
 
         const libconfig::Setting& debug_config = cfg.lookup("debug");
-        debug_config.lookupValue("debug_TimeToFront", debug_TimeToFront_);
+        debug_config.lookupValue("debug_IfAbnormal", debug_IfAbnormal_);
         debug_config.lookupValue("debug_CalculateID", debug_CalculateID_);
         debug_config.lookupValue("debug_V2xVehicleInfo", debug_V2xVehicleInfo_);
         debug_config.lookupValue("debug_BroadcastEgoVehicleInfo", debug_BroadcastEgoVehicleInfo_);
-        debug_config.lookupValue("debug_RelativeX", debug_RelativeX_);
+        debug_config.lookupValue("debug_ManagetInfo", debug_ManagetInfo_);
+        debug_config.lookupValue("debug_V2XCommunication", debug_V2XCommunication_);
         debug_flags_ = 0;
-        if (debug_TimeToFront_)
-            debug_flags_ |= DEBUG_TimeToFront;
+        if (debug_IfAbnormal_)
+            debug_flags_ |= DEBUG_IfAbnormal;
         if (debug_CalculateID_)
             debug_flags_ |= DEBUG_CalculateID;
         if (debug_V2xVehicleInfo_)
             debug_flags_ |= DEBUG_V2xVehicleInfo;
         if (debug_BroadcastEgoVehicleInfo_)
             debug_flags_ |= DEBUG_BroadcastEgoVehicleInfo;
-        if (debug_RelativeX_)
-            debug_flags_ |= DEBUG_RelativeX;
+        if (debug_ManagetInfo_)
+            debug_flags_ |= DEBUG_ManagerInfo;
+        if (debug_V2XCommunication_)
+            debug_flags_  |= DEBUG_V2XCommunication;
 
         debug_config.lookupValue("debug_thw_HZ", debug_thw_HZ_);
         debug_config.lookupValue("debug_gps_HZ", debug_gps_HZ_);

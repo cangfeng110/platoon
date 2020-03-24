@@ -7,11 +7,12 @@ namespace communication {
 
 typedef enum
 {
-    DEBUG_TimeToFront             = 1 << (0),
+    DEBUG_IfAbnormal              = 1 << (0),
     DEBUG_CalculateID             = 1 << (1),
     DEBUG_V2xVehicleInfo          = 1 << (2),
     DEBUG_BroadcastEgoVehicleInfo = 1 << (3),
-    DEBUG_RelativeX               = 1 << (4),
+    DEBUG_ManagerInfo             = 1 << (4),
+    DEBUG_V2XCommunication        = 1 << (5),
 }
 DebugFlags;
 
@@ -58,11 +59,12 @@ private:
 
     int debug_flags_;
 
-    bool debug_TimeToFront_;
+    bool debug_IfAbnormal_;
     bool debug_CalculateID_;
     bool debug_V2xVehicleInfo_;
     bool debug_BroadcastEgoVehicleInfo_;
-    bool debug_RelativeX_;
+    bool debug_ManagetInfo_;
+    bool debug_V2XCommunication_;
 
     int debug_thw_HZ_;
     int debug_gps_HZ_;

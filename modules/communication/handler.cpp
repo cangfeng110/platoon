@@ -297,8 +297,12 @@ int Handler::DecodeV2xVechileInfo()
             cout << "if a platoon vehicel : " << if_platoon << endl;
             printf ("other vehicle longitude is : %f\n", v2x_other_vehicle_data.longitude);
             printf ("other vehicle latitude is  : %f\n", v2x_other_vehicle_data.latitude);
+            printf ("other vehicle altitude is : %f\n", v2x_other_vehicle_data.altitude);
+            printf ("other vehicle heading is(rad) : %f\n", v2x_other_vehicle_data.heading);
             printf ("other vehicle speed is(km/h) : %f\n", v2x_other_vehicle_data.speed * 3.6);
-            printf ("other vehicle relative_x is: %f\n\n", v2x_other_vehicle_data.relative_x);
+            printf ("other vehicel acc is : %f\n", v2x_other_vehicle_data.longtitude_acc);
+            printf ("other vehicle relative_x is: %f\n", v2x_other_vehicle_data.relative_x);
+            printf ("other vehicle relative_y is: %f\n\n", v2x_other_vehicle_data.relative_y);
         }
         return 1;
     }
