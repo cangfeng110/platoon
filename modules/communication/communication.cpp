@@ -7,11 +7,12 @@
 #include "modules/communication/datadefine.h"
 #include "modules/customfunction/functiontool.h"
 #include "modules/communication/fmsdata.h"
+#include "modules/ipc/include/TemplateBasedIPC/channelmanager_simple.h"
 
 #include "include/protocol/ProtocolChannel.h"
-#include "include/base/EventLoop.h"
 #include "include/base/Channel.h"
 
+INITIALIZE_EASYLOGGINGPP
 
 namespace platoon 
 {
@@ -31,7 +32,6 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     lcm_.subscribe("localization_out_2_map", &communication::HandleEgoVehicleGpsInfo, this);
     lcm_.subscribe("FMS_INFO", &communication::HandleFmsInfo, this);
     lcm_.subscribe("EGO_PLANNINGMSG_FOR_PLATOON", &communication::HandlePlanningInfo, this);
-//    lcm_.subscribe("vehicle_info_for_test", &communication::HandleTestVehicleInfo, this);
     
     // lcm channel
     lcm_channel_.reset(new platoon::base::Channel(&loop_, lcm_.getFileno(), "lcm"));
@@ -49,10 +49,18 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     // broad ego vehicle vcu info to ibox, 50Hz
     loop_.runEvery(1000 / (ConfigData::GetInstance ()->broadcast_HZ_), std::bind(&communication::BroastEgoVehicleInfo, this));
 
-    //publish worldmodel vehilces info, 10Hz
-    //loop_.runEvery(100, std::bind(&communication::PublishWorldmodelInfo, this));
-
     loop_.runEvery(20, std::bind(&communication::PublishManagerInfo, this));
+
+    //receive fms info from lcm
+    loop_.runEvery(1000, std::bind(&FmsHandler::ReceiveFmsPreInfo, fms_handler_));
+    loop_.runEvery(1000, std::bind(&FmsHandler::ReceiveFmsApplyBack, fms_handler_));
+    //publish to fms info
+    to_fms_ptr_ = std::make_shared<ToFMSInfo>();
+    loop_.runEvery(1000, std::bind(&communication::PublishToFmsInfo, this));
+
+    // update to fms info and fms order
+    loop_.runEvery(1000, std::bind(&FMS::UpdateFmsOrder, fms_));
+    loop_.runEvery(1000, std::bind(&FMS::UpdateToFmsInfo, fms_));
 
     m_debug_flags = ConfigData::GetInstance ()->GetDebugFlags ();
     m_debug_gps_HZ = ConfigData::GetInstance ()->GetDebugGpsHZ ();
@@ -97,7 +105,6 @@ void communication::HandleEgoVehicleGpsInfo(const lcm::ReceiveBuffer *rbuf,
 //
 //function:receive ego vcu info and save to datacontainer
 //
-
 void communication::HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
                                      const std::string &channel,
                                      const VehicleVcuData *msg) 
@@ -194,51 +201,11 @@ void communication::ReceiveV2xOtherVehicleInfo()
     }
 }
 
-void communication::HandleTestVehicleInfo (const lcm::ReceiveBuffer *rbuf,
-                                           const std::string &channel,
-                                           const VehicleData *msg)
-{
-    VehicleData v2x_other_vehicle_data;
-    v2x_other_vehicle_data.vehicle_id = msg->vehicle_id;
-    v2x_other_vehicle_data.vehicle_length = msg->vehicle_length;
-    v2x_other_vehicle_data.vehicle_width = msg->vehicle_width;
-    v2x_other_vehicle_data.vehicle_height = msg->vehicle_height;
-    v2x_other_vehicle_data.desire_drive_mode = msg->desire_drive_mode;
-    v2x_other_vehicle_data.actual_drive_mode = msg->actual_drive_mode;
-    v2x_other_vehicle_data.cut_in_flag = msg->cut_in_flag;
-    v2x_other_vehicle_data.longitude = msg->longitude;
-    v2x_other_vehicle_data.latitude = msg->latitude;
-    v2x_other_vehicle_data.altitude = msg->altitude;
-    v2x_other_vehicle_data.heading = msg->heading;
-    v2x_other_vehicle_data.gps_status = msg->gps_status;
-    v2x_other_vehicle_data.gps_time = msg->gps_time;
-    v2x_other_vehicle_data.relative_x = msg->relative_x;
-    v2x_other_vehicle_data.relative_y = msg->relative_y;
-    v2x_other_vehicle_data.relative_heading = msg->relative_heading;
-    v2x_other_vehicle_data.longtitude_acc = msg->longtitude_acc;
-    v2x_other_vehicle_data.lateral_acc = msg->lateral_acc;
-    v2x_other_vehicle_data.speed = msg->speed;
-    v2x_other_vehicle_data.steering_wheel_angle = msg->steering_wheel_angle;
-    v2x_other_vehicle_data.yaw_rate = msg->yaw_rate;
-    v2x_other_vehicle_data.desire_long_acc = msg->desire_long_acc;
-    
-    int key = v2x_other_vehicle_data.vehicle_id;
 
-    if (DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) {
-        const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
-        platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(v2x_other_vehicle_data.relative_x, v2x_other_vehicle_data.relative_y,
-                ego_vehicle_gps_data.heading,
-                ego_vehicle_gps_data.longitude,ego_vehicle_gps_data.latitude,
-                ego_vehicle_gps_data.height,
-                v2x_other_vehicle_data.longitude, v2x_other_vehicle_data.latitude,
-                v2x_other_vehicle_data.altitude);
-        platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(v2x_other_vehicle_data.relative_heading,
-                ego_vehicle_gps_data.heading, v2x_other_vehicle_data.heading);
-    } else {
-        v2x_other_vehicle_data.relative_x = INVALID_FLOAT;
-        v2x_other_vehicle_data.relative_y = INVALID_FLOAT;
-    }
-    DataContainer::GetInstance()->v2x_other_vehicles_data_.setData(key, v2x_other_vehicle_data);
+void communication::PublishToFmsInfo()
+{
+    ToFMSInfo temp = fms_.GetToFmsInfo();
+    sendMessageViaLcm<ToFMSInfo>("PLATOON_APPLY_INFO", temp);
 }
 
 } // namesapce communication

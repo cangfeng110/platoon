@@ -45,6 +45,7 @@ Handler::Handler()
     else 
     {
         LINFO << "local port bind success.";
+        //LINFO << "length" << sizeof(UDPVehicle);
     }
     m_debug_flags = ConfigData::GetInstance ()->GetDebugFlags ();
 }

@@ -5,25 +5,33 @@
 
 #include <lcm/lcm-cpp.hpp>
 
-#include "include/base/CountDownLatch.h"
-#include "include/base/EventLoop.h"
-#include "include/base/Logging.h"
-#include "include/protocol/lcmDataNameTypeDefine.h"
-
 #include "modules/communication/configdata.h"
 #include "modules/communication/datacontainer.h"
 #include "modules/communication/handler.h"
 #include "modules/communication/manager.h"
+#include "modules/communication/fms.h"
+#include "modules/communication/fmshandler.h"
+
+#include "include/base/CountDownLatch.h"
+#include "include/base/EventLoop.h"
+#include "include/base/Logging.h"
+#include "include/protocol/lcmDataNameTypeDefine.h"
+#include "include/proto/DataMessageProto.pb.h"
+#include "include/proto/ProtoClassNameyTypeDefine.h"
+
 
 namespace platoon 
 {
 namespace communication 
 {
+using atd::ipc::RxMsgPtr;
+using atd::ipc::sendMessageViaLcm;
 
 class communication : public base::NonCopyable 
 {
 public:
     communication();
+
     ~communication();
 
     void Loop();
@@ -41,9 +49,6 @@ private:
     void HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
                             const std::string &channel,
                             const EgoPlanningMsg *msg);
-    void HandleTestVehicleInfo(const lcm::ReceiveBuffer *rbuf,
-                               const std::string &channel,
-                               const VehicleData *msg);
 
     void PublishManagerInfo();
     
@@ -51,20 +56,33 @@ private:
 
     void ReceiveV2xOtherVehicleInfo();
 
-    //void PublishWorldmodelInfo();
+    void PublishToFmsInfo();
+
+private:
 
     std::unique_ptr<base::FileLogger> logger_;
+
     base::EventLoop loop_;
 
     // lcm channel
     lcm::LCM lcm_;
+
     std::unique_ptr<base::Channel> lcm_channel_;
+
     // v2x channel
     std::unique_ptr<base::Channel> v2x_channel_;
 
+    // fms channel
+    std::shared_ptr<ToFMSInfo> to_fms_ptr_;
+
     // handler
     Handler handler_;
+
     Manager manager_;
+
+    FMS fms_;
+
+    FmsHandler fms_handler_;
 
     int m_debug_flags;
     int m_debug_gps_HZ;

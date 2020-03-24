@@ -6,8 +6,8 @@
 
 #include <lcm/lcm_coretypes.h>
 
-#ifndef __HEADER_hpp__
-#define __HEADER_hpp__
+#ifndef __PLATOON_HEADER__
+#define __PLATOON_HEADER__
 
 namespace platoon {
 

@@ -99,12 +99,12 @@ private:
 
 }
 
-#define LOG(level, verbose) \
+#define PLATOON_LOG(level, verbose) \
     if (platoon::base::Logging::logLevel() <= level) \
         platoon::base::Logging((level), __FILE__, __func__, __LINE__, (verbose))
 
-#define LDEBUG LOG(platoon::base::Logging::LogLevel::Debug, true)
-#define LINFO  LOG(platoon::base::Logging::LogLevel::Info, true)
+#define LDEBUG PLATOON_LOG(platoon::base::Logging::LogLevel::Debug, true)
+#define LINFO  PLATOON_LOG(platoon::base::Logging::LogLevel::Info, true)
 #define LWARN  platoon::base::Logging(platoon::base::Logging::LogLevel::Warn, \
                 __FILE__, __func__, __LINE__, true)
 #define LERROR platoon::base::Logging(platoon::base::Logging::LogLevel::Error, \
