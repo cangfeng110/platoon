@@ -43,6 +43,7 @@ public:
     bool hmi_fms_valid_;
     int enqueue_threshold_;
     int dequeue_threshold_;
+    float to_auto_threshold_;
     
 //communication config
     int local_port_;

@@ -324,7 +324,7 @@ void Manager::ProcessCommand ()
             }
             else
             {
-                if (front_dis >= thw_dis)
+                if (front_dis >= thw_dis * ConfigData::GetInstance()->to_auto_threshold_)
                     desire_drive_mode = Auto;
             }
             /* if (fabs(thw - INVALID_FLOAT) < Epslion || fabs(time_to_front - INVALID_FLOAT) < Epslion)

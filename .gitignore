@@ -1,6 +1,6 @@
 #ingore all the files in the build
 
 build
-lcm
+#lcm
 .access^
 
