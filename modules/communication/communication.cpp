@@ -68,6 +68,8 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     m_debug_gps_HZ = ConfigData::GetInstance ()->GetDebugGpsHZ ();
     m_debug_vcu_HZ = ConfigData::GetInstance ()->GetDebugVcuHZ ();
     m_debug_pmi_HZ = ConfigData::GetInstance ()->GetDebugPmiHZ ();
+    m_debug_plan_HZ = ConfigData::GetInstance()->debug_plan_HZ_;
+    m_debug_hmi_HZ = ConfigData::GetInstance()->debug_hmi_HZ_;
 }
 
 //
@@ -126,6 +128,12 @@ void communication::HandleHmiFmsInfo(const lcm::ReceiveBuffer *rbuf,
                               const HmiFmsInfo *msg)
 {
     assert(channel == "FMS_INFO");
+    static int hmi_count = 0;
+    hmi_count++;
+    if (hmi_count % m_debug_hmi_HZ == 0)
+    {
+        printf("asdf reveive HMI info : %d\n\n", hmi_count);
+    }
     if ( FmsData::GetInstance()->hmi_fms_info.getData().fms_order != msg->fms_order)
         std::cout << "asdf HMI FMS order changed : " << msg->fms_order << std::endl;
     if (FmsData::GetInstance()->hmi_fms_info.getData().safe_distance != msg->safe_distance)
@@ -138,10 +146,19 @@ void communication::HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
                                         const EgoPlanningMsg *msg) 
 {
     assert(channel == "EGO_PLANNINGMSG_FOR_PLATOON");
-    EgoPlanningMsg ego_planning_msg = DataContainer::GetInstance ()->planning_data_.getData ();
-    if (msg->actual_drive_mode != ego_planning_msg.actual_drive_mode)
+    static int plan_count = 0;
+    plan_count++;
+    if (plan_count % m_debug_plan_HZ == 0)
     {
-        printf ("asdf actual_drive_mode changed: %d\n", msg->actual_drive_mode);
+        printf("asdf reveive plan info : %d\n\n", plan_count);
+    }
+    if (DataContainer::GetInstance ()->planning_data_.isUpToDate())
+    {
+        EgoPlanningMsg ego_planning_msg = DataContainer::GetInstance ()->planning_data_.getData ();
+        if (msg->actual_drive_mode != ego_planning_msg.actual_drive_mode)
+        {
+            printf ("asdf actual_drive_mode changed: %d\n", msg->actual_drive_mode);
+        }
     }
     DataContainer::GetInstance()->planning_data_.setData(*msg);
 }

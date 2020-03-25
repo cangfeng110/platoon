@@ -88,6 +88,8 @@ private:
     int m_debug_gps_HZ;
     int m_debug_vcu_HZ;
     int m_debug_pmi_HZ;
+    int m_debug_plan_HZ;
+    int m_debug_hmi_HZ;
 };
 
 } // namesapce communication

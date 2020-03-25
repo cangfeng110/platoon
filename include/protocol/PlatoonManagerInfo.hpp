@@ -11,6 +11,7 @@
 
 #include <vector>
 #include "include/protocol/VehicleInfo.hpp"
+#include "include/protocol/VehicleInfo.hpp"
 
 namespace platoon
 {
@@ -37,6 +38,8 @@ class PlatoonManagerInfo
         platoon::protocol::VehicleInfo front_vehicle;
 
         std::vector< int8_t > vehicle_communication_status;
+
+        float      safe_distance;
 
     public:
         /**
@@ -163,6 +166,9 @@ int PlatoonManagerInfo::_encodeNoHash(void *buf, int offset, int maxlen) const
         if(tlen < 0) return tlen; else pos += tlen;
     }
 
+    tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->safe_distance, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
     return pos;
 }
 
@@ -200,6 +206,9 @@ int PlatoonManagerInfo::_decodeNoHash(const void *buf, int offset, int maxlen)
         if(tlen < 0) return tlen; else pos += tlen;
     }
 
+    tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->safe_distance, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
     return pos;
 }
 
@@ -215,6 +224,7 @@ int PlatoonManagerInfo::_getEncodedSizeNoHash() const
     enc_size += this->leader_vehicle._getEncodedSizeNoHash();
     enc_size += this->front_vehicle._getEncodedSizeNoHash();
     enc_size += __int8_t_encoded_array_size(NULL, this->vehicle_num);
+    enc_size += __float_encoded_array_size(NULL, 1);
     return enc_size;
 }
 
@@ -226,7 +236,7 @@ uint64_t PlatoonManagerInfo::_computeHash(const __lcm_hash_ptr *p)
             return 0;
     const __lcm_hash_ptr cp = { p, (void*)PlatoonManagerInfo::getHash };
 
-    uint64_t hash = 0x7cce3981f4ce82a0LL +
+    uint64_t hash = 0x1646b161c392f1b4LL +
          platoon::protocol::VehicleInfo::_computeHash(&cp) +
          platoon::protocol::VehicleInfo::_computeHash(&cp);
 

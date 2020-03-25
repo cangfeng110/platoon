@@ -4,6 +4,7 @@
 #include <map>
 #include <assert.h>
 #include <mutex>
+#include <stdio.h>
 
 const int TTL_COUNT = 5; // 5 * 200ms
 

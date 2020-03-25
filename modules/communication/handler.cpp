@@ -147,7 +147,7 @@ int Handler::BroastEgoVehicleInfo()
 
     int data_len = sizeof(ego_vehicle_info);
 
-    //assign transparrent transmission data header
+    /* //assign transparrent transmission data header
     Transparent_Transmission_Data_Header verify_header;
     verify_header.ttdID = 0;
     verify_header.dataSN = send_number_;
@@ -166,29 +166,41 @@ int Handler::BroastEgoVehicleInfo()
     send_header.op_code = 98;
     send_header.op_sn = 0;
     send_header.msg_len = data_len + verify_len;
-
+ */
     // udp send
     // assign ip port
     std::string send_ip =  ConfigData::GetInstance()->remote_ip_;
     int send_port =  ConfigData::GetInstance()->remote_port_;
     Udp sudp(send_ip,send_port);
     sudp.init();
-    char* buffer = new char[header_len + verify_len + data_len];
+    char* buffer = new char[data_len];
+    memcpy(buffer, &ego_vehicle_info, data_len);
+    sudp.send(buffer, data_len);
+   /*  char* buffer = new char[header_len + verify_len + data_len];
     memcpy(buffer, &send_header, header_len);
     memcpy(buffer + header_len, &verify_header, verify_len);
     memcpy(buffer + header_len + verify_len, &ego_vehicle_info, data_len);
     sudp.send(buffer, header_len + verify_len + data_len);
-    delete []buffer;
+    delete []buffer; */
 
     if(m_debug_flags & DEBUG_BroadcastEgoVehicleInfo)
     {
         using namespace std;
         cout << "++++Display ego vehicle info++++" << endl;
+        printf ("send data length is : %d\n", data_len);
+        printf ("ego vehicle platoon number is : %d\n", ego_vehicle_info.platoon_number);
+        printf ("ego vehicle sequence is : %d\n", ego_vehicle_info.vehicle_sequence);
+        printf ("ego vehicle actual drive mode is : %d\n", ego_vehicle_info.actual_drive_mode);
+        printf ("ego vehicle desire drive mode is : %d\n", ego_vehicle_info.desire_drive_mode);
+        printf ("ego vehicle cut_in flag is : %d\n", ego_vehicle_info.cut_in_flag);
         printf ("ego vehicle gps_time is : %f\n", ego_vehicle_info.gps_time);
         printf ("ego vehicle longitude is : %f\n", ego_vehicle_info.longitude);
         printf ("ego vehicle latitude is  : %f\n", ego_vehicle_info.latitude);
+        printf ("ego vehicle altitude is : %f\n", ego_vehicle_info.altitude);
         printf ("ego vehicle heading is : %f\n", ego_vehicle_info.heading);
-        printf ("ego vehicle speed is(km/h) : %f\n\n", ego_vehicle_info.speed * 3.6);
+        printf ("ego vehicle heading is : %f\n", ego_vehicle_info.heading);
+        printf ("ego vehicle speed is(km/h) : %f\n", ego_vehicle_info.speed * 3.6);
+        printf ("ego vehicle acc is : %f\n\n", ego_vehicle_info.longtitude_acc);
     }
 
     return 1;
@@ -202,10 +214,9 @@ int Handler::DecodeV2xVechileInfo()
 
     int len = ::recvfrom(sockfd_, buffer_, MAX_RECV_LENGTH, 0, NULL, NULL);
 
-    if (m_debug_flags & DEBUG_V2xVehicleInfo)
-        std::cout << "receive length is : " << len << std::endl;
+    
 
-    outbound_communication_header outbound_header;
+    /* outbound_communication_header outbound_header;
     int header_len = sizeof(outbound_header);
     memcpy(&outbound_header, buffer_, header_len);
 
@@ -217,19 +228,24 @@ int Handler::DecodeV2xVechileInfo()
         return -1;
     } 
     else 
-    {
-        char* buffer_temp;
+    { */
+       /*  char* buffer_temp;
         int verify_len = sizeof(Transparent_Transmission_Data_Header);
-        buffer_temp = &buffer_[header_len + verify_len]; // skip outbound header, verify_len
+        buffer_temp = &buffer_[header_len + verify_len]; // skip outbound header, verify_len */
 
         VehicleData v2x_other_vehicle_data;
 
         UDPVehicle udp_other_vehicle_data;
 
         int data_len = sizeof(udp_other_vehicle_data);
-
-        memcpy(&udp_other_vehicle_data, buffer_temp, data_len);
-
+        memcpy(&udp_other_vehicle_data, buffer_, data_len);
+        //memcpy(&udp_other_vehicle_data, buffer_temp, data_len);
+        if (m_debug_flags & DEBUG_V2xVehicleInfo)
+        {
+            std::cout << "receive length is : " << len << std::endl;
+            std::cout << "need length is : " << data_len << std::endl;
+        }
+            
         v2x_other_vehicle_data.vehicle_id = udp_other_vehicle_data.vehicle_id;
         v2x_other_vehicle_data.vehicle_length = udp_other_vehicle_data.vehicle_length;
         v2x_other_vehicle_data.vehicle_height = udp_other_vehicle_data.vehicle_height;
@@ -257,7 +273,13 @@ int Handler::DecodeV2xVechileInfo()
         v2x_other_vehicle_data.vehicle_sequence = udp_other_vehicle_data.vehicle_sequence;
 
         int key = v2x_other_vehicle_data.vehicle_id;
-    
+
+        if (key < 1)
+        {
+            std::cout << "ERROR : other vehicle id is < 1"<< std::endl;
+            return -1;
+        }
+
         if (DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) 
         {
             const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
@@ -279,7 +301,12 @@ int Handler::DecodeV2xVechileInfo()
 
         std::string if_platoon = "No";
         /* storage the platoon number is equal vehicle to platoon_vehicles_dara_*/
-        if (FmsData::GetInstance()->fms_pre_info_.isUpToDate()) 
+        if (ConfigData::GetInstance()->hmi_fms_valid_)
+        {
+            if_platoon = "Yes";
+            DataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
+        }
+        else if (FmsData::GetInstance()->fms_pre_info_.isUpToDate()) 
         {
             int ego_platoon_number = FmsData::GetInstance()->fms_pre_info_.getData().platoonnumber();
             if (ego_platoon_number == v2x_other_vehicle_data.platoon_number) 
@@ -294,7 +321,9 @@ int Handler::DecodeV2xVechileInfo()
             using namespace std;
             cout << "-----------Display other vehicle info--------------" << endl;
             cout << "other vehicle id is : " << key << endl;
-            cout << "if a platoon vehicel : " << if_platoon << endl;
+            cout << "if a platoon vehicle : " << if_platoon << endl;
+            printf("other vehicle platoon number is : %d\n", v2x_other_vehicle_data.platoon_number);
+            printf("other vehicle sequence is : %d\n", v2x_other_vehicle_data.vehicle_sequence);
             printf ("other vehicle longitude is : %f\n", v2x_other_vehicle_data.longitude);
             printf ("other vehicle latitude is  : %f\n", v2x_other_vehicle_data.latitude);
             printf ("other vehicle altitude is : %f\n", v2x_other_vehicle_data.altitude);
@@ -305,7 +334,7 @@ int Handler::DecodeV2xVechileInfo()
             printf ("other vehicle relative_y is: %f\n\n", v2x_other_vehicle_data.relative_y);
         }
         return 1;
-    }
+    //}
 }
 
 } // namespace communication

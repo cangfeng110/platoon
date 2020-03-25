@@ -1,5 +1,6 @@
 #include "modules/communication/manager.h"
 
+#include <iostream>
 #include <algorithm>
 #include <math.h>
 #include <sys/time.h>
@@ -15,7 +16,7 @@ namespace platoon {
 namespace communication {
 
 Manager::Manager () : actual_drive_mode(Manual), desire_drive_mode(Notset), 
-                      _ID(0), m_fms_order_(F_Invalid), m_safe_distance_(0.0)
+                      _ID(0), m_fms_order_(F_Invalid), m_safe_distance_(10.0)
 {
     other_vehicles.reserve (100);
     vehicle_status_.reserve(5);
@@ -24,6 +25,7 @@ Manager::Manager () : actual_drive_mode(Manual), desire_drive_mode(Notset),
     if (m_debug_thw_HZ <= 0)
         m_debug_thw_HZ = 25;
     hmi_fms_valid_ = ConfigData::GetInstance()->hmi_fms_valid_;
+    m_debug_StateFlow = ConfigData::GetInstance()->debug_StateFlow_;
 }
 
 Manager::~Manager () {
@@ -171,7 +173,7 @@ void Manager::CalculateID ()
     ++_ID;//if no platoon_vehicles_data or ego is the first _ID = 1
     if (m_debug_flags & DEBUG_CalculateID)
     {
-        printf("ego vehicle id is : %d\n", _ID);
+        printf(" cal_id is be execute, ego vehicle squence is : %d\n\n", _ID);
     }
 }
 float Manager::CalThreshold()
@@ -207,36 +209,41 @@ bool Manager::IfAbnormal()
             return true;
     }
     return result;
-    if (m_debug_flags & DEBUG_IfAbnormal)
-    {
-        std::cout << "is abnormal ? :" << result << std::endl;
-    }
 }
 
 void Manager::ProcessCommand ()
 {
+    static int debug_count = 0;
+    debug_count++;
     if (!DataContainer::GetInstance ()->planning_data_.isUpToDate ())
     {
+        if (m_debug_StateFlow)
+        {
+            if (debug_count % m_debug_thw_HZ == 0)
+                printf("ERROR : plan info is gone!\n\n");
+        }
         return;
     }
-
     DriveMode old_drive_mode = desire_drive_mode;
     const EgoPlanningMsg& ego_planning_msg = DataContainer::GetInstance ()->planning_data_.getData ();
     actual_drive_mode = (DriveMode)ego_planning_msg.actual_drive_mode;
     float thw_dis = THWDis ();
     float front_dis = FrontDis ();
+    float threshold_dis = CalThreshold();
+
     if (FmsData::GetInstance()->hmi_fms_info.isUpToDate())
     {
         m_safe_distance_ = FmsData::GetInstance()->hmi_fms_info.getData().safe_distance;
     }
-    static int debug_count = 0;
-    debug_count++;
-    if (debug_count % m_debug_thw_HZ == 0)
+    if (m_debug_StateFlow)
     {
-        printf ("asdf thw dis is : %f, front dis is : %f, safe distance is : %f\n", 
-                thw_dis , front_dis, m_safe_distance_);
+        if (debug_count % m_debug_thw_HZ == 0)
+        {
+            printf ("asdf thw dis is : %f, front dis is : %f, safe distance is : %f, threshold dis is: %f\n", 
+                    thw_dis , front_dis, m_safe_distance_, threshold_dis); 
+            printf ("acutla drive mode is : %d\n\n", actual_drive_mode);
+        }
     }
-
     /**
      * >>>>>>>>>>>
     */
@@ -245,9 +252,19 @@ void Manager::ProcessCommand ()
     switch (actual_drive_mode)
     {
         case Manual:
+            if (m_debug_StateFlow)
+            {
+                if (debug_count % m_debug_thw_HZ == 0)
+                    printf("IN Manual\n\n");
+            }
             //ignore command
             break;
         case Auto:
+            if (m_debug_StateFlow)
+            {
+                if (debug_count % m_debug_thw_HZ == 0)
+                    printf("IN Auto\n\n");
+            }
             if (m_fms_order_ == F_Leader)
             {
                 desire_drive_mode = Leader;
@@ -268,24 +285,26 @@ void Manager::ProcessCommand ()
                     {
                         desire_drive_mode = Enqueue;
                     }
-                    /* if (fabs(thw - INVALID_FLOAT) < Epslion || fabs(time_to_front - INVALID_FLOAT) < Epslion)
-                    {
-                        break;
-                    }
-                    if (time_to_front <= 1.2 * thw)
-                    {
-                        desire_drive_mode = Enqueue;
-                    } */
                 }
             }
             break;
         case Leader:
+            if (m_debug_StateFlow)
+            {
+                if (debug_count % m_debug_thw_HZ == 0)
+                    printf("IN Leader\n\n");
+            }
             if (m_fms_order_ == F_Dequeue || m_fms_order_ == F_DisBand)
             {
                 desire_drive_mode = Auto;
             }
             break;
         case Enqueue: //add abnormal and dequeue
+            if (m_debug_StateFlow)
+            {
+                if (debug_count % m_debug_thw_HZ == 0)
+                    printf("IN Enqueue\n\n");
+            }
             if (IfAbnormal())
             {
                 desire_drive_mode = Abnormal;
@@ -296,47 +315,38 @@ void Manager::ProcessCommand ()
             }
             else
             {
-                float threshold_dis = CalThreshold();
-                if (debug_count % m_debug_thw_HZ == 0)
+                if (fabs(threshold_dis - INVALID_FLOAT) <= Epslion)
                 {
-                    printf ("asdf threshold dis is(enqueue to keep) :  %f\n", threshold_dis);
-                }
-                if (abs(threshold_dis - INVALID_FLOAT) <= Epslion)
                     break;
+                }
                 if (front_dis <= threshold_dis)
                 {
                     desire_drive_mode = KeepQueue;
                 }
             }
-            /* if (fabs(thw - INVALID_FLOAT) < Epslion || fabs(time_to_front - INVALID_FLOAT) < Epslion)
-            {
-                break;
-            }
-            if (time_to_front <= ConfigData::GetInstance ()->keep_mode_threshold_)
-            {
-                desire_drive_mode = KeepQueue;
-            } */
             break;
         case Dequeue:
+            if (m_debug_StateFlow)
+            {
+                if (debug_count % m_debug_thw_HZ == 0)
+                    printf("IN Dequeue\n\n");
+            }
             if (IfAbnormal())
             {
-                 desire_drive_mode = Abnormal;
+                desire_drive_mode = Abnormal;
             }
             else
             {
                 if (front_dis >= thw_dis * ConfigData::GetInstance()->to_auto_threshold_)
                     desire_drive_mode = Auto;
             }
-            /* if (fabs(thw - INVALID_FLOAT) < Epslion || fabs(time_to_front - INVALID_FLOAT) < Epslion)
-            {
-                break;
-            }
-            if (time_to_front >= thw)
-            {
-                desire_drive_mode = Auto;
-            } */
             break;
         case KeepQueue:
+            if (m_debug_StateFlow)
+            {
+                if (debug_count % m_debug_thw_HZ == 0)
+                    printf("IN KeepQueue\n\n");
+            }
             if (IfAbnormal())
             {
                 desire_drive_mode = Abnormal;
@@ -362,13 +372,18 @@ void Manager::ProcessCommand ()
             }
             break;
         case Abnormal: //if fms order is F_Disband , no back to enqueue;
+            if (m_debug_StateFlow)
+            {
+                if (debug_count % m_debug_thw_HZ == 0)
+                    printf("Abnormal\n\n");
+            }
             if (front_dis >= thw_dis)
             {
                 desire_drive_mode = Auto;
             }
             else 
             {   if (m_fms_order_ == F_DisBand)
-                    return;
+                    break;
                 if(!IfAbnormal())
                 {
                     desire_drive_mode = Enqueue;
@@ -386,13 +401,16 @@ void Manager::ProcessCommand ()
 }
 
 
-
 void Manager::UpdatePlatoonManagerInfo ()
 {
     // the id only can change in the Auto/manual mode
     if (actual_drive_mode == Auto || actual_drive_mode == Manual)
     {
          CalculateID ();
+    }
+    else if (m_debug_flags & DEBUG_CalculateID)
+    {
+        printf("id will be not chaned; vehicle sequence is : %d \n\n", _ID);
     }
     ProcessCommand ();
     m_worldmodle_.GetWorldmodleVehiles();
@@ -402,7 +420,7 @@ void Manager::UpdatePlatoonManagerInfo ()
         return;//no ego_vehicle_location
     }
     PlatoonManagerInfo platoon_manager_info;
-    platoon_manager_info.desire_drive_mode = desire_drive_mode;
+    platoon_manager_info.desire_drive_mode = int8_t(desire_drive_mode);
     if ( FmsData::GetInstance()->fms_pre_info_.isUpToDate())
         platoon_manager_info.platoon_number = FmsData::GetInstance()->fms_pre_info_.getData().platoonnumber();
     else 
@@ -414,34 +432,54 @@ void Manager::UpdatePlatoonManagerInfo ()
     //assign leader/front vehicle id 
     platoon_manager_info.leader_vehicle.vehicle_id = -1;
     platoon_manager_info.front_vehicle.vehicle_id = -1;
+    
+    //safe distance
+    platoon_manager_info.safe_distance = m_safe_distance_;
 
+    if (m_debug_flags & DEBUG_ManagerInfo)
+    {
+        using namespace std;
+        cout << "+++++++++++++Display Manager ifno+++++++++++++" << endl;
+        printf ("desire drive mode is : %d\n",platoon_manager_info.desire_drive_mode);
+        printf ("platoon number is : %d\n",platoon_manager_info.platoon_number);
+        printf ("vehicle sequence is : %d\n", platoon_manager_info.vehicle_sequence);
+        printf ("hmi safe distance is : %f\n",platoon_manager_info.safe_distance);
+    }
     /**
      * updata leader front vehicle info
     */
     if (_ID == 1) //ego is leader
         return;
+
     // ID >= 2
     int leader_id = platoon_id_map_[1];
     int front_id = platoon_id_map_[_ID - 1];
-
-    if (m_debug_flags & DEBUG_ManagerInfo)
-    {
-        using namespace std;
-        cout << "Display Manager ifno" << endl;
-        cout << "desire drive mode is : " << platoon_manager_info.desire_drive_mode << endl
-             << "platoon number is : " << platoon_manager_info.platoon_number << endl
-             << "vehicel sequence is : " << platoon_manager_info.vehicle_sequence << endl;
-    }
 
     bool leader_valid = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[leader_id].isUpToDate();
     bool front_valid = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[front_id].isUpToDate();
 
     if (leader_valid)
     {
-        platoon_manager_info.leader_vehicle = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[leader_id].getData();
+        VehicleData leader_vehicle = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[leader_id].getData();
+        if (DataContainer::GetInstance ()->ego_vehicle_gps_data_.isUpToDate ())
+        {
+            const VehicleGpsData& ego_vehicle_location = DataContainer::GetInstance ()->ego_vehicle_gps_data_.getData ();
+            platoon::common::TransfromGpsAbsoluteToEgoRelaCoord (leader_vehicle.relative_x, leader_vehicle.relative_y,
+                                                                 ego_vehicle_location.heading,
+                                                                 ego_vehicle_location.longitude, ego_vehicle_location.latitude,
+                                                                 ego_vehicle_location.height,
+                                                                 leader_vehicle.longitude, leader_vehicle.latitude,
+                                                                 leader_vehicle.altitude);
+            platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth (leader_vehicle.relative_heading,
+                                                                   ego_vehicle_location.heading,
+                                                                   leader_vehicle.heading);
+        }
+        platoon_manager_info.leader_vehicle = leader_vehicle;
         platoon_manager_info.leader_frenet_dis = m_worldmodle_.GetFrenetDis(leader_id);
         if (m_debug_flags & DEBUG_ManagerInfo)
-        {
+        {   
+            printf ("leader vehicle platoon number is : %d\n", platoon_manager_info.leader_vehicle.platoon_number);
+            printf ("leader vehicle seuqence is : %d\n", platoon_manager_info.leader_vehicle.vehicle_sequence);
             printf ("leader vehicle id is : %d\n", platoon_manager_info.leader_vehicle.vehicle_id);
             printf ("leader vehicle gps_time is : %f\n", platoon_manager_info.leader_vehicle.gps_time);
             printf ("leader vehicle longitude is : %f\n", platoon_manager_info.leader_vehicle.longitude);
@@ -457,10 +495,26 @@ void Manager::UpdatePlatoonManagerInfo ()
         
     if (front_valid)
     {
-        platoon_manager_info.front_vehicle = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[front_id].getData();
+        VehicleData front_vehicle = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[front_id].getData();
+        if (DataContainer::GetInstance ()->ego_vehicle_gps_data_.isUpToDate ())
+        {
+            const VehicleGpsData& ego_vehicle_location = DataContainer::GetInstance ()->ego_vehicle_gps_data_.getData ();
+            platoon::common::TransfromGpsAbsoluteToEgoRelaCoord (front_vehicle.relative_x, front_vehicle.relative_y,
+                                                                 ego_vehicle_location.heading,
+                                                                 ego_vehicle_location.longitude, ego_vehicle_location.latitude,
+                                                                 ego_vehicle_location.height,
+                                                                 front_vehicle.longitude, front_vehicle.latitude,
+                                                                 front_vehicle.altitude);
+            platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth (front_vehicle.relative_heading,
+                                                                   ego_vehicle_location.heading,
+                                                                   front_vehicle.heading);
+        }
+        platoon_manager_info.front_vehicle = front_vehicle;
         platoon_manager_info.front_frenet_dis = m_worldmodle_.GetFrenetDis(front_id);
         if (m_debug_flags & DEBUG_ManagerInfo)
         {
+            printf ("front vehicle platoon number is : %d\n", platoon_manager_info.front_vehicle.platoon_number);
+            printf ("front vehicle seuqence is : %d\n", platoon_manager_info.front_vehicle.vehicle_sequence);
             printf ("front vehicle id is : %d\n", platoon_manager_info.front_vehicle.vehicle_id);
             printf ("front vehicle gps_time is : %f\n", platoon_manager_info.front_vehicle.gps_time);
             printf ("front vehicle longitude is : %f\n", platoon_manager_info.front_vehicle.longitude);
@@ -487,7 +541,7 @@ void Manager::UpdatePlatoonManagerInfo ()
             {
                 struct timeval tv;
                 gettimeofday (&tv, NULL);
-                printf ("V %d: has data %ld.%ld\n", map_it.second.getData().vehicle_id, tv.tv_sec, tv.tv_usec);
+                printf ("\nV %d: has data %ld.%ld\n\n", map_it.second.getData().vehicle_id, tv.tv_sec, tv.tv_usec);
             }
         }
         else
@@ -496,7 +550,7 @@ void Manager::UpdatePlatoonManagerInfo ()
             {
                 struct timeval tv;
                 gettimeofday (&tv, NULL);
-                printf ("V %d: lost>500 %ld.%ld\n", map_it.second.getData().vehicle_id, tv.tv_sec, tv.tv_usec);
+                printf ("V %d: lost>500 %ld.%ld\n\n", map_it.second.getData().vehicle_id, tv.tv_sec, tv.tv_usec);
                 vehicle_status_.push_back(0 - map_it.second.getData().vehicle_id);
             }
         }

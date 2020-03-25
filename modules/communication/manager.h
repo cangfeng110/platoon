@@ -50,6 +50,7 @@ private:
 
     int m_debug_flags;
     int m_debug_thw_HZ;
+    bool m_debug_StateFlow;
     bool hmi_fms_valid_;
     
 private:
