@@ -27,6 +27,10 @@ class EgoPlanningMsg
 
         int8_t     cut_in;
 
+        double     cut_in_time;
+
+        double     front_obstacle_distance;
+
     public:
         /**
          * Encode a message into binary form.
@@ -135,6 +139,12 @@ int EgoPlanningMsg::_encodeNoHash(void *buf, int offset, int maxlen) const
     tlen = __boolean_encode_array(buf, offset + pos, maxlen - pos, &this->cut_in, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->cut_in_time, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->front_obstacle_distance, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
     return pos;
 }
 
@@ -154,6 +164,12 @@ int EgoPlanningMsg::_decodeNoHash(const void *buf, int offset, int maxlen)
     tlen = __boolean_decode_array(buf, offset + pos, maxlen - pos, &this->cut_in, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->cut_in_time, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->front_obstacle_distance, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
     return pos;
 }
 
@@ -164,6 +180,8 @@ int EgoPlanningMsg::_getEncodedSizeNoHash() const
     enc_size += __double_encoded_array_size(NULL, 1);
     enc_size += __int8_t_encoded_array_size(NULL, 1);
     enc_size += __boolean_encoded_array_size(NULL, 1);
+    enc_size += __double_encoded_array_size(NULL, 1);
+    enc_size += __double_encoded_array_size(NULL, 1);
     return enc_size;
 }
 
@@ -175,7 +193,7 @@ uint64_t EgoPlanningMsg::_computeHash(const __lcm_hash_ptr *p)
             return 0;
     const __lcm_hash_ptr cp = { p, (void*)EgoPlanningMsg::getHash };
 
-    uint64_t hash = 0x7aef6afa86e45800LL +
+    uint64_t hash = 0x8b0d94b41b19f0fbLL +
          platoon::protocol::HEADER::_computeHash(&cp);
 
     return (hash<<1) + ((hash>>63)&1);

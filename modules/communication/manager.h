@@ -60,7 +60,9 @@ private:
     void CalculateID ();
     float CalThreshold();
     bool IfAbnormal ();
+    void ResetFmsOrder();
     void ProcessCommand ();
+    
 };
 
 } // namespace communication

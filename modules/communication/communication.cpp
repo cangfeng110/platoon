@@ -135,7 +135,7 @@ void communication::HandleHmiFmsInfo(const lcm::ReceiveBuffer *rbuf,
         printf("asdf reveive HMI info : %d\n\n", hmi_count);
     }
     if ( FmsData::GetInstance()->hmi_fms_info.getData().fms_order != msg->fms_order)
-        std::cout << "asdf HMI FMS order changed : " << msg->fms_order << std::endl;
+        std::cout << "asdf HMI FMS order changed : " << int(msg->fms_order) << std::endl;
     if (FmsData::GetInstance()->hmi_fms_info.getData().safe_distance != msg->safe_distance)
         std::cout << "asdf safe distance changed : " << msg->safe_distance << std::endl;
     FmsData::GetInstance()->hmi_fms_info.setData(*msg);

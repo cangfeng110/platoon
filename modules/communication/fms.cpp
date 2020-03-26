@@ -1,5 +1,7 @@
 #include "modules/communication/fms.h"
 
+#include <math.h>
+
 #include "modules/communication/datacontainer.h"
 #include "modules/communication/configdata.h"
 #include "modules/communication/fmsdata.h"
@@ -94,7 +96,7 @@ void FMS::CalApplyInfo()
                                                                 ego_vehicle_location.height,
                                                                 m_enqueue_point_[0], m_enqueue_point_[1],
                                                                 ego_vehicle_location.height);
-                if (abs(relative_x) < ConfigData::GetInstance()->enqueue_threshold_)
+                if (fabs(relative_x) < ConfigData::GetInstance()->enqueue_threshold_)
                 {
                     ApplyResult result = CalApplyResult();
                     if (result == AllowJoin || result == AllowLeader || result == NoJoiner)
@@ -170,7 +172,7 @@ bool FMS::CalIfDisBand()
                                                         ref_altitude,
                                                         m_dequeue_point_[0], m_dequeue_point_[1],
                                                         ref_altitude);
-    if (abs(relative_x) < ConfigData::GetInstance()->dequeue_threshold_)
+    if (fabs(relative_x) < ConfigData::GetInstance()->dequeue_threshold_)
     {
         return true;
     }
@@ -194,7 +196,10 @@ void FMS::CalFmsOrder()
 {
     if (ConfigData::GetInstance()->hmi_fms_valid_)
     {
-        m_fms_order_ = FmsOrder(FmsData::GetInstance()->hmi_fms_info.getData().fms_order);
+        if (FmsData::GetInstance()->hmi_fms_info.isUpToDate())
+        {
+            m_fms_order_ = FmsOrder(FmsData::GetInstance()->hmi_fms_info.getData().fms_order);
+        }
     }
     else
     {

@@ -15,6 +15,39 @@ namespace platoon {
 
 namespace communication {
 
+void print_drive_mode(DriveMode _mode)
+{
+    switch (_mode)
+    {
+        case Manual:
+            printf("Manual\n");
+            break;
+        case Auto:
+            printf("Auto\n");
+            break;
+        case Leader:
+            printf("Leader\n");
+            break;
+        case Enqueue:
+            printf("Enqueue\n");
+            break;
+        case KeepQueue:
+            printf("KeepQueue\n");
+            break;
+        case Dequeue:
+            printf("Dequeue\n");
+            break;
+        case Abnormal:
+            printf("Abnormal\n");
+            break;
+        case Notset:
+            printf("NotSet\n");
+            break;
+        default:
+            break;
+    }
+}
+
 Manager::Manager () : actual_drive_mode(Manual), desire_drive_mode(Notset), 
                       _ID(0), m_fms_order_(F_Invalid), m_safe_distance_(10.0)
 {
@@ -79,20 +112,29 @@ float Manager::FrontDis ()
     {
         return INVALID_FLOAT;
     }
+    float front_dis = INVALID_FLOAT;
     int front_id = platoon_id_map_[_ID - 1];
-    VehicleData front_vehicle = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[front_id].getData();
-    const VehicleGpsData& ego_vehicle_location = DataContainer::GetInstance ()->ego_vehicle_gps_data_.getData ();
-    platoon::common::TransfromGpsAbsoluteToEgoRelaCoord (front_vehicle.relative_x, front_vehicle.relative_y,
-                                                                 ego_vehicle_location.heading,
-                                                                 ego_vehicle_location.longitude, ego_vehicle_location.latitude,
-                                                                 ego_vehicle_location.height,
-                                                                 front_vehicle.longitude, front_vehicle.latitude,
-                                                                 front_vehicle.altitude);
-    platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth (front_vehicle.relative_heading,
-                                                                   ego_vehicle_location.heading,
-                                                                   front_vehicle.heading);
-    float vehicle_length = ConfigData::GetInstance()->vehicle_length_;
-    float front_dis = front_vehicle.relative_x - vehicle_length;
+    if (DataContainer::GetInstance()->platoon_vehicles_data_.getData()[front_id].isUpToDate())
+    {
+        VehicleData front_vehicle = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[front_id].getData();
+        const VehicleGpsData& ego_vehicle_location = DataContainer::GetInstance ()->ego_vehicle_gps_data_.getData ();
+        platoon::common::TransfromGpsAbsoluteToEgoRelaCoord (front_vehicle.relative_x, front_vehicle.relative_y,
+                                                                    ego_vehicle_location.heading,
+                                                                    ego_vehicle_location.longitude, ego_vehicle_location.latitude,
+                                                                    ego_vehicle_location.height,
+                                                                    front_vehicle.longitude, front_vehicle.latitude,
+                                                                    front_vehicle.altitude);
+        platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth (front_vehicle.relative_heading,
+                                                                    ego_vehicle_location.heading,
+                                                                    front_vehicle.heading);
+        float vehicle_length = ConfigData::GetInstance()->vehicle_length_;
+        front_dis = front_vehicle.relative_x - vehicle_length;
+    }
+    else
+    {
+        if (DataContainer::GetInstance()->planning_data_.isUpToDate())
+            front_dis = DataContainer::GetInstance()->planning_data_.getData().front_obstacle_distance;
+    }
     if (front_dis <= 0)
         return INVALID_FLOAT;
     return front_dis;
@@ -210,6 +252,25 @@ bool Manager::IfAbnormal()
     }
     return result;
 }
+/**
+ * when fms enqueue and leader order is be executabe , 
+ * this function is be recall to clear fms order, avoid repate enqueue / leader
+ * dequeue or disband order don't need to be cleared
+ * */
+void Manager::ResetFmsOrder()
+{
+    if (ConfigData::GetInstance()->hmi_fms_valid_)
+    {
+        HmiFmsInfo reset = FmsData::GetInstance()->hmi_fms_info.getData();
+        reset.fms_order = int8_t(F_Invalid);
+        FmsData::GetInstance()->hmi_fms_info.setData(reset);
+        FmsData::GetInstance()->fms_order_.setData(F_Invalid);
+    } 
+    else 
+    {
+        FmsData::GetInstance()->fms_order_.setData(F_Invalid);
+    }
+}
 
 void Manager::ProcessCommand ()
 {
@@ -241,14 +302,18 @@ void Manager::ProcessCommand ()
         {
             printf ("asdf thw dis is : %f, front dis is : %f, safe distance is : %f, threshold dis is: %f\n", 
                     thw_dis , front_dis, m_safe_distance_, threshold_dis); 
-            printf ("acutla drive mode is : %d\n\n", actual_drive_mode);
+            printf ("acutla drive mode is : ");
+            print_drive_mode(actual_drive_mode);
         }
     }
     /**
      * >>>>>>>>>>>
     */
-    m_fms_order_ = FmsData::GetInstance()->fms_order_.getData();
-
+    if (FmsData::GetInstance()->fms_order_.isUpToDate())
+    {
+        m_fms_order_ = FmsData::GetInstance()->fms_order_.getData();
+    }
+    
     switch (actual_drive_mode)
     {
         case Manual:
@@ -268,6 +333,7 @@ void Manager::ProcessCommand ()
             if (m_fms_order_ == F_Leader)
             {
                 desire_drive_mode = Leader;
+                ResetFmsOrder();
             }
             else if (m_fms_order_ == F_Enqueue)
             {
@@ -284,6 +350,7 @@ void Manager::ProcessCommand ()
                     if (front_dis <= 1.2 * thw_dis)
                     {
                         desire_drive_mode = Enqueue;
+                        ResetFmsOrder();
                     }
                 }
             }
@@ -375,14 +442,14 @@ void Manager::ProcessCommand ()
             if (m_debug_StateFlow)
             {
                 if (debug_count % m_debug_thw_HZ == 0)
-                    printf("Abnormal\n\n");
+                    printf("IN Abnormal\n\n");
             }
             if (front_dis >= thw_dis)
             {
                 desire_drive_mode = Auto;
             }
             else 
-            {   if (m_fms_order_ == F_DisBand)
+            {   if (m_fms_order_ == F_DisBand || m_fms_order_ == F_Dequeue)
                     break;
                 if(!IfAbnormal())
                 {
@@ -391,12 +458,18 @@ void Manager::ProcessCommand ()
             }
             break;
         default:
+            if (m_debug_StateFlow)
+            {
+                if (debug_count % m_debug_thw_HZ == 0)
+                    printf("IN Default\n\n");
+            }
             //ignore command
             break;
     }
     if (desire_drive_mode != old_drive_mode)
     {
-        printf ("asdf desire_drive_mode changed: %d\n", desire_drive_mode);
+        printf ("asdf desire_drive_mode changed : ");
+        print_drive_mode(desire_drive_mode);
     }
 }
 
@@ -440,7 +513,8 @@ void Manager::UpdatePlatoonManagerInfo ()
     {
         using namespace std;
         cout << "+++++++++++++Display Manager ifno+++++++++++++" << endl;
-        printf ("desire drive mode is : %d\n",platoon_manager_info.desire_drive_mode);
+        printf (" desire_drive_mode is : ");
+        print_drive_mode(DriveMode(platoon_manager_info.desire_drive_mode));
         printf ("platoon number is : %d\n",platoon_manager_info.platoon_number);
         printf ("vehicle sequence is : %d\n", platoon_manager_info.vehicle_sequence);
         printf ("hmi safe distance is : %f\n",platoon_manager_info.safe_distance);
