@@ -61,6 +61,7 @@ private:
     float CalThreshold();
     bool IfAbnormal ();
     void ResetFmsOrder();
+    bool IsAllJoinPlatoon();
     void ProcessCommand ();
     
 };

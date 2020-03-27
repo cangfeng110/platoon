@@ -22,11 +22,18 @@ private:
 private:
     void UpdatePoint();
     ApplyResult CalApplyResult();
-    void CalApplyInfo();
+    void CalApplyOrder();
     bool CalIfDisBand();
     void ResetApplyResult();
     void CalFmsOrder();
-    
+
+    //print function
+    void PrintApplyOrder(const ApplyOrder& order);
+    void PrintApplyBack(const ApplyResult& result);
+    void PrintToFmsInfo();
+    void PrintFmsPreInfo();
+    void PrintFmsBackInfo();
+
 public:
     FMS();
     const ToFMSInfo& GetToFmsInfo() const;

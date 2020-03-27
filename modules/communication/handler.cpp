@@ -309,7 +309,7 @@ int Handler::DecodeV2xVechileInfo()
         else if (FmsData::GetInstance()->fms_pre_info_.isUpToDate()) 
         {
             int ego_platoon_number = FmsData::GetInstance()->fms_pre_info_.getData().platoonnumber();
-            if (ego_platoon_number == v2x_other_vehicle_data.platoon_number) 
+            if (ego_platoon_number > 0 && ego_platoon_number == v2x_other_vehicle_data.platoon_number) 
             {
                 if_platoon = "Yes";
                 DataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);

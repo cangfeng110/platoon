@@ -15,15 +15,18 @@ namespace platoon {
 
 namespace communication {
 
-void print_drive_mode(DriveMode _mode)
+void print_drive_mode(const DriveMode& mode)
 {
-    switch (_mode)
+    switch (mode)
     {
         case Manual:
             printf("Manual\n");
             break;
         case Auto:
             printf("Auto\n");
+            break;
+        case LeaderWait:
+            printf("LeaderWait\n");
             break;
         case Leader:
             printf("Leader\n");
@@ -46,6 +49,26 @@ void print_drive_mode(DriveMode _mode)
         default:
             break;
     }
+}
+
+int TransLicensToId(const std::string& license)
+{
+    if (license == "沪YSG_18")
+        return 18;
+    else if (license == "沪YSG_19")
+        return 19;
+    else if (license == "沪YSG_20")
+        return 20;
+    else if (license == "沪YSG_21")
+        return 21;
+    else if (license == "沪YSG_22")
+        return 22;
+    else if (license == "沪YSG_17")
+        return 17;
+    else if (license == "沪YSG_14")
+        return 14;
+    else 
+        return -1;
 }
 
 Manager::Manager () : actual_drive_mode(Manual), desire_drive_mode(Notset), 
@@ -272,6 +295,34 @@ void Manager::ResetFmsOrder()
     }
 }
 
+/**
+ * function: to just if all vehicle join the platoon
+ * true preset all vehicle join the platoon, the leader vehicle can changed to Leader;
+ * false preset there is some vehicle not join in the platoon
+*/
+
+bool Manager::IsAllJoinPlatoon()
+{
+    if (FmsData::GetInstance()->fms_pre_info_.isUpToDate())
+    {
+        const FMSPreFormationInfo& temp = FmsData::GetInstance()->fms_pre_info_.getData();
+        int size = temp.platoonmember_size();
+        for (int i = 0; i < size; i++)
+        {
+            int vehicle_id = TransLicensToId(temp.platoonmember[i]);
+            auto it = DataContainer::GetInstance()->platoon_vehicles_data_.getData().find(vehicle_id);
+            if (it != DataContainer::GetInstance()->platoon_vehicles_data_.getData().end())
+            {
+                if (DriveMode(it->second.getData().actual_drive_mode) != KeepQueue)
+                {
+                    return false;
+                }
+            }
+        }
+    }
+     return true;
+}
+
 void Manager::ProcessCommand ()
 {
     static int debug_count = 0;
@@ -332,7 +383,7 @@ void Manager::ProcessCommand ()
             }
             if (m_fms_order_ == F_Leader)
             {
-                desire_drive_mode = Leader;
+                desire_drive_mode = LeaderWait;
                 ResetFmsOrder();
             }
             else if (m_fms_order_ == F_Enqueue)
@@ -353,6 +404,17 @@ void Manager::ProcessCommand ()
                         ResetFmsOrder();
                     }
                 }
+            }
+            break;
+        case LeaderWait:
+            if (m_debug_StateFlow)
+            {
+                if (debug_count % m_debug_thw_HZ == 0)
+                    printf("IN LeaderWait\n\n");
+            }
+            if (IsAllJoinPlatoon())
+            {
+                desire_drive_mode = Leader;
             }
             break;
         case Leader:

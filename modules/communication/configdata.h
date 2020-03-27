@@ -55,6 +55,11 @@ public:
     int debug_plan_HZ_;
     int debug_hmi_HZ_;
     bool debug_StateFlow_;
+
+    bool debug_ToFmsInfo_;
+    bool debug_FmsPreInfo_;
+    bool debug_FmsBackInfo_;
+
 private:
     static ConfigData* instance_;
     ConfigData();

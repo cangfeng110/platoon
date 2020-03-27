@@ -1,6 +1,8 @@
 #include "modules/communication/fms.h"
 
 #include <math.h>
+#include <iostream>
+#include <stdio.h>
 
 #include "modules/communication/datacontainer.h"
 #include "modules/communication/configdata.h"
@@ -54,9 +56,9 @@ ApplyResult FMS::CalApplyResult()
         else
         {
             if (temp.applyinfo() == FmsApplyOrder(BeJoiner))
-                return NoJoiner;
+                return RefuseJoiner;
             else if (temp.applyinfo() == FmsApplyOrder(BeLeader))
-                return NoLeader;
+                return RefuseLeader;
             else 
                 return NoAnser;
         }
@@ -69,7 +71,7 @@ ApplyResult FMS::CalApplyResult()
 /**
  * only in Auto mode need to call this function
 */
-void FMS::CalApplyInfo()
+void FMS::CalApplyOrder()
 {
     UpdatePoint();
     if (m_enqueue_point_.size() < 2) //no enqueue point
@@ -99,9 +101,9 @@ void FMS::CalApplyInfo()
                 if (fabs(relative_x) < ConfigData::GetInstance()->enqueue_threshold_)
                 {
                     ApplyResult result = CalApplyResult();
-                    if (result == AllowJoin || result == AllowLeader || result == NoJoiner)
+                    if (result == AllowJoin || result == AllowLeader || result == RefuseJoiner)
                         m_to_fms_info_.set_applyinfo(FmsApplyOrder(NoApply));
-                    else if (result == NoLeader)
+                    else if (result == RefuseLeader)
                         m_to_fms_info_.set_applyinfo(FmsApplyOrder(BeJoiner));
                     else if (result == NoAnser)
                         m_to_fms_info_.set_applyinfo(FmsApplyOrder(BeLeader));
@@ -235,6 +237,14 @@ void FMS::CalFmsOrder()
 */
 void FMS::UpdateFmsOrder()
 {
+    if (ConfigData::GetInstance()->debug_FmsPreInfo_)
+    {
+        PrintFmsPreInfo();
+    }
+    if (ConfigData::GetInstance()->debug_FmsBackInfo_)
+    {
+        PrintFmsBackInfo();
+    }
     CalFmsOrder();
 }
 
@@ -246,7 +256,7 @@ void FMS::UpdateToFmsInfo()
     
     m_to_fms_info_.set_vehicleid(ConfigData::GetInstance()->vehicle_license_);
 
-    CalApplyInfo();
+    CalApplyOrder();
 
     if (DataContainer::GetInstance()->planning_data_.isUpToDate())
     {
@@ -262,10 +272,14 @@ void FMS::UpdateToFmsInfo()
         m_to_fms_info_.set_platoonnumber(platoon_number);
     }
 
-    if (FmsData::GetInstance()->fms_apply_result_.isUpToDate())
+    if (FmsData::GetInstance()->fms_pre_info_.isUpToDate())
     {
-        std::string  order_id = FmsData::GetInstance()->fms_apply_result_.getData().id();
+        std::string  order_id = FmsData::GetInstance()->fms_pre_info_.getData().id();
         m_to_fms_info_.set_fmsmessageid(order_id); 
+        if (ConfigData::GetInstance()->debug_ToFmsInfo_)
+        {
+            PrintToFmsInfo();
+        }
     }
 }
 
@@ -273,6 +287,98 @@ const ToFMSInfo& FMS::GetToFmsInfo() const
 {
     return m_to_fms_info_;
 }
+
+//
+void FMS::PrintApplyOrder(const ApplyOrder& order)
+{ 
+    printf("Apply Order is : ");
+    switch (order)
+    {
+        case NoApply:
+            printf("NoApply\n");
+            break;
+        case BeJoiner:
+            printf("BeJonier\n");
+            break;
+        case BeLeader:
+            printf("BeLeader\n");
+            break;
+        default:
+            break;
+    }
+}
+void FMS::PrintApplyBack(const ApplyResult& result)
+{
+    printf("Apply Back is : ");
+    switch(result)
+    {
+        case NoAnser:
+            printf("NoAnser\n");
+            break;
+        case RefuseJoiner:
+            printf("RefuseJoiner\n");
+            break;
+        case RefuseLeader:
+            printf("RefuseLeader\n");
+            break;
+        case AllowJoin:
+            printf("AllowJoin\n");
+            break;
+        case AllowLeader:
+            printf("AllowLeader\n");
+            break;
+        default:
+            break;
+    }
+}
+
+void print_drive_mode(const DriveMode& mode);
+
+void FMS::PrintToFmsInfo()
+{
+    printf("To FMS Info\n");
+    PrintApplyOrder(ApplyOrder(m_to_fms_info_.applyinfo()));
+    printf("vehicle actual drive mode is : ");
+    platoon::communication::print_drive_mode(DriveMode(m_to_fms_info_.actualdrivemode()));
+    printf("vehicle platoon number is : %d\n", m_to_fms_info_.platoonnumber());
+    printf("vehicle sequence is : %d\n", m_to_fms_info_.vehiclesquence());
+    std::cout << "vehicle license is : " << m_to_fms_info_.vehicleid() << std::endl;
+    std::cout << "serial number is : " << m_to_fms_info_.fmsmessageid() << std::endl;
+}
+
+void FMS::PrintFmsPreInfo()
+{
+    if (FmsData::GetInstance()->fms_pre_info_.isUpToDate())
+    {
+        const FMSPreFormationInfo& temp = FmsData::GetInstance()->fms_pre_info_.getData();
+        using namespace std;
+        cout << "FMS Pre Info" << endl;
+        cout << "vehicle license is : " << temp.vehicleid() << endl;
+    }
+    else 
+    {
+        std::cout << " FMS Pre Info is gone !" << std::endl;
+    }
+}
+
+void FMS::PrintFmsBackInfo()
+{
+    using namespace std;
+    if (FmsData::GetInstance()->fms_apply_result_.isUpToDate())
+    {
+        const FMSApplyResultInfo& temp = FmsData::GetInstance()->fms_apply_result_.getData();
+        cout << "FMS Back Info" << endl;
+        cout << "vehicle license is : " << temp.vehicleid() << endl;
+        cout << "vehicle platoon number is : " << temp.platoonnumber() << endl;
+        PrintApplyBack(ApplyResult(CalApplyResult()));
+    }
+    else 
+    {
+        cout << "FMS Apply Back is gone !" << std::endl;
+    }
+    
+}
+
 
 
 }//namespace communication

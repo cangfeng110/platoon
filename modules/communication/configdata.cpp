@@ -59,6 +59,9 @@ ConfigData::ConfigData() {
         debug_config.lookupValue("debug_ManagetInfo", debug_ManagetInfo_);
         debug_config.lookupValue("debug_V2XCommunication", debug_V2XCommunication_);
         debug_config.lookupValue("debug_StateFlow",debug_StateFlow_);
+        debug_config.lookupValue("debug_ToFmsInfo", debug_ToFmsInfo_);
+        debug_config.lookupValue("debug_FmsPreInfo", debug_FmsPreInfo_);
+        debug_config.lookupValue("debug_FmsBackInfo", debug_FmsBackInfo_);
         debug_flags_ = 0;
         if (debug_IfAbnormal_)
             debug_flags_ |= DEBUG_IfAbnormal;

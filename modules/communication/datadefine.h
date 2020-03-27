@@ -7,15 +7,25 @@ namespace platoon
     #define INVALID_FLOAT 1.0E10
     #define Epslion 1e-8
     const double PI = 3.1415926;
-     enum DriveMode
+
+    /**
+     * the vehicle status changed as bleow:
+     * first vehicle in platoon : Auto -----> Wait -------> Leader,can't to Abnormal
+     * other vehicle in platoon : Auto ------> Enqueue -------> KeepQueue -------> Dequeue
+     * Abnormal has the highest priority,  
+     * the other vehicle in platoon can be transed to Abnormal in any status.
+    */
+    enum DriveMode
     {
         Manual = 0,
         Auto = 1,
+        LeaderWait = 8,
         Leader = 2,
         Enqueue = 3,
         KeepQueue = 4,
         Dequeue = 5,
         Abnormal = 6,
+        CutIN = 9,
         Notset = 7,
     };
 
@@ -38,8 +48,8 @@ namespace platoon
     enum ApplyResult
     {   
         NoAnser = 0,
-        NoJoiner = 1,
-        NoLeader = 2,
+        RefuseJoiner = 1,
+        RefuseLeader = 2,
         AllowJoin = 3,
         AllowLeader = 4,
     };

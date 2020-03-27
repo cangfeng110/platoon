@@ -134,10 +134,18 @@ void communication::HandleHmiFmsInfo(const lcm::ReceiveBuffer *rbuf,
     {
         printf("asdf reveive HMI info : %d\n\n", hmi_count);
     }
-    if ( FmsData::GetInstance()->hmi_fms_info.getData().fms_order != msg->fms_order)
+    if (FmsData::GetInstance()->hmi_fms_info.isUpToDate())
+    {
+        if ( FmsData::GetInstance()->hmi_fms_info.getData().fms_order != msg->fms_order)
+            std::cout << "asdf HMI FMS order changed : " << int(msg->fms_order) << std::endl;
+        if (FmsData::GetInstance()->hmi_fms_info.getData().safe_distance != msg->safe_distance)
+            std::cout << "asdf safe distance changed : " << msg->safe_distance << std::endl;
+    }
+    else
+    {
         std::cout << "asdf HMI FMS order changed : " << int(msg->fms_order) << std::endl;
-    if (FmsData::GetInstance()->hmi_fms_info.getData().safe_distance != msg->safe_distance)
         std::cout << "asdf safe distance changed : " << msg->safe_distance << std::endl;
+    }
     FmsData::GetInstance()->hmi_fms_info.setData(*msg);
 }
 
@@ -159,6 +167,10 @@ void communication::HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
         {
             printf ("asdf actual_drive_mode changed: %d\n", msg->actual_drive_mode);
         }
+    }
+    else 
+    {
+        printf ("asdf actual_drive_mode changed: %d\n", msg->actual_drive_mode);
     }
     DataContainer::GetInstance()->planning_data_.setData(*msg);
 }
