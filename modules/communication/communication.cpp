@@ -40,15 +40,30 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
 
     // v2x channel
     v2x_channel_.reset(new platoon::base::Channel(&loop_, handler_.GetFileno(), "v2xComm"));
-    v2x_channel_->setReadCallback(std::bind(&communication::ReceiveV2xOtherVehicleInfo, this));
-    v2x_channel_->enableReading();
-
+    if (ConfigData::GetInstance()->is_sil_test_)
+    {
+        v2x_channel_->setReadCallback(std::bind(&communication::SilReceiveV2xOtherVehicleInfo, this));
+        v2x_channel_->enableReading();
+    } 
+    else
+    {
+        v2x_channel_->setReadCallback(std::bind(&communication::ReceiveV2xOtherVehicleInfo, this));
+        v2x_channel_->enableReading();
+    }
+    
     // decrease ttl
     loop_.runEvery(100, std::bind(&DataContainer::DecreaseTtl, DataContainer::GetInstance()));
 
     // broad ego vehicle vcu info to ibox, 50Hz
-    loop_.runEvery(1000 / (ConfigData::GetInstance ()->broadcast_HZ_), std::bind(&communication::BroastEgoVehicleInfo, this));
-
+    if (ConfigData::GetInstance()->is_sil_test_)
+    {
+        loop_.runEvery(1000 / (ConfigData::GetInstance()->broadcast_HZ_), std::bind(&communication::SilBroastEgoVehicleInfo, this));
+    }
+    else
+    {
+        loop_.runEvery(1000 / (ConfigData::GetInstance ()->broadcast_HZ_), std::bind(&communication::BroastEgoVehicleInfo, this));
+    }
+    
     //publish manager info to planning model
     loop_.runEvery(20, std::bind(&communication::PublishManagerInfo, this));
 
@@ -132,7 +147,7 @@ void communication::HandleHmiFmsInfo(const lcm::ReceiveBuffer *rbuf,
     hmi_count++;
     if (hmi_count % m_debug_hmi_HZ == 0)
     {
-        printf("asdf reveive HMI info : %d\n\n", hmi_count);
+        printf("asdf reveive HMI info : %d\n", hmi_count);
     }
     if (FmsData::GetInstance()->hmi_fms_info.isUpToDate())
     {
@@ -238,6 +253,42 @@ void communication::PublishToFmsInfo()
     ToFMSInfo temp = fms_.GetToFmsInfo();
     sendMessageViaLcm<ToFMSInfo>("PLATOON_APPLY_INFO", temp);
 }
+
+void communication::SilBroastEgoVehicleInfo()
+{
+    struct timeval tv;
+    if (m_debug_flags & DEBUG_BroadcastEgoVehicleInfo)
+        gettimeofday (&tv, NULL);
+    if(DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate())
+    {
+        if (m_debug_flags & DEBUG_BroadcastEgoVehicleInfo)
+            printf ("broadcast ego gps %ld.%ld\n", tv.tv_sec, tv.tv_usec);
+        handler_.SilBroastEgoVehicleInfo();
+    } 
+    else 
+    {
+        if (m_debug_flags & DEBUG_BroadcastEgoVehicleInfo)
+            printf ("ego gps gone %ld.%ld\n", tv.tv_sec, tv.tv_usec);
+    }
+
+}
+
+void communication::SilReceiveV2xOtherVehicleInfo()
+{
+    if(handler_.SilDecodeV2xVechileInfo() > 0) 
+    {
+        if(DataContainer::GetInstance()->v2x_other_vehicles_data_.isUpToDate()) 
+        {
+            for (auto temp : DataContainer::GetInstance()->v2x_other_vehicles_data_.getData()) 
+            {
+                const VehicleData &data = temp.second.getData();
+                int publish_v2x_flag = lcm_.publish("V2X_OTHER_VEHICLE_INFO", &data);
+                //std::cout << "publish v2x flag is : " << publish_v2x_flag << std::endl;
+            }   
+        }
+    }
+}
+
 
 } // namesapce communication
 

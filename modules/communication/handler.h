@@ -31,11 +31,17 @@ public:
         return sockfd_;
     }
 
-    // broast ego vehicle info
+     // broast ego vehicle info
     int BroastEgoVehicleInfo();
 
     // receive v2x other info from ibox
     int DecodeV2xVechileInfo();
+    
+    // broast ego vehicle info
+    int SilBroastEgoVehicleInfo();
+
+    // receive v2x other info from ibox
+    int SilDecodeV2xVechileInfo();
 
 private:
     // socket

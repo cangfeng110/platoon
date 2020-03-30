@@ -33,9 +33,9 @@ public:
 private:
     FmsData(){}
 
-    FmsData(const FmsData& ){}
+    FmsData(const FmsData& )=delete;
 
-    FmsData& operator=(const FmsData& ) {} 
+    FmsData& operator=(const FmsData& )=delete;
 
     static FmsData* instance_;
 

@@ -303,13 +303,23 @@ void Manager::ResetFmsOrder()
 
 bool Manager::IsAllJoinPlatoon()
 {
-    if (FmsData::GetInstance()->fms_pre_info_.isUpToDate())
+    if (ConfigData::GetInstance()->hmi_fms_valid_)
+    {
+        if (!DataContainer::GetInstance()->platoon_vehicles_data_.isUpToDate())
+            return true;
+        for (auto temp : DataContainer::GetInstance()->platoon_vehicles_data_.getData())
+        {
+            if (DriveMode(temp.second.getData().actual_drive_mode) != KeepQueue)
+                return false;
+        }
+    }
+    else if (FmsData::GetInstance()->fms_pre_info_.isUpToDate())
     {
         const FMSPreFormationInfo& temp = FmsData::GetInstance()->fms_pre_info_.getData();
         int size = temp.platoonmember_size();
         for (int i = 0; i < size; i++)
         {
-            int vehicle_id = TransLicensToId(temp.platoonmember[i]);
+            int vehicle_id = TransLicensToId(temp.platoonmember(i));
             auto it = DataContainer::GetInstance()->platoon_vehicles_data_.getData().find(vehicle_id);
             if (it != DataContainer::GetInstance()->platoon_vehicles_data_.getData().end())
             {
@@ -320,7 +330,7 @@ bool Manager::IsAllJoinPlatoon()
             }
         }
     }
-     return true;
+    return true;
 }
 
 void Manager::ProcessCommand ()
@@ -500,6 +510,12 @@ void Manager::ProcessCommand ()
                 }
             }
             break;
+        case CutIN:
+            if (m_debug_StateFlow)
+            {
+                if (debug_count % m_debug_thw_HZ == 0)
+                    printf("IN CutIN\n");
+            }
         case Abnormal: //if fms order is F_Disband , no back to enqueue;
             if (m_debug_StateFlow)
             {

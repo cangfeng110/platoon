@@ -54,7 +54,11 @@ private:
     
     void BroastEgoVehicleInfo();
 
+    void SilBroastEgoVehicleInfo();
+
     void ReceiveV2xOtherVehicleInfo();
+
+    void SilReceiveV2xOtherVehicleInfo();
 
     void PublishToFmsInfo();
 

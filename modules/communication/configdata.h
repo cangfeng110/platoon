@@ -51,6 +51,7 @@ public:
     int remote_port_;
     int discard_time_;
     int broadcast_HZ_;
+    bool is_sil_test_;
 //debug
     int debug_plan_HZ_;
     int debug_hmi_HZ_;

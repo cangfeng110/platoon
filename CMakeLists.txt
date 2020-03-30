@@ -6,6 +6,17 @@ project(platoon)
 
 add_compile_options(-std=c++11)
 
+option(isWall "this is a -Wall switch" OFF)
+option(isG "this is a -g switch" OFF)
+
+if (isWall)
+    add_definitions("-Wall")
+endif (isWall)
+
+if (isG)
+    add_definitions("-g")
+endif (isG)
+
 include_directories("/include/" ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)

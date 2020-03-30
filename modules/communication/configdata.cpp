@@ -50,6 +50,7 @@ ConfigData::ConfigData() {
         communication_config.lookupValue("remote_ip", remote_ip_);
         communication_config.lookupValue("remote_port", remote_port_);
         communication_config.lookupValue("broadcast_HZ", broadcast_HZ_);
+        communication_config.lookupValue("is_sil_test", is_sil_test_);
 
         const libconfig::Setting& debug_config = cfg.lookup("debug");
         debug_config.lookupValue("debug_IfAbnormal", debug_IfAbnormal_);
