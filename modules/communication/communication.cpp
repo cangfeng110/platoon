@@ -151,6 +151,7 @@ void communication::PublishManagerInfo() {
     if (DataContainer::GetInstance ()->manager_data_.isUpToDate ()) {
         const PlatoonManagerInfo& data = DataContainer::GetInstance ()->manager_data_.getData ();
         lcm_.publish ("PLATOON_MANAGER_INFO", &data);
+        lcm_.publish ("PLATOON_DISPLAY", &manager_.m_display_info);
         pmi_count++;
         if (pmi_count % m_debug_pmi_HZ == 0)
         {

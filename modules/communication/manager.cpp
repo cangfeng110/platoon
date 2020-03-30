@@ -23,6 +23,8 @@ Manager::Manager () {
     m_debug_thw_HZ = ConfigData::GetInstance ()->GetDebugThwHZ ();
     if (m_debug_thw_HZ <= 0)
         m_debug_thw_HZ = 25;
+    memset (m_display_info.other_id, 0, sizeof (m_display_info.other_id));
+    m_display_info.vehicle_id = ConfigData::GetInstance()->vehicle_id_;
 }
 
 Manager::~Manager () {
@@ -230,6 +232,7 @@ void Manager::CalculateID ()
             platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth (v2x_other_vehicle_data.relative_heading,
                                                                    ego_vehicle_location.heading,
                                                                    v2x_other_vehicle_data.heading);
+            m_display_info.other_id[i] = v2x_other_vehicle_data.vehicle_id;
             if (!map_it.second.isUpToDate ())
             {
                 if (m_debug_flags & DEBUG_CalculateID)
@@ -239,6 +242,7 @@ void Manager::CalculateID ()
                     printf ("V %d: lost>500 %ld.%ld\n", v2x_other_vehicle_data.vehicle_id, tv.tv_sec, tv.tv_usec);
                 }
                 v2x_other_vehicle_data.vehicle_id = -1;
+                m_display_info.other_id[i] = 0 - m_display_info.other_id[i];
             }
             else
             {
@@ -249,6 +253,7 @@ void Manager::CalculateID ()
                     printf ("V %d: has data %ld.%ld\n", v2x_other_vehicle_data.vehicle_id, tv.tv_sec, tv.tv_usec);
                 }
             }
+            i++;
             other_vehicles.push_back (v2x_other_vehicle_data);
         }
         std::sort (other_vehicles.begin (), other_vehicles.end (), compare_relative_x);

@@ -38,6 +38,7 @@ public:
 
     void SetFmsInfo (const FmsInfo& fms_info);
     void UpdatePlatoonManagerInfo ();
+    PlatoonDisplay m_display_info;
 
 private:
     DriveMode actual_drive_mode;

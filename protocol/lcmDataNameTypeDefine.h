@@ -18,6 +18,7 @@
 #include "protocol/EgoPlanningMsg.hpp"
 
 #include "protocol/PlatoonManagerInfo.hpp"
+#include "protocol/PlatoonDisplay.hpp"
 
 
 typedef platoon::protocol::VCU_VEHICLE_INFO             VehicleVcuData;         
@@ -31,5 +32,6 @@ typedef platoon::protocol::WorldmodelVehicles           WorldModelObjects;
 typedef platoon::protocol::FmsInfo                      FmsInfo;
 typedef platoon::protocol::EgoPlanningMsg               EgoPlanningMsg;
 typedef platoon::protocol::PlatoonManagerInfo           PlatoonManagerInfo;
+typedef platoon::protocol::PlatoonDisplay               PlatoonDisplay;
 
 #endif // _LCM_DATA_NAME_TYPE_DEFINE_
