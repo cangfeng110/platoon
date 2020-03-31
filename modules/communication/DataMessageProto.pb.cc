@@ -216,6 +216,9 @@ bool VehicleFleetInfo_VehicleFleetMode_IsValid(int value) {
     case 4:
     case 5:
     case 6:
+    case 7:
+    case 8:
+    case 9:
       return true;
     default:
       return false;
@@ -230,6 +233,9 @@ const VehicleFleetInfo_VehicleFleetMode VehicleFleetInfo::FLEET_GROUPING;
 const VehicleFleetInfo_VehicleFleetMode VehicleFleetInfo::FLEET_KEEP;
 const VehicleFleetInfo_VehicleFleetMode VehicleFleetInfo::FLEET_LEAVING;
 const VehicleFleetInfo_VehicleFleetMode VehicleFleetInfo::MODE_ERROR;
+const VehicleFleetInfo_VehicleFleetMode VehicleFleetInfo::INVILIED;
+const VehicleFleetInfo_VehicleFleetMode VehicleFleetInfo::HEADER_WAITING;
+const VehicleFleetInfo_VehicleFleetMode VehicleFleetInfo::CUT_IN;
 const VehicleFleetInfo_VehicleFleetMode VehicleFleetInfo::VehicleFleetMode_MIN;
 const VehicleFleetInfo_VehicleFleetMode VehicleFleetInfo::VehicleFleetMode_MAX;
 const int VehicleFleetInfo::VehicleFleetMode_ARRAYSIZE;
@@ -6527,6 +6533,7 @@ const int VehicleFleetOperation::kEndNodeFieldNumber;
 const int VehicleFleetOperation::kSrcPortFieldNumber;
 const int VehicleFleetOperation::kDstPortFieldNumber;
 const int VehicleFleetOperation::kSignatureFieldNumber;
+const int VehicleFleetOperation::kSafeDistanceFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 VehicleFleetOperation::VehicleFleetOperation()
@@ -6800,6 +6807,20 @@ bool VehicleFleetOperation::MergePartialFromCodedStream(
         break;
       }
 
+      // double safe_distance = 11;
+      case 11: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(89u)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &safe_distance_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
       default: {
       handle_unusual:
         if (tag == 0 ||
@@ -6902,6 +6923,11 @@ void VehicleFleetOperation::SerializeWithCachedSizes(
       10, this->signature(), output);
   }
 
+  // double safe_distance = 11;
+  if (this->safe_distance() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(11, this->safe_distance(), output);
+  }
+
   // @@protoc_insertion_point(serialize_end:platoon.communication.VehicleFleetOperation)
 }
 
@@ -6972,6 +6998,11 @@ size_t VehicleFleetOperation::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormatLite::EnumSize(this->srcport());
   }
 
+  // double safe_distance = 11;
+  if (this->safe_distance() != 0) {
+    total_size += 1 + 8;
+  }
+
   // .platoon.communication.Port_Id dstPort = 9;
   if (this->dstport() != 0) {
     total_size += 1 +
@@ -7025,6 +7056,9 @@ void VehicleFleetOperation::MergeFrom(const VehicleFleetOperation& from) {
   if (from.srcport() != 0) {
     set_srcport(from.srcport());
   }
+  if (from.safe_distance() != 0) {
+    set_safe_distance(from.safe_distance());
+  }
   if (from.dstport() != 0) {
     set_dstport(from.dstport());
   }
@@ -7055,6 +7089,7 @@ void VehicleFleetOperation::InternalSwap(VehicleFleetOperation* other) {
   std::swap(endnode_, other->endnode_);
   std::swap(platoonnumber_, other->platoonnumber_);
   std::swap(srcport_, other->srcport_);
+  std::swap(safe_distance_, other->safe_distance_);
   std::swap(dstport_, other->dstport_);
   std::swap(_cached_size_, other->_cached_size_);
 }
@@ -7456,6 +7491,20 @@ void VehicleFleetOperation::set_allocated_signature(::std::string* signature) {
   }
   signature_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), signature);
   // @@protoc_insertion_point(field_set_allocated:platoon.communication.VehicleFleetOperation.signature)
+}
+
+// double safe_distance = 11;
+void VehicleFleetOperation::clear_safe_distance() {
+  safe_distance_ = 0;
+}
+double VehicleFleetOperation::safe_distance() const {
+  // @@protoc_insertion_point(field_get:platoon.communication.VehicleFleetOperation.safe_distance)
+  return safe_distance_;
+}
+void VehicleFleetOperation::set_safe_distance(double value) {
+  
+  safe_distance_ = value;
+  // @@protoc_insertion_point(field_set:platoon.communication.VehicleFleetOperation.safe_distance)
 }
 
 #endif  // PROTOBUF_INLINE_NOT_IN_HEADERS

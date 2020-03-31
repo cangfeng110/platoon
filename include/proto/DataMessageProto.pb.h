@@ -147,12 +147,15 @@ enum VehicleFleetInfo_VehicleFleetMode {
   VehicleFleetInfo_VehicleFleetMode_FLEET_KEEP = 4,
   VehicleFleetInfo_VehicleFleetMode_FLEET_LEAVING = 5,
   VehicleFleetInfo_VehicleFleetMode_MODE_ERROR = 6,
+  VehicleFleetInfo_VehicleFleetMode_INVILIED = 7,
+  VehicleFleetInfo_VehicleFleetMode_HEADER_WAITING = 8,
+  VehicleFleetInfo_VehicleFleetMode_CUT_IN = 9,
   VehicleFleetInfo_VehicleFleetMode_VehicleFleetInfo_VehicleFleetMode_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
   VehicleFleetInfo_VehicleFleetMode_VehicleFleetInfo_VehicleFleetMode_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
 };
 bool VehicleFleetInfo_VehicleFleetMode_IsValid(int value);
 const VehicleFleetInfo_VehicleFleetMode VehicleFleetInfo_VehicleFleetMode_VehicleFleetMode_MIN = VehicleFleetInfo_VehicleFleetMode_MAN_DRIVE;
-const VehicleFleetInfo_VehicleFleetMode VehicleFleetInfo_VehicleFleetMode_VehicleFleetMode_MAX = VehicleFleetInfo_VehicleFleetMode_MODE_ERROR;
+const VehicleFleetInfo_VehicleFleetMode VehicleFleetInfo_VehicleFleetMode_VehicleFleetMode_MAX = VehicleFleetInfo_VehicleFleetMode_CUT_IN;
 const int VehicleFleetInfo_VehicleFleetMode_VehicleFleetMode_ARRAYSIZE = VehicleFleetInfo_VehicleFleetMode_VehicleFleetMode_MAX + 1;
 
 enum FMS_MessageType {
@@ -1912,6 +1915,12 @@ class VehicleFleetOperation : public ::google::protobuf::MessageLite /* @@protoc
   ::platoon::communication::Port_Id srcport() const;
   void set_srcport(::platoon::communication::Port_Id value);
 
+  // double safe_distance = 11;
+  void clear_safe_distance();
+  static const int kSafeDistanceFieldNumber = 11;
+  double safe_distance() const;
+  void set_safe_distance(double value);
+
   // .platoon.communication.Port_Id dstPort = 9;
   void clear_dstport();
   static const int kDstPortFieldNumber = 9;
@@ -1931,6 +1940,7 @@ class VehicleFleetOperation : public ::google::protobuf::MessageLite /* @@protoc
   ::platoon::communication::Fleet_node* endnode_;
   ::google::protobuf::int32 platoonnumber_;
   int srcport_;
+  double safe_distance_;
   int dstport_;
   mutable int _cached_size_;
   friend struct protobuf_DataMessageProto_2eproto::TableStruct;
@@ -2149,6 +2159,12 @@ class VehicleFleetInfo : public ::google::protobuf::MessageLite /* @@protoc_inse
     VehicleFleetInfo_VehicleFleetMode_FLEET_LEAVING;
   static const VehicleFleetMode MODE_ERROR =
     VehicleFleetInfo_VehicleFleetMode_MODE_ERROR;
+  static const VehicleFleetMode INVILIED =
+    VehicleFleetInfo_VehicleFleetMode_INVILIED;
+  static const VehicleFleetMode HEADER_WAITING =
+    VehicleFleetInfo_VehicleFleetMode_HEADER_WAITING;
+  static const VehicleFleetMode CUT_IN =
+    VehicleFleetInfo_VehicleFleetMode_CUT_IN;
   static inline bool VehicleFleetMode_IsValid(int value) {
     return VehicleFleetInfo_VehicleFleetMode_IsValid(value);
   }
@@ -4808,6 +4824,20 @@ inline void VehicleFleetOperation::set_allocated_signature(::std::string* signat
   }
   signature_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), signature);
   // @@protoc_insertion_point(field_set_allocated:platoon.communication.VehicleFleetOperation.signature)
+}
+
+// double safe_distance = 11;
+inline void VehicleFleetOperation::clear_safe_distance() {
+  safe_distance_ = 0;
+}
+inline double VehicleFleetOperation::safe_distance() const {
+  // @@protoc_insertion_point(field_get:platoon.communication.VehicleFleetOperation.safe_distance)
+  return safe_distance_;
+}
+inline void VehicleFleetOperation::set_safe_distance(double value) {
+  
+  safe_distance_ = value;
+  // @@protoc_insertion_point(field_set:platoon.communication.VehicleFleetOperation.safe_distance)
 }
 
 // -------------------------------------------------------------------

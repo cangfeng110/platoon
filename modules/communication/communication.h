@@ -62,6 +62,8 @@ private:
 
     void PublishToFmsInfo();
 
+    void PublishToFusionInfo();
+
 private:
 
     std::unique_ptr<base::FileLogger> logger_;

@@ -19,10 +19,13 @@
 
 #include "include/protocol/PlatoonManagerInfo.hpp"
 
+#include "include/protocol/FrontVehicle.hpp"
+
 
 typedef platoon::protocol::VCU_VEHICLE_INFO             VehicleVcuData;         
 typedef platoon::protocol::Localization_Out_2_Map       VehicleGpsData;
 typedef platoon::protocol::VehicleInfo                  VehicleData;
+typedef platoon::protocol::FrontVehicle                 ToFusionData;
 
 typedef platoon::protocol::Location                     Location;
 typedef platoon::protocol::WorldmodelVehicle            WorldModelObject;

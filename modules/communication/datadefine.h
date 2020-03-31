@@ -19,14 +19,14 @@ namespace platoon
     {
         Manual = 0,
         Auto = 1,
-        LeaderWait = 8,
         Leader = 2,
         Enqueue = 3,
         KeepQueue = 4,
         Dequeue = 5,
         Abnormal = 6,
-        CutIN = 9,
         Notset = 7,
+        LeaderWait = 8,
+        CutIN = 9,
     };
 
     enum FmsOrder

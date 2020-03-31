@@ -9,13 +9,19 @@ add_compile_options(-std=c++11)
 option(isWall "this is a -Wall switch" OFF)
 option(isG "this is a -g switch" OFF)
 
-if (isWall)
+if (isWall STREQUAL "ON")
+    message(STATUS "isWall is ON")
     add_definitions("-Wall")
-endif (isWall)
+else (isWall STREQUAL "OFF")
+    message(STATUS "isWall is OFF")
+endif ()
 
-if (isG)
+if (isG STREQUAL "ON")
+    message(STATUS "isG is ON")
     add_definitions("-g")
-endif (isG)
+else (isG STREQUAL "OFF")
+    message(STATUS "isG is OFF")
+endif ()
 
 include_directories("/include/" ${CMAKE_CURRENT_SOURCE_DIR})
 

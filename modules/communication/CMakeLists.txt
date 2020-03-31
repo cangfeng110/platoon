@@ -1,8 +1,16 @@
 aux_source_directory(. SRC)
 
-link_libraries(/home/igs/zsworkspace/platoon/build/bin/libcommon.a)
+option(isPegasus "this is a pegasus build switch" OFF)
 
-link_libraries(/home/igs/zsworkspace/platoon/build/bin/libipc.a)
+if (isPegasus STREQUAL "ON")
+    message(STATUS "the pegasus build is ON")
+    link_libraries(/home/igs/zsworkspace/platoon-sil/platoon/include/lib/pglib/libcommon.a)
+    link_libraries(/home/igs/zsworkspace/platoon-sil/platoon/include/lib/pglib/libipc.a)
+else (isPegasus STREQUAL "OFF")
+    message(STATUS "the pegasus build is OFF")
+    link_libraries(/home/igs/zsworkspace/platoon-sil/platoon/include/lib/libcommon.a)
+    link_libraries(/home/igs/zsworkspace/platoon-sil/platoon/include/lib/libipc.a)
+endif ()
 
 add_executable(platoon ${SRC})
 

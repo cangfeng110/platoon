@@ -60,7 +60,7 @@ enum OperationCode {
     TASKGET = 7; //命令获取成功.
     LOAD = 8; //车辆接箱
     UNLOAD = 9; //车辆卸箱
-    REVERSE_LSTP=10;//外集卡倒入作业库位
+    REVERSE_LSTP = 10; //外集卡倒入作业库位
 }
 
 /**
@@ -113,7 +113,7 @@ enum PathType {
     LANECHANGEIN = 6; //变道入口点（坐标点）
     LANECHANGEOUT = 7; //变道出口点（坐标点）
     PORTGATE = 8; //港口闸机
-    LSTP=9;//陆侧集卡换箱作业区（洋四外集卡倒车库位）
+    LSTP = 9; //陆侧集卡换箱作业区（洋四外集卡倒车库位）
 }
 
 /**
@@ -165,7 +165,7 @@ message Path {
     double posX = 2; //节点gpsX坐标
     double posY = 3; //节点gpsY坐标
     PathType pathType = 4; //节点类型(车道，任务起点，任务终点-bay位号，STS的GPS坐标，掉头出口点（坐标点），掉头入口点（坐标点），变道入口点（坐标点），变道出口点（坐标点）)
-    repeated string eliminateLaneId=5;//freespace时排除的车道编号
+    repeated string eliminateLaneId = 5; //freespace时排除的车道编号
 }
 
 /**
@@ -239,7 +239,7 @@ message DspFeedbackFrame {
     Port_Id curPortId = 21; //当前车辆所在码头编号
     string fleetId = 22; //当前车辆所在车队编号（不在车队则为空）
     string signature = 23; //签名密文（暂不启用）
-    float subMileage=24;//小计里程（公里）
+    float subMileage = 24; //小计里程（公里）
 }
 
 /**
@@ -314,10 +314,7 @@ message OperationReceivedMsg {
     string coId = 2; //接收到的指令编号
 }
 
-
-
-
-/**========================================================================================================================**/
+/**=============================================================队列行驶===========================================================**/
 /**
  * 车辆组队申请类型
  * @author  admin
@@ -360,6 +357,7 @@ message VehicleFleetOperation {
     Port_Id srcPort = 8; //起始港口
     Port_Id dstPort = 9; //目的港口
     string signature = 10; //签名密文（暂不启用）
+    double  safe_distance=11;//安全跟车巨鹿（在1秒时距的基础上增加---若该值为0，则距离为1秒时距）
 }
 
 /**
@@ -394,6 +392,10 @@ message VehicleFleetInfo {
         FLEET_KEEP = 4; //队列保持
         FLEET_LEAVING = 5; //正在离队
         MODE_ERROR = 6; //异常
+        INVILIED=7;//无效
+        HEADER_WAITING=8;//头车等待----组队未完成时的头车状态，头车降速等待后续车辆
+        CUT_IN=9;// cut_in----当前车被插队
+
     }
 
 

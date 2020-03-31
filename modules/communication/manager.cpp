@@ -452,6 +452,20 @@ void Manager::ProcessCommand ()
             {
                 desire_drive_mode = Dequeue;
             }
+            else if (m_fms_order_ == F_Dequeue)
+            {
+                if (_ID <= platoon_id_map_.size())
+                {
+                    int after_id = platoon_id_map_[_ID + 1];
+                    DriveMode after_mode = DriveMode(DataContainer::GetInstance()->platoon_vehicles_data_.getData()[after_id].getData().actual_drive_mode);
+                    if (after_mode == Manual || after_mode == Auto 
+                        || after_mode == Leader || after_mode == LeaderWait
+                        || after_mode == Dequeue)
+                        desire_drive_mode = Dequeue;
+                }
+                else if (_ID > platoon_id_map_.size())
+                    desire_drive_mode = Dequeue;
+            }
             else
             {
                 if (fabs(threshold_dis - INVALID_FLOAT) <= Epslion)
@@ -498,7 +512,9 @@ void Manager::ProcessCommand ()
                     {
                         int after_id = platoon_id_map_[_ID + 1];
                         DriveMode after_mode = DriveMode(DataContainer::GetInstance()->platoon_vehicles_data_.getData()[after_id].getData().actual_drive_mode);
-                        if (after_mode == Manual || after_mode == Auto || after_mode == Leader)
+                        if (after_mode == Manual || after_mode == Auto 
+                            || after_mode == Leader || after_mode == LeaderWait
+                            || after_mode == Dequeue)
                             desire_drive_mode = Dequeue;
                     }
                     else if (_ID > platoon_id_map_.size())
@@ -705,11 +721,14 @@ void Manager::UpdatePlatoonManagerInfo ()
                 printf ("V %d: lost>500 %ld.%ld\n\n", map_it.second.getData().vehicle_id, tv.tv_sec, tv.tv_usec);
                 vehicle_status_.push_back(0 - map_it.second.getData().vehicle_id);
             }
-        }
-            
+        }      
     }
+    // add ego vehicel id in the vector end
+    vehicle_status_.push_back(ConfigData::GetInstance()->vehicle_id_);
+    
     platoon_manager_info.vehicle_communication_status = vehicle_status_;
     
+    //add to sensor fusion vehicle info
     DataContainer::GetInstance ()->manager_data_.setData (platoon_manager_info);
 }
 

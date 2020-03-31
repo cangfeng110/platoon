@@ -66,6 +66,9 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     
     //publish manager info to planning model
     loop_.runEvery(20, std::bind(&communication::PublishManagerInfo, this));
+    
+    //publish to fusion info
+    loop_.runEvery(50, std::bind(&communication::PublishToFusionInfo, this));
 
     //receive fms info from lcm
     loop_.runEvery(1000, std::bind(&FmsHandler::ReceiveFmsPreInfo, fms_handler_));
@@ -289,6 +292,49 @@ void communication::SilReceiveV2xOtherVehicleInfo()
     }
 }
 
+void communication::PublishToFusionInfo()
+{
+    static int count = 0;
+    if (DataContainer::GetInstance ()->manager_data_.isUpToDate ()) 
+    {
+        const VehicleData& temp = DataContainer::GetInstance ()->manager_data_.getData ().front_vehicle;
+        ToFusionData to_fusion;
+        to_fusion.vehicle_id = temp.vehicle_id;
+        to_fusion.vehicle_length = temp.vehicle_length;
+        to_fusion.vehicle_height = temp.vehicle_height;
+        to_fusion.vehicle_width = temp.vehicle_width;
+        to_fusion.desire_drive_mode = temp.desire_drive_mode;
+        to_fusion.actual_drive_mode = temp.actual_drive_mode;
+        to_fusion.cut_in_flag = temp.cut_in_flag;
+        to_fusion.longitude = temp.longitude;
+        to_fusion.latitude = temp.latitude;
+        to_fusion.altitude = temp.altitude;
+        to_fusion.heading = temp.heading;
+        to_fusion.gps_status = temp.gps_status;
+        to_fusion.gps_time = temp.gps_time;
+        to_fusion.relative_x = temp.relative_x;
+        to_fusion.relative_y = temp.relative_y;
+        to_fusion.relative_heading = temp.relative_heading;
+        to_fusion.longtitude_acc = temp.longtitude_acc;
+        to_fusion.lateral_acc = temp.lateral_acc;
+        to_fusion.speed = temp.speed;
+        to_fusion.steering_wheel_angle = temp.steering_wheel_angle;
+        to_fusion.yaw_rate = temp.yaw_rate;
+        to_fusion.desire_long_acc = temp.desire_long_acc;
+        // v3.0 new data
+        to_fusion.platoon_number = temp.platoon_number;
+        to_fusion.vehicle_sequence = temp.vehicle_sequence;
+
+        lcm_.publish ("TO_FUSION_INFO", &to_fusion); 
+
+        count++;
+        if (count++ % m_debug_pmi_HZ == 0)
+        {
+            printf ("asdf TOFUSIONINFO published %d\n\n", count);
+        }       
+    }
+
+}
 
 } // namesapce communication
 
