@@ -98,17 +98,17 @@ Manager::~Manager () {
 
 float Manager::THWDis ()
 {
-    /* if (!DataContainer::GetInstance ()->ego_vehicle_vcu_data_.isUpToDate ())
-    {
-        return INVALID_FLOAT;
-    } */
-    const VehicleVcuData& ego_vehicle_vcu_data = DataContainer::GetInstance ()->ego_vehicle_vcu_data_.getData ();
-    float speed = ego_vehicle_vcu_data.fSpeed;
-    float thw;
-    if (speed < 0.001)
+    if (!DataContainer::GetInstance ()->ego_vehicle_vcu_data_.isUpToDate ())
     {
         return INVALID_FLOAT;
     }
+    const VehicleVcuData& ego_vehicle_vcu_data = DataContainer::GetInstance ()->ego_vehicle_vcu_data_.getData ();
+    float speed = ego_vehicle_vcu_data.fSpeed;
+    float thw;
+    /* if (speed < 0.001)
+    {
+        return INVALID_FLOAT;
+    } */
     if (speed < 14.0)
     {
         thw = 1.5 - (14.0 - speed) / 20.0;
@@ -161,19 +161,6 @@ float Manager::FrontDis ()
     if (front_dis <= 0)
         return INVALID_FLOAT;
     return front_dis;
-    //VehicleData front_vehicle = other_vehicles[_ID - 2];
-    /* const VehicleVcuData& ego_vehicle_vcu_data = DataContainer::GetInstance ()->ego_vehicle_vcu_data_.getData ();
-    float speed = ego_vehicle_vcu_data.fSpeed;
-    if (m_debug_flags & DEBUG_TimeToFront)
-        printf ("speed %f\n", speed);
-    if (speed < 0.001)
-    {
-        return INVALID_FLOAT;
-    }
-
-    if (m_debug_flags & DEBUG_TimeToFront)
-        printf ("relative_x: %f\n", front_vehicle.relative_x);
-    return fabs(front_vehicle.relative_x - 17.0) / speed; */
 }
 
 
@@ -408,6 +395,10 @@ void Manager::ProcessCommand ()
                 DriveMode front_drive_mode = (DriveMode)front_vehicle.actual_drive_mode;
                 if (front_drive_mode == Leader || front_drive_mode == KeepQueue || front_drive_mode == Enqueue)
                 {
+                    if (fabs(thw_dis - INVALID_FLOAT) <= Epslion || fabs(front_dis - INVALID_FLOAT) <= Epslion)
+                    {
+                        break;
+                    }   
                     if (front_dis <= 1.2 * thw_dis)
                     {
                         desire_drive_mode = Enqueue;
@@ -467,8 +458,8 @@ void Manager::ProcessCommand ()
                     desire_drive_mode = Dequeue;
             }
             else
-            {
-                if (fabs(threshold_dis - INVALID_FLOAT) <= Epslion)
+            {   
+                if (fabs(threshold_dis - INVALID_FLOAT) <= Epslion || fabs(front_dis - INVALID_FLOAT) <= Epslion)
                 {
                     break;
                 }
@@ -490,6 +481,10 @@ void Manager::ProcessCommand ()
             }
             else
             {
+                if (fabs(thw_dis - INVALID_FLOAT) <= Epslion || fabs(front_dis - INVALID_FLOAT) <= Epslion)
+                {
+                    break;
+                }  
                 if (front_dis >= thw_dis * ConfigData::GetInstance()->to_auto_threshold_)
                     desire_drive_mode = Auto;
             }
@@ -538,6 +533,10 @@ void Manager::ProcessCommand ()
                 if (debug_count % m_debug_thw_HZ == 0)
                     printf("IN Abnormal\n\n");
             }
+            if (fabs(thw_dis - INVALID_FLOAT) <= Epslion || fabs(front_dis - INVALID_FLOAT) <= Epslion)
+            {
+                break;
+            }  
             if (front_dis >= thw_dis)
             {
                 desire_drive_mode = Auto;
@@ -585,6 +584,10 @@ void Manager::UpdatePlatoonManagerInfo ()
     if (_ID == 0)
     {
         return;//no ego_vehicle_location
+        if (m_debug_flags & DEBUG_ManagerInfo)
+        {
+            printf("++++++No Manager Info++++++\n");
+        }
     }
     PlatoonManagerInfo platoon_manager_info;
     platoon_manager_info.desire_drive_mode = int8_t(desire_drive_mode);

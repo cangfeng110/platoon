@@ -1,4 +1,5 @@
 #include "fmshandler.h"
+#include "datacontainer.h"
 
 namespace platoon
 {
@@ -28,6 +29,10 @@ FmsHandler::FmsHandler()
             {
                 std::cout << "FMS Pre Info Changed! " << std::endl;
                 FmsData::GetInstance()->fms_pre_info_.setData(*pre_info_ptr_);
+                /**
+                 * clear paltoon-vehicles-map, because a new platoon is be calcuted
+                */
+               DataContainer::GetInstance()->platoon_vehicles_data_.getData().clear();
             }
         }
         else

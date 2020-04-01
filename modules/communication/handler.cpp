@@ -314,6 +314,7 @@ int Handler::DecodeV2xVechileInfo()
             cout << "if a platoon vehicle : " << if_platoon << endl;
             printf("other vehicle platoon number is : %d\n", v2x_other_vehicle_data.platoon_number);
             printf("other vehicle sequence is : %d\n", v2x_other_vehicle_data.vehicle_sequence);
+            printf("other vehicle gps time is : %f\n", v2x_other_vehicle_data.gps_time);
             printf ("other vehicle longitude is : %f\n", v2x_other_vehicle_data.longitude);
             printf ("other vehicle latitude is  : %f\n", v2x_other_vehicle_data.latitude);
             printf ("other vehicle altitude is : %f\n", v2x_other_vehicle_data.altitude);
@@ -477,7 +478,6 @@ int Handler::SilBroastEgoVehicleInfo()
         printf ("ego vehicle latitude is  : %f\n", ego_vehicle_info.latitude);
         printf ("ego vehicle altitude is : %f\n", ego_vehicle_info.altitude);
         printf ("ego vehicle heading is : %f\n", ego_vehicle_info.heading);
-        printf ("ego vehicle heading is : %f\n", ego_vehicle_info.heading);
         printf ("ego vehicle speed is(km/h) : %f\n", ego_vehicle_info.speed * 3.6);
         printf ("ego vehicle acc is : %f\n\n", ego_vehicle_info.longtitude_acc);
     }
@@ -603,6 +603,7 @@ int Handler::SilDecodeV2xVechileInfo()
             cout << "if a platoon vehicle : " << if_platoon << endl;
             printf("other vehicle platoon number is : %d\n", v2x_other_vehicle_data.platoon_number);
             printf("other vehicle sequence is : %d\n", v2x_other_vehicle_data.vehicle_sequence);
+            printf("other vehicle gps time is : %f\n", v2x_other_vehicle_data.gps_time);
             printf ("other vehicle longitude is : %f\n", v2x_other_vehicle_data.longitude);
             printf ("other vehicle latitude is  : %f\n", v2x_other_vehicle_data.latitude);
             printf ("other vehicle altitude is : %f\n", v2x_other_vehicle_data.altitude);
