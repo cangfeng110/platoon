@@ -62,6 +62,7 @@ private:
     bool IfAbnormal ();
     void ResetFmsOrder();
     bool IsAllJoinPlatoon();
+    bool IsAllowDequeue();
     void ProcessCommand ();
     
 };

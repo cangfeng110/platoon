@@ -44,6 +44,9 @@ public:
     int enqueue_threshold_;
     int dequeue_threshold_;
     float to_auto_threshold_;
+    int time_to_live_;
+    float leave_threshold_;
+    float formation_threshold_;
     
 //communication config
     int local_port_;

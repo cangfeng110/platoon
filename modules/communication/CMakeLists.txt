@@ -12,10 +12,10 @@ else (isPegasus STREQUAL "OFF")
     link_libraries(/home/igs/zsworkspace/platoon-sil/platoon/include/lib/libipc.a)
 endif ()
 
-add_executable(platoon ${SRC})
+add_executable(app_platoon ${SRC})
 
 #target_link_libraries(platoon lcm pthread config++.a protobuf platoon-common platoon-base platoon-proto)
 
-target_link_libraries(platoon lcm pthread config++.a protobuf platoon-common platoon-base)
+target_link_libraries(app_platoon lcm pthread config++.a protobuf platoon-common platoon-base)
 
 

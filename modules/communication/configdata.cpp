@@ -9,7 +9,7 @@
 namespace platoon {
 namespace communication {
 
-#define config_path "./config/platoon.conf"
+#define config_path "./platoon.conf"
 
 ConfigData *ConfigData::instance_ = new ConfigData();
 ConfigData *ConfigData::GetInstance() {
@@ -44,6 +44,9 @@ ConfigData::ConfigData() {
         control_config.lookupValue("dequeue_threshold", enqueue_threshold_);
         control_config.lookupValue("dequeue_threshold", dequeue_threshold_);
         control_config.lookupValue("to_auto_threshold", to_auto_threshold_);
+        control_config.lookupValue("time_to_live", time_to_live_);
+        control_config.lookupValue("leave_threshold", leave_threshold_);
+        control_config.lookupValue("formation_threshold", formation_threshold_);
 
         const libconfig::Setting& communication_config = cfg.lookup("communication");
         communication_config.lookupValue("local_port", local_port_);

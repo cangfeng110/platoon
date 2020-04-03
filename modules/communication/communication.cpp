@@ -121,19 +121,20 @@ void communication::HandleEgoVehicleGpsInfo(const lcm::ReceiveBuffer *rbuf,
     {
         printf ("asdf localization_out_2_map received %d\n\n", gps_count);
     }
-    const VehicleGpsData& old_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
+    DataContainer::GetInstance()->ego_vehicle_gps_data_.setData(*msg);
     /**
      * this if is to judge if ege gps is changed, in sil gps will send old data if simulink model is stopped
      * to avoid calculated id error
      * */ 
-    if (fabs(old_data.longitude - msg->longitude) <= Epslion && fabs(old_data.latitude - msg->latitude) <= Epslion)
-    {
-        printf("gps data is not changed, don't use this gps data\n");
-    }
-    else
-    {
-        DataContainer::GetInstance()->ego_vehicle_gps_data_.setData(*msg);
-    } 
+    // const VehicleGpsData& old_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
+    // if (fabs(old_data.longitude - msg->longitude) <= Epslion && fabs(old_data.latitude - msg->latitude) <= Epslion)
+    // {
+    //     printf("gps data is not changed, don't use this gps data\n");
+    // }
+    // else
+    // {
+    //     DataContainer::GetInstance()->ego_vehicle_gps_data_.setData(*msg);
+    // } 
 }
 
 //
