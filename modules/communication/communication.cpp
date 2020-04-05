@@ -32,7 +32,14 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     lcm_.subscribe("localization_out_2_map", &communication::HandleEgoVehicleGpsInfo, this);
     lcm_.subscribe("FMS_INFO", &communication::HandleHmiFmsInfo, this);
     lcm_.subscribe("EGO_PLANNINGMSG_FOR_PLATOON", &communication::HandlePlanningInfo, this);
-    
+    if (ConfigData::GetInstance()->test_with_log_)
+    {
+        lcm_.subscribe("V2X_OTHER_VEHICLE_INFO", &communication::HandleLogV2xInfo, this);
+    }
+    if (ConfigData::GetInstance()->print_log_)
+    {
+        lcm_.subscribe("PLATOON_MANAGER_INFO", &communication::HandleLogManagerInfo, this);
+    }
     // lcm channel
     lcm_channel_.reset(new platoon::base::Channel(&loop_, lcm_.getFileno(), "lcm"));
     lcm_channel_->setReadCallback(std::bind(&lcm::LCM::handle, &lcm_));
@@ -65,8 +72,10 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     }
     
     //publish manager info to planning model
-    loop_.runEvery(20, std::bind(&communication::PublishManagerInfo, this));
-    
+    if (!ConfigData::GetInstance()->print_log_)
+    {
+        loop_.runEvery(20, std::bind(&communication::PublishManagerInfo, this));
+    }
     //publish to fusion info
     loop_.runEvery(50, std::bind(&communication::PublishToFusionInfo, this));
 
@@ -345,6 +354,123 @@ void communication::PublishToFusionInfo()
         {
             printf ("asdf TOFUSIONINFO published %d\n\n", count);
         }       
+    }
+}
+/*
+ * function : test with log, handler V2X_OTHER_VEHICLE_INFO, simulate UDP communication 
+ * like handler Decode function
+*/
+void communication::HandleLogV2xInfo(const lcm::ReceiveBuffer* rbuf, 
+                          const std::string& channel,
+                          const VehicleData* msg)
+{
+    assert(channel == "V2X_OTHER_VEHICLE_INFO");
+
+    VehicleData v2x_other_vehicle_data = *msg; 
+    int key = v2x_other_vehicle_data.vehicle_id;
+
+    if (DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) 
+    {
+        const VehicleGpsData &ego_vehicle_gps_data = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
+        platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(v2x_other_vehicle_data.relative_x, v2x_other_vehicle_data.relative_y,
+                                                            ego_vehicle_gps_data.heading,
+                                                            ego_vehicle_gps_data.longitude,ego_vehicle_gps_data.latitude,
+                                                            ego_vehicle_gps_data.height,
+                                                            v2x_other_vehicle_data.longitude, v2x_other_vehicle_data.latitude,
+                                                            v2x_other_vehicle_data.altitude);
+        platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(v2x_other_vehicle_data.relative_heading,
+                                                                ego_vehicle_gps_data.heading, v2x_other_vehicle_data.heading);
+    } 
+    else 
+    {
+        v2x_other_vehicle_data.relative_x = INVALID_FLOAT;
+        v2x_other_vehicle_data.relative_y = INVALID_FLOAT;
+    }
+    DataContainer::GetInstance()->v2x_other_vehicles_data_.setData(key, v2x_other_vehicle_data);
+
+    std::string if_platoon = "No";
+    
+    /* storage the platoon number is equal vehicle to platoon_vehicles_dara_*/
+    if (ConfigData::GetInstance()->hmi_fms_valid_)
+    {
+        if_platoon = "Yes";
+        DataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
+    }
+    else if (FmsData::GetInstance()->fms_pre_info_.isUpToDate()) 
+    {
+        int ego_platoon_number = FmsData::GetInstance()->fms_pre_info_.getData().platoonnumber();
+        if (ego_platoon_number == v2x_other_vehicle_data.platoon_number) 
+        {
+            if_platoon = "Yes";
+            DataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
+        }
+    }
+
+    if (m_debug_flags & DEBUG_V2xVehicleInfo) 
+    {
+        using namespace std;
+        cout << "-----------Display other vehicle info--------------" << endl;
+        cout << "other vehicle id is : " << key << endl;
+        cout << "if a platoon vehicle : " << if_platoon << endl;
+        printf("other vehicle platoon number is : %d\n", v2x_other_vehicle_data.platoon_number);
+        printf("other vehicle sequence is : %d\n", v2x_other_vehicle_data.vehicle_sequence);
+        printf("other vehicle gps time is : %f\n", v2x_other_vehicle_data.gps_time);
+        printf ("other vehicle longitude is : %f\n", v2x_other_vehicle_data.longitude);
+        printf ("other vehicle latitude is  : %f\n", v2x_other_vehicle_data.latitude);
+        printf ("other vehicle altitude is : %f\n", v2x_other_vehicle_data.altitude);
+        printf ("other vehicle heading is(rad) : %f\n", v2x_other_vehicle_data.heading);
+        printf ("other vehicle speed is(km/h) : %f\n", v2x_other_vehicle_data.speed * 3.6);
+        printf ("other vehicel acc is : %f\n", v2x_other_vehicle_data.longtitude_acc);
+        printf ("other vehicle relative_x is: %f\n", v2x_other_vehicle_data.relative_x);
+        printf ("other vehicle relative_y is: %f\n\n", v2x_other_vehicle_data.relative_y);
+    }
+}
+
+/**
+ * function : print manangerinfo to check log
+*/
+
+void print_drive_mode(const DriveMode& mode);
+
+void communication::HandleLogManagerInfo(const lcm::ReceiveBuffer* rbuf, 
+                              const std::string& channel,
+                              const PlatoonManagerInfo* msg)
+{
+    assert(channel == "PLATOON_MANAGER_INFO");
+    PlatoonManagerInfo platoon_manager_info = *msg;
+    if (m_debug_flags & DEBUG_ManagerInfo)
+    {
+        using namespace std;
+        cout << "+++++++++++++Display Manager ifno+++++++++++++" << endl;
+        printf (" desire_drive_mode is : ");
+        print_drive_mode(DriveMode(platoon_manager_info.desire_drive_mode));
+        printf ("platoon number is : %d\n",platoon_manager_info.platoon_number);
+        printf ("vehicle sequence is : %d\n", platoon_manager_info.vehicle_sequence);
+        printf ("hmi safe distance is : %f\n",platoon_manager_info.safe_distance);
+        printf ("leader vehicle platoon number is : %d\n", platoon_manager_info.leader_vehicle.platoon_number);
+        printf ("leader vehicle seuqence is : %d\n", platoon_manager_info.leader_vehicle.vehicle_sequence);
+        printf ("leader vehicle id is : %d\n", platoon_manager_info.leader_vehicle.vehicle_id);
+        printf ("leader vehicle gps_time is : %f\n", platoon_manager_info.leader_vehicle.gps_time);
+        printf ("leader vehicle longitude is : %f\n", platoon_manager_info.leader_vehicle.longitude);
+        printf ("leader vehicle latitude is  : %f\n", platoon_manager_info.leader_vehicle.latitude);
+        printf ("leader vehicle altitude is  : %f\n",platoon_manager_info.leader_vehicle.altitude);
+        printf ("leader vehicle heading is(rad) : %f\n", platoon_manager_info.leader_vehicle.heading);
+        printf ("leader vehicle speed is(km/h) : %f\n", platoon_manager_info.leader_vehicle.speed * 3.6);
+        printf ("leader vehicle acc is : %f\n", platoon_manager_info.leader_vehicle.longtitude_acc);
+        printf ("leader vehicle relative_x is : %f\n",platoon_manager_info.leader_vehicle.relative_x);
+        printf ("leader vehicle relative_y is : %f\n\n",platoon_manager_info.leader_vehicle.relative_y);
+        printf ("front vehicle platoon number is : %d\n", platoon_manager_info.front_vehicle.platoon_number);
+        printf ("front vehicle seuqence is : %d\n", platoon_manager_info.front_vehicle.vehicle_sequence);
+        printf ("front vehicle id is : %d\n", platoon_manager_info.front_vehicle.vehicle_id);
+        printf ("front vehicle gps_time is : %f\n", platoon_manager_info.front_vehicle.gps_time);
+        printf ("front vehicle longitude is : %f\n", platoon_manager_info.front_vehicle.longitude);
+        printf ("front vehicle latitude is  : %f\n", platoon_manager_info.front_vehicle.latitude);
+        printf ("front vehicle altitude is  : %f\n",platoon_manager_info.front_vehicle.altitude);
+        printf ("front vehicle heading is(rad) : %f\n", platoon_manager_info.front_vehicle.heading);
+        printf ("front vehicle speed is(km/h) : %f\n", platoon_manager_info.front_vehicle.speed * 3.6);
+        printf ("front vehicle acc is : %f\n", platoon_manager_info.front_vehicle.longtitude_acc);
+        printf ("front vehicle relative_x is : %f\n",platoon_manager_info.front_vehicle.relative_x);
+        printf ("front vehicle relative_y is : %f\n\n",platoon_manager_info.front_vehicle.relative_y);
     }
 }
 

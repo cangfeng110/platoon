@@ -49,6 +49,12 @@ private:
     void HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
                             const std::string &channel,
                             const EgoPlanningMsg *msg);
+    void HandleLogV2xInfo(const lcm::ReceiveBuffer* rbuf, 
+                          const std::string& channel,
+                          const VehicleData* msg);
+    void HandleLogManagerInfo(const lcm::ReceiveBuffer* rbuf, 
+                              const std::string& channel,
+                              const PlatoonManagerInfo* msg);
 
     void PublishManagerInfo();
     

@@ -36,6 +36,7 @@ namespace platoon
         F_Enqueue = 2,
         F_Dequeue = 3,
         F_DisBand = 4,
+        F_Reset = 5,
     };
 
     enum ApplyOrder

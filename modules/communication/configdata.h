@@ -63,6 +63,9 @@ public:
     bool debug_ToFmsInfo_;
     bool debug_FmsPreInfo_;
     bool debug_FmsBackInfo_;
+//backtrace
+    bool test_with_log_;
+    bool print_log_;
 
 private:
     static ConfigData* instance_;
