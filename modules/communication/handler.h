@@ -37,11 +37,15 @@ public:
     // receive v2x other info from ibox
     int DecodeV2xVechileInfo();
     
-    // broast ego vehicle info
+    // sil broast ego vehicle info
     int SilBroastEgoVehicleInfo();
 
-    // receive v2x other info from ibox
+    // sil receive v2x other info from ibox
     int SilDecodeV2xVechileInfo();
+
+    // protocol2.0 broast ego vehicle info
+    int BroastEgoVehicleInfo(int);
+    int DecodeV2xVehicleInfo(int);
 
 private:
     // socket

@@ -433,7 +433,17 @@ void Manager::ProcessCommand ()
     {
         m_fms_order_ = FmsData::GetInstance()->fms_order_.getData();
     }
-    
+    // this is only for test,clear status
+    if (m_fms_order_ == F_Reset && desire_drive_mode != Auto)
+    {
+        desire_drive_mode = Auto;
+        if (m_debug_StateFlow)
+        {
+            if(debug_count % m_debug_thw_HZ)
+                printf("Clear Status\n");
+        }
+        return;
+    }
     switch (actual_drive_mode)
     {
         case Manual:
@@ -442,7 +452,9 @@ void Manager::ProcessCommand ()
                 if (debug_count % m_debug_thw_HZ == 0)
                     printf("IN Manual\n\n");
             }
-            //ignore command
+            //when vehicle is manual, desire must be manual, reset commond
+            desire_drive_mode = Manual;
+            ResetFmsOrder();
             break;
         case Auto:
             if (m_debug_StateFlow)
@@ -450,7 +462,7 @@ void Manager::ProcessCommand ()
                 if (debug_count % m_debug_thw_HZ == 0)
                     printf("IN Auto\n\n");
             }
-            if (desire_drive_mode == Notset || desire_drive_mode == Auto)
+            if (desire_drive_mode == Notset || desire_drive_mode == Manual)
             {
                 desire_drive_mode = Auto;
             }
@@ -462,7 +474,10 @@ void Manager::ProcessCommand ()
             else if (m_fms_order_ == F_Enqueue)
             {
                 if(_ID <= 1)
+                {
+                    std::cerr << "ERROR, this vehicle should not receive formation order\n";
                     break;
+                }
                 if(IfAbnormal())
                     break;
 
@@ -534,21 +549,15 @@ void Manager::ProcessCommand ()
                 {
                     desire_drive_mode = Dequeue;
                 }
-                /* if (_ID <= platoon_id_map_.size())
-                {
-                    int after_id = platoon_id_map_[_ID + 1];
-                    DriveMode after_mode = DriveMode(DataContainer::GetInstance()->platoon_vehicles_data_.getData()[after_id].getData().actual_drive_mode);
-                    if (after_mode == Manual || after_mode == Auto 
-                        || after_mode == Leader || after_mode == LeaderWait
-                        || after_mode == Dequeue)
-                        desire_drive_mode = Dequeue;
-                }
-                else if (_ID > platoon_id_map_.size())
-                    desire_drive_mode = Dequeue; */
             }
             else
             {   
-                assert((_ID -1) > 0);
+                //assert((_ID -1) > 0);
+                if (_ID <= 1)
+                {
+                    std::cerr << "ERROR, this vehicle should not go to keep \n";
+                    break;
+                }
                 int front_id = platoon_id_map_[_ID - 1];
                 const VehicleData& front_vehicle = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[front_id].getData();
                 DriveMode front_drive_mode = (DriveMode)front_vehicle.actual_drive_mode;
@@ -602,17 +611,6 @@ void Manager::ProcessCommand ()
                     {
                         desire_drive_mode = Dequeue;
                     }
-                    /* if (_ID <= platoon_id_map_.size())
-                    {
-                        int after_id = platoon_id_map_[_ID + 1];
-                        DriveMode after_mode = DriveMode(DataContainer::GetInstance()->platoon_vehicles_data_.getData()[after_id].getData().actual_drive_mode);
-                        if (after_mode == Manual || after_mode == Auto 
-                            || after_mode == Leader || after_mode == LeaderWait
-                            || after_mode == Dequeue)
-                            desire_drive_mode = Dequeue;
-                    }
-                    else if (_ID > platoon_id_map_.size())
-                        desire_drive_mode = Dequeue; */
                 }
                 else if (m_fms_order_ == F_DisBand)
                 {
@@ -633,7 +631,7 @@ void Manager::ProcessCommand ()
                     printf("IN Abnormal\n\n");
             }
             //leader vechile can't goto abnormal or cut_in 
-            if (desire_drive_mode == Leader || desire_drive_mode == LeaderWait)
+            if (desire_drive_mode == Leader || desire_drive_mode == LeaderWait || desire_drive_mode == Manual)
                 break;
             desire_drive_mode = Abnormal;
             if (fabs(thw_dis - INVALID_FLOAT) <= Epslion || fabs(front_dis - INVALID_FLOAT) <= Epslion)
@@ -705,10 +703,20 @@ void Manager::UpdatePlatoonManagerInfo ()
     }
     PlatoonManagerInfo platoon_manager_info;
     platoon_manager_info.desire_drive_mode = int8_t(desire_drive_mode);
-    if ( FmsData::GetInstance()->fms_pre_info_.isUpToDate())
-        platoon_manager_info.platoon_number = FmsData::GetInstance()->fms_pre_info_.getData().platoonnumber();
-    else 
-        platoon_manager_info.platoon_number = 0;
+    if (ConfigData::GetInstance()->hmi_fms_valid_)
+    {
+        if (FmsData::GetInstance()->hmi_fms_info.isUpToDate())
+            platoon_manager_info.platoon_number = int8_t(FmsData::GetInstance()->hmi_fms_info.getData().platoon_number);
+        else 
+            platoon_manager_info.platoon_number = 0;
+    }
+    else
+    {
+        if ( FmsData::GetInstance()->fms_pre_info_.isUpToDate())
+            platoon_manager_info.platoon_number = int8_t(FmsData::GetInstance()->fms_pre_info_.getData().platoonnumber());
+        else 
+            platoon_manager_info.platoon_number = 0;
+    } 
     platoon_manager_info.vehicle_sequence = _ID;
     platoon_manager_info.vehicle_num = platoon_id_map_.size();
     platoon_manager_info.leader_frenet_dis = 1.0e10;

@@ -263,7 +263,7 @@ void FMS::UpdateToFmsInfo()
         FmsDriveMode ego_drive_mode = FmsDriveMode(DataContainer::GetInstance()->planning_data_.getData().actual_drive_mode);
         m_to_fms_info_.set_actualdrivemode(ego_drive_mode);
     }
-
+    
     if (DataContainer::GetInstance()->manager_data_.isUpToDate())
     {
         int vehicle_squence = DataContainer::GetInstance()->manager_data_.getData().vehicle_sequence;

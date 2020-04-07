@@ -6,6 +6,9 @@
 #include <mutex>
 #include <stdio.h>
 
+#include "modules/communication/configdata.h"
+using platoon::communication::ConfigData;
+
 const int TTL_COUNT = 5; // 5 * 200ms
 
 //################################################
@@ -26,7 +29,8 @@ public:
     void setData(const T &message)
     {
         _data = message;
-        timeToLive = TTL_COUNT;
+        //timeToLive = TTL_COUNT;
+        timeToLive = ConfigData::GetInstance()->time_to_live_;
     }
 
     const T &getData() const

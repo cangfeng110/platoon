@@ -74,7 +74,8 @@ ConfigData::ConfigData() {
         bool read_3 = communication_config.lookupValue("remote_port", remote_port_);
         bool read_4 = communication_config.lookupValue("broadcast_HZ", broadcast_HZ_);
         bool read_5 = communication_config.lookupValue("is_sil_test", is_sil_test_);
-        bool read_communication_flag = read_1 && read_2 && read_3 && read_4 && read_5;
+        bool read_6 = communication_config.lookupValue("is_protocol_2", is_protocol_2_);
+        bool read_communication_flag = read_1 && read_2 && read_3 && read_4 && read_5 && read_6;
         assert(read_communication_flag);
     }
     catch(const libconfig::SettingNotFoundException& e)

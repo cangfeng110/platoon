@@ -180,11 +180,18 @@ void communication::HandleHmiFmsInfo(const lcm::ReceiveBuffer *rbuf,
             std::cout << "asdf HMI FMS order changed : " << int(msg->fms_order) << std::endl;
         if (FmsData::GetInstance()->hmi_fms_info.getData().safe_distance != msg->safe_distance)
             std::cout << "asdf safe distance changed : " << msg->safe_distance << std::endl;
+        if (FmsData::GetInstance()->hmi_fms_info.getData().platoon_number != msg->platoon_number)
+        {
+            std::cout << "asdf platoon number changed : " << msg->platoon_number << std::endl;
+            DataContainer::GetInstance()->platoon_vehicles_data_.getData().clear();
+        }
+            
     }
     else
     {
         std::cout << "asdf HMI FMS order changed : " << int(msg->fms_order) << std::endl;
         std::cout << "asdf safe distance changed : " << msg->safe_distance << std::endl;
+        std::cout << "asdf platoon number changed : " << msg->platoon_number << std::endl;
     }
     FmsData::GetInstance()->hmi_fms_info.setData(*msg);
 }
@@ -226,7 +233,14 @@ void communication::BroastEgoVehicleInfo()
     {
         if (m_debug_flags & DEBUG_BroadcastEgoVehicleInfo)
             printf ("broadcast ego gps %ld.%ld\n", tv.tv_sec, tv.tv_usec);
-        handler_.BroastEgoVehicleInfo();
+        if (ConfigData::GetInstance()->is_protocol_2_)
+        {
+            handler_.BroastEgoVehicleInfo(1);
+        }
+        else
+        {
+            handler_.BroastEgoVehicleInfo();
+        } 
     } 
     else 
     {
@@ -258,25 +272,35 @@ void communication::PublishManagerInfo()
 //
 void communication::ReceiveV2xOtherVehicleInfo() 
 {
-    if(handler_.DecodeV2xVechileInfo() > 0) 
+    int result = -1;
+    if (ConfigData::GetInstance()->is_protocol_2_)
     {
-        if(DataContainer::GetInstance()->v2x_other_vehicles_data_.isUpToDate()) 
-        {
-            for (auto temp : DataContainer::GetInstance()->v2x_other_vehicles_data_.getData()) 
-            {
-                const VehicleData &data = temp.second.getData();
-                int publish_v2x_flag = lcm_.publish("V2X_OTHER_VEHICLE_INFO", &data);
-                //std::cout << "publish v2x flag is : " << publish_v2x_flag << std::endl;
-            }   
-        }
+        result = handler_.DecodeV2xVehicleInfo(1);
     }
+    else
+    {
+        result = handler_.DecodeV2xVechileInfo();
+    }
+    if((result > 0) && DataContainer::GetInstance()->v2x_other_vehicles_data_.isUpToDate()) 
+    {
+        for (auto temp : DataContainer::GetInstance()->v2x_other_vehicles_data_.getData()) 
+        {
+            const VehicleData &data = temp.second.getData();
+            int publish_v2x_flag = lcm_.publish("V2X_OTHER_VEHICLE_INFO", &data);
+            //std::cout << "publish v2x flag is : " << publish_v2x_flag << std::endl;
+        }   
+    } 
 }
 
 
 void communication::PublishToFmsInfo()
 {
-    ToFMSInfo temp = fms_.GetToFmsInfo();
-    sendMessageViaLcm<ToFMSInfo>("PLATOON_APPLY_INFO", temp);
+    //only receive fms pre info, this fuction need to send info to fms
+    if (FmsData::GetInstance()->fms_pre_info_.isUpToDate())
+    {
+        ToFMSInfo temp = fms_.GetToFmsInfo();
+        sendMessageViaLcm<ToFMSInfo>("PLATOON_APPLY_INFO", temp);
+    }
 }
 
 void communication::SilBroastEgoVehicleInfo()
