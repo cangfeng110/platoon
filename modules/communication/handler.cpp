@@ -75,14 +75,15 @@ int Handler::BroastEgoVehicleInfo()
     ego_vehicle_info.heading = ego_vehicle_gps_data.heading;
     ego_vehicle_info.gps_time = ego_vehicle_gps_data.time;
     // read long acc from fusion info
-    ego_vehicle_info.longtitude_acc = ego_vehicle_gps_data.reserve5;
+    ego_vehicle_info.longtitude_acc = ego_vehicle_gps_data.acceleration;
 
-    if (fabs(ego_vehicle_gps_data.weight - 0.701) < 0.00001)
+    /* if (fabs(ego_vehicle_gps_data.weight - 0.701) < 0.00001)
          ego_vehicle_info.gps_status = 2;
     else if (fabs(ego_vehicle_gps_data.weight - 0.602) < 0.00001)
         ego_vehicle_info.gps_status = 1;
     else 
-        ego_vehicle_info.gps_status = 0;
+        ego_vehicle_info.gps_status = 0; */
+    ego_vehicle_info.gps_status = ego_vehicle_gps_data.position_valid_flag_for_motorcade;
     
     ego_vehicle_info.relative_x = INVALID_FLOAT;
     ego_vehicle_info.relative_y = INVALID_FLOAT;
@@ -212,6 +213,7 @@ int Handler::BroastEgoVehicleInfo()
         printf ("ego vehicle desire drive mode is : %d\n", ego_vehicle_info.desire_drive_mode);
         printf ("ego vehicle cut_in flag is : %d\n", ego_vehicle_info.cut_in_flag);
         printf ("ego vehicle gps_time is : %f\n", ego_vehicle_info.gps_time);
+        printf ("ego vehicle gps_status is : %d\n", ego_vehicle_info.gps_status);
         printf ("ego vehicle longitude is : %f\n", ego_vehicle_info.longitude);
         printf ("ego vehicle latitude is  : %f\n", ego_vehicle_info.latitude);
         printf ("ego vehicle altitude is : %f\n", ego_vehicle_info.altitude);
@@ -321,7 +323,6 @@ int Handler::DecodeV2xVechileInfo()
                 if_platoon = "Yes_hmi";
                 DataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
             }
-            DataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
         }
         else if (FmsData::GetInstance()->fms_pre_info_.isUpToDate()) 
         {
@@ -351,7 +352,7 @@ int Handler::DecodeV2xVechileInfo()
             printf ("other vehicle relative_x is: %f\n", v2x_other_vehicle_data.relative_x);
             printf ("other vehicle relative_y is: %f\n\n", v2x_other_vehicle_data.relative_y);
         }
-        return 1;
+        return key;
     }
 }
 
@@ -381,13 +382,14 @@ int Handler::SilBroastEgoVehicleInfo()
     ego_vehicle_info.heading = ego_vehicle_gps_data.heading;
     ego_vehicle_info.gps_time = ego_vehicle_gps_data.time;
     // read long acc from fusion info
-    ego_vehicle_info.longtitude_acc = ego_vehicle_gps_data.reserve5;
-    if (fabs(ego_vehicle_gps_data.weight - 0.701) < 0.00001)
+    ego_vehicle_info.longtitude_acc = ego_vehicle_gps_data.acceleration;
+    /* if (fabs(ego_vehicle_gps_data.weight - 0.701) < 0.00001)
          ego_vehicle_info.gps_status = 2;
     else if (fabs(ego_vehicle_gps_data.weight - 0.602) < 0.00001)
         ego_vehicle_info.gps_status = 1;
     else 
-        ego_vehicle_info.gps_status = 0;
+        ego_vehicle_info.gps_status = 0; */
+    ego_vehicle_info.gps_status = ego_vehicle_gps_data.position_valid_flag_for_motorcade;
     
     ego_vehicle_info.relative_x = INVALID_FLOAT;
     ego_vehicle_info.relative_y = INVALID_FLOAT;
@@ -519,6 +521,7 @@ int Handler::SilBroastEgoVehicleInfo()
         printf ("ego vehicle desire drive mode is : %d\n", ego_vehicle_info.desire_drive_mode);
         printf ("ego vehicle cut_in flag is : %d\n", ego_vehicle_info.cut_in_flag);
         printf ("ego vehicle gps_time is : %f\n", ego_vehicle_info.gps_time);
+        printf ("ego vehicle gps_status is : %d\n", ego_vehicle_info.gps_status);
         printf ("ego vehicle longitude is : %f\n", ego_vehicle_info.longitude);
         printf ("ego vehicle latitude is  : %f\n", ego_vehicle_info.latitude);
         printf ("ego vehicle altitude is : %f\n", ego_vehicle_info.altitude);
@@ -635,7 +638,6 @@ int Handler::SilDecodeV2xVechileInfo()
                 if_platoon = "Yes_hmi";
                 DataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
             }
-            DataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
         }
         else if (FmsData::GetInstance()->fms_pre_info_.isUpToDate()) 
         {
@@ -665,7 +667,7 @@ int Handler::SilDecodeV2xVechileInfo()
             printf ("other vehicle relative_x is: %f\n", v2x_other_vehicle_data.relative_x);
             printf ("other vehicle relative_y is: %f\n\n", v2x_other_vehicle_data.relative_y);
         }
-        return 1;
+        return key;
     //}
 }
 /**
@@ -690,14 +692,15 @@ int Handler::BroastEgoVehicleInfo(int) {
     ego_vehicle_info.heading = ego_vehicle_gps_data.heading;
     ego_vehicle_info.gps_time = ego_vehicle_gps_data.time;
      // read long acc from fusion info
-    ego_vehicle_info.longtitude_acc = ego_vehicle_gps_data.reserve5;
+    ego_vehicle_info.longtitude_acc = ego_vehicle_gps_data.acceleration;
 
-    if (fabs(ego_vehicle_gps_data.weight - 0.701) < 0.00001)
+    /* if (fabs(ego_vehicle_gps_data.weight - 0.701) < 0.00001)
          ego_vehicle_info.gps_status = 2;
     else if (fabs(ego_vehicle_gps_data.weight - 0.602) < 0.00001)
         ego_vehicle_info.gps_status = 1;
     else 
-        ego_vehicle_info.gps_status = 0;
+        ego_vehicle_info.gps_status = 0; */
+    ego_vehicle_info.gps_status = ego_vehicle_gps_data.position_valid_flag_for_motorcade;
     
     ego_vehicle_info.relative_x = INVALID_FLOAT;
     ego_vehicle_info.relative_y = INVALID_FLOAT;
@@ -816,12 +819,14 @@ int Handler::BroastEgoVehicleInfo(int) {
         printf ("ego vehicle desire drive mode is : %d\n", ego_vehicle_info.desire_drive_mode);
         printf ("ego vehicle cut_in flag is : %d\n", ego_vehicle_info.cut_in_flag);
         printf ("ego vehicle gps_time is : %f\n", ego_vehicle_info.gps_time);
+        printf ("ego vehicle gps_status is : %d\n", ego_vehicle_info.gps_status);
         printf ("ego vehicle longitude is : %f\n", ego_vehicle_info.longitude);
         printf ("ego vehicle latitude is  : %f\n", ego_vehicle_info.latitude);
         printf ("ego vehicle altitude is : %f\n", ego_vehicle_info.altitude);
         printf ("ego vehicle heading is : %f\n", ego_vehicle_info.heading);
         printf ("ego vehicle heading is : %f\n", ego_vehicle_info.heading);
         printf ("ego vehicle speed is(km/h) : %f\n", ego_vehicle_info.speed * 3.6);
+        printf ("ego vehicle desire acc is : %f\n", ego_vehicle_info.desire_long_acc);
         printf ("ego vehicle acc is : %f\n\n", ego_vehicle_info.longtitude_acc);
     }
 
@@ -926,7 +931,6 @@ int Handler::DecodeV2xVehicleInfo(int) {
                 if_platoon = "Yes_hmi";
                 DataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
             }
-            DataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
         }
         else if (FmsData::GetInstance()->fms_pre_info_.isUpToDate()) 
         {
@@ -953,10 +957,11 @@ int Handler::DecodeV2xVehicleInfo(int) {
             printf ("other vehicle heading is(rad) : %f\n", v2x_other_vehicle_data.heading);
             printf ("other vehicle speed is(km/h) : %f\n", v2x_other_vehicle_data.speed * 3.6);
             printf ("other vehicel acc is : %f\n", v2x_other_vehicle_data.longtitude_acc);
+            printf ("other vehicle desire acc is : %f\n", v2x_other_vehicle_data.desire_long_acc);
             printf ("other vehicle relative_x is: %f\n", v2x_other_vehicle_data.relative_x);
             printf ("other vehicle relative_y is: %f\n\n", v2x_other_vehicle_data.relative_y);
         }
-        return 1;
+        return key;
     }
 }
 

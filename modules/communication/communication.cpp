@@ -281,7 +281,12 @@ void communication::ReceiveV2xOtherVehicleInfo()
     {
         result = handler_.DecodeV2xVechileInfo();
     }
-    if((result > 0) && DataContainer::GetInstance()->v2x_other_vehicles_data_.isUpToDate()) 
+    if (ConfigData::GetInstance()->is_publish_v2x_ && result > 0 )
+    {
+        const VehicleData &data = DataContainer::GetInstance()->v2x_other_vehicles_data_.getData()[result].getData();
+        lcm_.publish("V2X_OTHER_VEHICLE_INFO", &data);
+    }
+    /* if((result > 0) && DataContainer::GetInstance()->v2x_other_vehicles_data_.isUpToDate()) 
     {
         for (auto temp : DataContainer::GetInstance()->v2x_other_vehicles_data_.getData()) 
         {
@@ -289,7 +294,7 @@ void communication::ReceiveV2xOtherVehicleInfo()
             int publish_v2x_flag = lcm_.publish("V2X_OTHER_VEHICLE_INFO", &data);
             //std::cout << "publish v2x flag is : " << publish_v2x_flag << std::endl;
         }   
-    } 
+    }  */
 }
 
 
@@ -417,15 +422,21 @@ void communication::HandleLogV2xInfo(const lcm::ReceiveBuffer* rbuf,
     /* storage the platoon number is equal vehicle to platoon_vehicles_dara_*/
     if (ConfigData::GetInstance()->hmi_fms_valid_)
     {
-        if_platoon = "Yes";
-        DataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
+        int ego_platoon_number = FmsData::GetInstance()->hmi_fms_info.getData().platoon_number;
+        //printf("the ego vehicle platoon number is %d\n", ego_platoon_number);
+        //printf("the other vehicle platoon number is %d\n", v2x_other_vehicle_data.platoon_number);
+        if (ego_platoon_number > 0 && ego_platoon_number == v2x_other_vehicle_data.platoon_number) 
+        {
+            if_platoon = "Yes_hmi";
+            DataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
+        }
     }
     else if (FmsData::GetInstance()->fms_pre_info_.isUpToDate()) 
     {
         int ego_platoon_number = FmsData::GetInstance()->fms_pre_info_.getData().platoonnumber();
-        if (ego_platoon_number == v2x_other_vehicle_data.platoon_number) 
+        if (ego_platoon_number > 0 && ego_platoon_number == v2x_other_vehicle_data.platoon_number) 
         {
-            if_platoon = "Yes";
+            if_platoon = "Yes_FMS";
             DataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
         }
     }

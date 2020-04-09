@@ -354,6 +354,12 @@ void FMS::PrintFmsPreInfo()
         using namespace std;
         cout << "FMS Pre Info" << endl;
         cout << "vehicle license is : " << temp.vehicleid() << endl;
+        cout << "platoon number is : " << int(temp.platoonnumber()) << endl;
+        cout << "platoon member size is : " << temp.platoonmember_size() << endl;
+        printf("formation long is : %f\n", temp.startnode().posx());
+        printf("formation lat is : %f\n", temp.startnode().posy());
+        printf("leaving long is : %f\n", temp.endnode().posx());
+        printf("leaving lat is : %f\n", temp.endnode().posy());
     }
     else 
     {

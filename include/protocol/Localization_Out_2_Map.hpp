@@ -6,21 +6,17 @@
 
 #include <lcm/lcm_coretypes.h>
 
-#ifndef __platoon_protocol_Localization_Out_2_Map_hpp__
-#define __platoon_protocol_Localization_Out_2_Map_hpp__
+#ifndef __Localization_Out_2_Map_hpp__
+#define __Localization_Out_2_Map_hpp__
 
-#include "include/protocol/HEADER.hpp"
 
 namespace platoon
 {
 namespace protocol
 {
-
 class Localization_Out_2_Map
 {
     public:
-        platoon::protocol::HEADER header;
-
         double     time;
 
         double     longitude;
@@ -36,6 +32,10 @@ class Localization_Out_2_Map
         float      roll;
 
         double     weight;
+
+        double     acceleration;
+
+        int8_t     position_valid_flag_for_motorcade;
 
         int8_t     reserve1;
 
@@ -149,9 +149,6 @@ int Localization_Out_2_Map::_encodeNoHash(void *buf, int offset, int maxlen) con
 {
     int pos = 0, tlen;
 
-    tlen = this->header._encodeNoHash(buf, offset + pos, maxlen - pos);
-    if(tlen < 0) return tlen; else pos += tlen;
-
     tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->time, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
@@ -174,6 +171,12 @@ int Localization_Out_2_Map::_encodeNoHash(void *buf, int offset, int maxlen) con
     if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->weight, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->acceleration, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __int8_t_encode_array(buf, offset + pos, maxlen - pos, &this->position_valid_flag_for_motorcade, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __int8_t_encode_array(buf, offset + pos, maxlen - pos, &this->reserve1, 1);
@@ -207,9 +210,6 @@ int Localization_Out_2_Map::_decodeNoHash(const void *buf, int offset, int maxle
 {
     int pos = 0, tlen;
 
-    tlen = this->header._decodeNoHash(buf, offset + pos, maxlen - pos);
-    if(tlen < 0) return tlen; else pos += tlen;
-
     tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->time, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
@@ -232,6 +232,12 @@ int Localization_Out_2_Map::_decodeNoHash(const void *buf, int offset, int maxle
     if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->weight, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->acceleration, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __int8_t_decode_array(buf, offset + pos, maxlen - pos, &this->position_valid_flag_for_motorcade, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
     tlen = __int8_t_decode_array(buf, offset + pos, maxlen - pos, &this->reserve1, 1);
@@ -264,7 +270,6 @@ int Localization_Out_2_Map::_decodeNoHash(const void *buf, int offset, int maxle
 int Localization_Out_2_Map::_getEncodedSizeNoHash() const
 {
     int enc_size = 0;
-    enc_size += this->header._getEncodedSizeNoHash();
     enc_size += __double_encoded_array_size(NULL, 1);
     enc_size += __double_encoded_array_size(NULL, 1);
     enc_size += __double_encoded_array_size(NULL, 1);
@@ -273,6 +278,8 @@ int Localization_Out_2_Map::_getEncodedSizeNoHash() const
     enc_size += __float_encoded_array_size(NULL, 1);
     enc_size += __float_encoded_array_size(NULL, 1);
     enc_size += __double_encoded_array_size(NULL, 1);
+    enc_size += __double_encoded_array_size(NULL, 1);
+    enc_size += __int8_t_encoded_array_size(NULL, 1);
     enc_size += __int8_t_encoded_array_size(NULL, 1);
     enc_size += __int8_t_encoded_array_size(NULL, 1);
     enc_size += __int8_t_encoded_array_size(NULL, 1);
@@ -284,22 +291,11 @@ int Localization_Out_2_Map::_getEncodedSizeNoHash() const
     return enc_size;
 }
 
-uint64_t Localization_Out_2_Map::_computeHash(const __lcm_hash_ptr *p)
+uint64_t Localization_Out_2_Map::_computeHash(const __lcm_hash_ptr *)
 {
-    const __lcm_hash_ptr *fp;
-    for(fp = p; fp != NULL; fp = fp->parent)
-        if(fp->v == Localization_Out_2_Map::getHash)
-            return 0;
-    const __lcm_hash_ptr cp = { p, (void*)Localization_Out_2_Map::getHash };
-
-    uint64_t hash = 0x57e1fedf0084d443LL +
-         platoon::protocol::HEADER::_computeHash(&cp);
-
+    uint64_t hash = 0x1a679b8715e9eeabLL;
     return (hash<<1) + ((hash>>63)&1);
 }
-
-}
-
-}
-
+}//namespace protocol
+}//namespace platoon
 #endif
