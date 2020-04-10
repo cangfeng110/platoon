@@ -63,6 +63,7 @@ private:
     void ResetFmsOrder();
     bool IsAllJoinPlatoon();
     bool IsAllowDequeue();
+    DriveMode FrontMode();
     void ProcessCommand ();
     
 };

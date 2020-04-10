@@ -81,7 +81,7 @@ private:
     bool debug_CalculateID_;
     bool debug_V2xVehicleInfo_;
     bool debug_BroadcastEgoVehicleInfo_;
-    bool debug_ManagetInfo_;
+    bool debug_ManagerInfo_;
     bool debug_V2XCommunication_;
 
     int debug_thw_HZ_;

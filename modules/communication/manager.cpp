@@ -289,11 +289,11 @@ bool Manager::IfAbnormal()
     }
     else
     {
-        if (DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().position_valid_flag_for_motorcade == 1)
+        if (DataContainer::GetInstance()->ego_vehicle_gps_data_.getData().position_valid_flag_for_motorcade == 0)
         {
             if (ConfigData::GetInstance()->debug_StateFlow_)
             {
-                std::cout << "Current Abnormal, gps abnormal flag true " << std::endl;
+                std::cout << "Current Abnormal, gps error" << std::endl;
             }
             return true;
         }
@@ -335,7 +335,7 @@ bool Manager::IfAbnormal()
             }
             if (i == 1 || i == _ID -1)
             {//only leader and front vehicle need to check if gps error
-                if_gps_error = (temp.gps_status == 1) ? true : false;
+                if_gps_error = (temp.gps_status == 0) ? true : false;
             }
             
             if (if_disconnect || if_abnormal || if_cut_in || if_gps_error)
@@ -479,6 +479,24 @@ bool Manager::IsAllowDequeue()
     else if (_ID > platoon_id_map_.size())
        return true;
 }
+/**
+ * get front drive mode, leader vehicle mustn't call this function
+*/
+DriveMode Manager::FrontMode()
+{
+    //leader vehicle don't have front vehicle
+    if (_ID > 1)
+    {
+        int front_id = platoon_id_map_[_ID - 1];
+        const VehicleData& front_vehicle = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[front_id].getData();
+        DriveMode front_drive_mode = (DriveMode)front_vehicle.actual_drive_mode;
+        return front_drive_mode;
+    }
+    else
+    {
+        return Notset;
+    }
+}
 
 void Manager::ProcessCommand ()
 {
@@ -568,10 +586,10 @@ void Manager::ProcessCommand ()
                 }
                 if(IfAbnormal())
                     break;
-
-                int front_id = platoon_id_map_[_ID - 1];
+                DriveMode front_drive_mode = FrontMode();
+                /* int front_id = platoon_id_map_[_ID - 1];
                 const VehicleData& front_vehicle = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[front_id].getData();
-                DriveMode front_drive_mode = (DriveMode)front_vehicle.actual_drive_mode;
+                DriveMode front_drive_mode = (DriveMode)front_vehicle.actual_drive_mode; */
                 if (front_drive_mode == Leader || front_drive_mode == LeaderWait
                     || front_drive_mode == KeepQueue || front_drive_mode == Enqueue)
                 {
@@ -646,9 +664,10 @@ void Manager::ProcessCommand ()
                     std::cerr << "ERROR, this vehicle should not go to keep \n";
                     break;
                 }
-                int front_id = platoon_id_map_[_ID - 1];
+                DriveMode front_drive_mode = FrontMode();
+                /* int front_id = platoon_id_map_[_ID - 1];
                 const VehicleData& front_vehicle = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[front_id].getData();
-                DriveMode front_drive_mode = (DriveMode)front_vehicle.actual_drive_mode;
+                DriveMode front_drive_mode = (DriveMode)front_vehicle.actual_drive_mode; */
                 if ( _ID > 2 && front_drive_mode != KeepQueue)
                     break;
                 if (fabs(threshold_dis - INVALID_FLOAT) <= Epslion || fabs(front_dis - INVALID_FLOAT) <= Epslion)
@@ -744,8 +763,16 @@ void Manager::ProcessCommand ()
                         desire_drive_mode = Dequeue;
                     }
                     else if (m_fms_order_ == F_Enqueue)
-                    {
-                        desire_drive_mode = Enqueue;
+                    {   
+                        DriveMode front_drive_mode = FrontMode();
+                       /*  int front_id = platoon_id_map_[_ID - 1];
+                        const VehicleData& front_vehicle = DataContainer::GetInstance()->platoon_vehicles_data_.getData()[front_id].getData();
+                        DriveMode front_drive_mode = (DriveMode)front_vehicle.actual_drive_mode; */
+                        if ( front_drive_mode == Leader || front_drive_mode == Enqueue 
+                              || front_drive_mode == KeepQueue || front_drive_mode == LeaderWait)
+                        {
+                            desire_drive_mode = Enqueue;
+                        }     
                     }
                 }
             }
@@ -819,7 +846,7 @@ void Manager::UpdatePlatoonManagerInfo ()
     if (m_debug_flags & DEBUG_ManagerInfo)
     {
         using namespace std;
-        cout << "+++++++++++++Display Manager ifno+++++++++++++" << endl;
+        cout << "+++++++++++++Display Manager info+++++++++++++" << endl;
         printf (" desire_drive_mode is : ");
         print_drive_mode(DriveMode(platoon_manager_info.desire_drive_mode));
         printf ("platoon number is : %d\n",platoon_manager_info.platoon_number);

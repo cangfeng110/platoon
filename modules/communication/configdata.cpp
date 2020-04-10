@@ -92,7 +92,7 @@ ConfigData::ConfigData() {
         bool read_2 = debug_config.lookupValue("debug_CalculateID", debug_CalculateID_);
         bool read_3 = debug_config.lookupValue("debug_V2xVehicleInfo", debug_V2xVehicleInfo_);
         bool read_4 = debug_config.lookupValue("debug_BroadcastEgoVehicleInfo", debug_BroadcastEgoVehicleInfo_);
-        bool read_5 = debug_config.lookupValue("debug_ManagetInfo", debug_ManagetInfo_);
+        bool read_5 = debug_config.lookupValue("debug_ManagerInfo", debug_ManagerInfo_);
         bool read_6 = debug_config.lookupValue("debug_V2XCommunication", debug_V2XCommunication_);
         bool read_7 = debug_config.lookupValue("debug_StateFlow",debug_StateFlow_);
         bool read_8 = debug_config.lookupValue("debug_ToFmsInfo", debug_ToFmsInfo_);
@@ -113,7 +113,7 @@ ConfigData::ConfigData() {
             debug_flags_ |= DEBUG_V2xVehicleInfo;
         if (debug_BroadcastEgoVehicleInfo_)
             debug_flags_ |= DEBUG_BroadcastEgoVehicleInfo;
-        if (debug_ManagetInfo_)
+        if (debug_ManagerInfo_)
             debug_flags_ |= DEBUG_ManagerInfo;
         if (debug_V2XCommunication_)
             debug_flags_  |= DEBUG_V2XCommunication;
