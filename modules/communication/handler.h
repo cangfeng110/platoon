@@ -45,6 +45,7 @@ public:
 
     // protocol2.0 broast ego vehicle info
     int BroastEgoVehicleInfo(int);
+    
     int DecodeV2xVehicleInfo(int);
 
 private:

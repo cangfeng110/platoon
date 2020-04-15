@@ -70,7 +70,7 @@ public:
     {
         std::lock_guard<std::mutex> lock(_mutex);
         _data = message;
-        timeToLive = TTL_COUNT;
+        timeToLive = ConfigData::GetInstance()->time_to_live_;
     }
 
     T getData()
