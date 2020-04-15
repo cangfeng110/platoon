@@ -50,6 +50,7 @@ public:
 private:
     // socket
     int sockfd_;
+    
     struct sockaddr_in local_sockaddr_;
     
     char buffer_[MAX_RECV_LENGTH];

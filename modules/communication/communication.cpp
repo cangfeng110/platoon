@@ -74,7 +74,7 @@ communication::communication(): lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("c
     //publish manager info to planning model
     if (!ConfigData::GetInstance()->print_log_)
     {
-        loop_.runEvery(20, std::bind(&communication::PublishManagerInfo, this));
+        loop_.runEvery(1000 / (ConfigData::GetInstance ()->broadcast_HZ_), std::bind(&communication::PublishManagerInfo, this));
     }
     //publish to fusion info
     loop_.runEvery(50, std::bind(&communication::PublishToFusionInfo, this));

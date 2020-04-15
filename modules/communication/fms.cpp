@@ -106,7 +106,16 @@ void FMS::CalApplyOrder()
                     else if (result == RefuseLeader)
                         m_to_fms_info_.set_applyinfo(FmsApplyOrder(BeJoiner));
                     else if (result == NoAnser)
-                        m_to_fms_info_.set_applyinfo(FmsApplyOrder(BeLeader));
+                    {
+                        if (DataContainer::GetInstance()->manager_data_.getData().vehicle_sequence == 1)
+                        {
+                            m_to_fms_info_.set_applyinfo(FmsApplyOrder(BeLeader));
+                        }
+                        else
+                        {
+                            m_to_fms_info_.set_applyinfo(FmsApplyOrder(BeJoiner));
+                        }
+                    }      
                 }
                 else
                 {

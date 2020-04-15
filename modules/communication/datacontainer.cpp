@@ -17,7 +17,7 @@ void DataContainer::DecreaseTtl() {
     platoon_vehicles_data_.decreaseTTL();
     worldmodle_other_vehicle_data_.decreaseTTL();
     manager_data_.decreaseTTL();
-    planning_data_.decreaseTTL();
+    //planning_data_.decreaseTTL();
 } 
 
 } // namespace communication

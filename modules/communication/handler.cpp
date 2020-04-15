@@ -133,7 +133,7 @@ int Handler::BroastEgoVehicleInfo()
     else 
     {
         ego_vehicle_info.actual_drive_mode = 7;
-        ego_vehicle_info.cut_in_flag = 2;
+        ego_vehicle_info.cut_in_flag = 0;
         ego_vehicle_info.desire_long_acc = INVALID_FLOAT;
     } 
 

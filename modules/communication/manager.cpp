@@ -235,8 +235,10 @@ float Manager::CalThreshold()
     if (DataContainer::GetInstance()->ego_vehicle_vcu_data_.isUpToDate())
     {
         const VehicleVcuData& ego_vehicle_vcu_data = DataContainer::GetInstance ()->ego_vehicle_vcu_data_.getData ();
-        float threshold_dis = ego_vehicle_vcu_data.fSpeed * ConfigData::GetInstance ()->keep_mode_threshold_ 
+        double threshold_dis = ego_vehicle_vcu_data.fSpeed * ConfigData::GetInstance ()->keep_mode_threshold_ 
                                   + m_safe_distance_;
+        // the min follow dis is 10, so the threshold should bigger than 10
+        threshold_dis = std::max(threshold_dis, 12.0);
         return threshold_dis;
     }
     else
@@ -322,23 +324,14 @@ bool Manager::IfAbnormal()
             bool if_disconnect = !(DataContainer::GetInstance()->platoon_vehicles_data_.getData()[vehicle_id].isUpToDate());
             bool if_abnormal = false;
             bool if_cut_in =  false;
-            bool if_gps_error = false;
-            if (i == 1)
-            {//leader vehicle don't need to check cut_in_flag and anbormal status
-                if_abnormal = false;
-                if_cut_in = false;
-            }
-            else
+            bool if_manual = false;
+            if (i > 1)//leader vehicle don't need to check cut_in_flag and anbormal status
             {
                 if_abnormal = (DriveMode(temp.actual_drive_mode) == Abnormal) ? true : false;
                 if_cut_in = (temp.cut_in_flag == 1) ? true : false;
+                if_manual = (DriveMode(temp.actual_drive_mode) == Manual) ? true : false;
             }
-            if (i == 1 || i == _ID -1)
-            {//only leader and front vehicle need to check if gps error
-                if_gps_error = (temp.gps_status == 0) ? true : false;
-            }
-            
-            if (if_disconnect || if_abnormal || if_cut_in || if_gps_error)
+            if (if_disconnect || if_abnormal || if_cut_in || if_manual)
             {
                 if (ConfigData::GetInstance()->debug_StateFlow_)
                 {   if (if_disconnect)
@@ -356,6 +349,10 @@ bool Manager::IfAbnormal()
                     if (if_gps_error)
                     {
                         std::cout << "Current Abnormal, front vehicles gps error : " << vehicle_id << std::endl;
+                    }
+                    if (if_manual)
+                    {
+                        std::cout << "Current Abnormal, front vehicles manual : " << vehicle_id << std::endl;
                     }
                 }
                 return true;
@@ -542,7 +539,7 @@ void Manager::ProcessCommand ()
     // this is only for test,clear status
     if (m_fms_order_ == F_Reset && desire_drive_mode != Auto)
     {
-        desire_drive_mode = Auto;
+        desire_drive_mode = Notset;
         if (m_debug_StateFlow)
         {
             if(debug_count % m_debug_thw_HZ)
@@ -558,9 +555,12 @@ void Manager::ProcessCommand ()
                 if (debug_count % m_debug_thw_HZ == 0)
                     printf("IN Manual\n\n");
             }
-            //when vehicle is manual, desire must be manual, reset commond
+            //when vehicle is manual, desire must be manual,  not leader need reset commond
+            if (_ID > 1)
+            {
+                ResetFmsOrder();
+            }     
             desire_drive_mode = Manual;
-            ResetFmsOrder();
             break;
         case Auto:
             if (m_debug_StateFlow)
@@ -575,7 +575,7 @@ void Manager::ProcessCommand ()
             if (m_fms_order_ == F_Leader)
             {
                 desire_drive_mode = LeaderWait;
-                ResetFmsOrder();
+               //ResetFmsOrder();
             }
             else if (m_fms_order_ == F_Enqueue)
             {
@@ -600,8 +600,6 @@ void Manager::ProcessCommand ()
                     if (front_dis <= thw_dis * ConfigData::GetInstance()->formation_threshold_)
                     {
                         desire_drive_mode = Enqueue;
-                        // 
-                        //ResetFmsOrder();
                     }
                 }
             }
@@ -750,7 +748,7 @@ void Manager::ProcessCommand ()
                 desire_drive_mode = Auto;
                 /**
                  * from abnormal to auto present a task is over , need to clear fms enqueue oreder,
-                 * invoid repeat enqueue
+                 * invoid repeat enqueue, because in auto, id will be cal.
                 */
                 ResetFmsOrder();
             }
