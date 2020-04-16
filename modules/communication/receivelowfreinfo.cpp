@@ -11,7 +11,7 @@ ReceiveLowFreInfo::ReceiveLowFreInfo():lcm_("udpm://239.255.76.67:7667?ttl=1"), 
 {
     if (!lcm_.good())
     {
-        LDIE << " lcm init error! ";
+        LDIE << " low fre lcm init error! ";
     }
 
     lcm_.subscribe("FMS_INFO",&ReceiveLowFreInfo::HandleHmiFmsInfo, this);

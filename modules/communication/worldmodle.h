@@ -5,7 +5,7 @@
 
 #include "include/base/NonCopyable.h"
 #include "include/protocol/lcmDataNameTypeDefine.h"
-#include "modules/communication/datacontainer.h"
+//#include "modules/communication/datacontainer.h"
 #include "modules/communication/configdata.h"
 
 namespace platoon

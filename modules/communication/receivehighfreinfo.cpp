@@ -9,7 +9,7 @@ ReceiveHighFreInfo::ReceiveHighFreInfo() : lcm_("udpm://239.255.76.67:7667?ttl=1
 {
     if (!lcm_.good())
     {
-        LDIE << " lcm init error! ";
+        LDIE << " high fre lcm init error! ";
     }
 
     lcm_.subscribe("localization_out_2_map", &ReceiveHighFreInfo::HandleEgoVehicleGpsInfo, this);

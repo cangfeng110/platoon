@@ -2,6 +2,10 @@
 
 #include <math.h>
 
+#include "modules/communication/highfredatacontainer.h"
+#include "modules/communication/lowfredatacontainer.h"
+#include "modules/communication/udpdatacontainer.h"
+#include "modules/communication/senddatacontanier.h"
 #include "modules/customfunction/functiontool.h"
 
 namespace platoon
@@ -10,23 +14,27 @@ namespace communication
 {
 
 void WorldModle::GetWorldmodleVehiles() {
-    if (DataContainer::GetInstance()->platoon_vehicles_data_.isUpToDate()) {
-        for(auto map_it : DataContainer::GetInstance()->platoon_vehicles_data_.getData()) {
+    if (UDPDataContainer::GetInstance()->platoon_vehicles_data_.isUpToDate()) {
+        auto temp = UDPDataContainer::GetInstance()->platoon_vehicles_data_.getData();
+        for(auto map_it : temp) 
+        {
             const VehicleData v2x_other_vehicle_data = map_it.second.getData();
             const int key = v2x_other_vehicle_data.vehicle_id;
             WorldModelObject worldmodel_vehicle_data =
-                DataContainer::GetInstance()->worldmodle_other_vehicle_data_.getData()[key].getData();
+                SendDataContanier::GetInstance()->worldmodle_other_vehicle_data_.getData()[key].getData();
             worldmodel_vehicle_data.vehicle_id = v2x_other_vehicle_data.vehicle_id;
             worldmodel_vehicle_data.actual_drive_mode = v2x_other_vehicle_data.actual_drive_mode;
             worldmodel_vehicle_data.desire_drive_mode = v2x_other_vehicle_data.desire_drive_mode;
             TransV2xInfoToWorldmodelInfo(v2x_other_vehicle_data, worldmodel_vehicle_data);
-            DataContainer::GetInstance()->worldmodle_other_vehicle_data_.getData()[key].setData(worldmodel_vehicle_data); 
+            SendDataContanier::GetInstance()->worldmodle_other_vehicle_data_.getData()[key].setData(worldmodel_vehicle_data); 
         }
     }
     worldmodel_other_vehicles_data_.vehicle_num = 0;
     worldmodel_other_vehicles_data_.vehicles.clear();
-    if (DataContainer::GetInstance()->worldmodle_other_vehicle_data_.isUpToDate()) {
-        for (auto map_it : DataContainer::GetInstance()->worldmodle_other_vehicle_data_.getData()) {    
+    if (SendDataContanier::GetInstance()->worldmodle_other_vehicle_data_.isUpToDate()) {
+        auto temp =  SendDataContanier::GetInstance()->worldmodle_other_vehicle_data_.getData();
+        for (auto map_it : temp) 
+        {    
             WorldModelObject worldmodel_vehicle_data = map_it.second.getData();
             worldmodel_other_vehicles_data_.vehicles.push_back(worldmodel_vehicle_data);
         }
@@ -100,8 +108,8 @@ void WorldModle::GetWorldmodleVehiles() {
 
 void WorldModle::ProcessTrajectory(std::vector<Location> &trajectory) {
     //Update relative info
-    if(DataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) {
-        const  VehicleGpsData ego_vehicle_location = DataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
+    if(HighFreDataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) {
+        const  VehicleGpsData ego_vehicle_location = HighFreDataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
         for (int i = 0; i < trajectory.size(); i++) {
             platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(trajectory[i].relative_x, trajectory[i].relative_y,
                                                                 ego_vehicle_location.heading,

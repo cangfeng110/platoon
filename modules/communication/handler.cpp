@@ -47,6 +47,12 @@ Handler::Handler()
         LINFO << "local port bind success.";
         //LINFO << "length" << sizeof(UDPVehicle);
     }
+
+    std::string send_ip =  ConfigData::GetInstance()->remote_ip_;
+    int send_port =  ConfigData::GetInstance()->remote_port_;
+    v2x_udp_ = Udp(send_ip, send_port);
+    v2x_udp_.init();
+
     m_debug_flags = ConfigData::GetInstance ()->GetDebugFlags ();
 }
 /**

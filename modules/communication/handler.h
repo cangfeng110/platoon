@@ -10,6 +10,7 @@
 #include "include/protocol/lcmDataNameTypeDefine.h"
 #include "modules/communication/datacontainer.h"
 #include "modules/communication/configdata.h"
+#include "modules/communication/udp.h"
 
 
 
@@ -59,6 +60,8 @@ private:
     int m_debug_flags;
 
     static int send_number_;
+
+    Udp v2x_udp_;
 };
 
 } // namespace communication

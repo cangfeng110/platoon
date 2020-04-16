@@ -14,7 +14,7 @@ class SendDataContanier
 {  
 public:
     templateDataContainer_Map_Mutex<WorldModelObject> worldmodle_other_vehicle_data_;
-
+    
     // manager data
     templateDataContainer_Mutex<PlatoonManagerInfo> manager_data_;
 
