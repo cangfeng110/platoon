@@ -14,6 +14,7 @@
 #include "include/base/EventLoop.h"
 #include "include/base/Logging.h"
 #include "include/base/Channel.h"
+#include "include/protocol/lcmDataNameTypeDefine.h"
 
 namespace platoon
 {
@@ -44,6 +45,12 @@ private:
     char v2x_buffer_[MAX_RECEIVE_LEN];
 
     lcm::LCM lcm_;
+
+    int platoon_number_;
+
+    bool isupdate_;
+
+    VehicleGpsData ego_vehicle_gps_data_;
     
     int DecodeV2xVechileInfo3();
 

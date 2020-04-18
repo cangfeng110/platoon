@@ -20,15 +20,10 @@ public:
 
     templateDataContainer_Mutex<FmsOrder> fms_order_;
 
-    static SendDataContanier* GetInstance()
-    {
-        return instance_;
-    }
-    void DecreaseTtl()
-    {
-        worldmodle_other_vehicle_data_.decreaseTTL();
-        manager_data_.decreaseTTL();
-    }
+    static SendDataContanier* GetInstance();
+
+    void DecreaseTtl();
+    
 private:
     static SendDataContanier* instance_;
 
@@ -40,7 +35,7 @@ private:
     
 };
 
-SendDataContanier* SendDataContanier::instance_ = new SendDataContanier();
+
 
 }//namespace communication
 }//namespace platoon

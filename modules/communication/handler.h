@@ -10,7 +10,6 @@
 #include "include/protocol/lcmDataNameTypeDefine.h"
 #include "modules/communication/datacontainer.h"
 #include "modules/communication/configdata.h"
-#include "modules/communication/udp.h"
 
 
 
@@ -46,7 +45,6 @@ public:
 
     // protocol2.0 broast ego vehicle info
     int BroastEgoVehicleInfo(int);
-    
     int DecodeV2xVehicleInfo(int);
 
 private:
@@ -60,8 +58,6 @@ private:
     int m_debug_flags;
 
     static int send_number_;
-
-    Udp v2x_udp_;
 };
 
 } // namespace communication

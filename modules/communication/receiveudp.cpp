@@ -4,6 +4,7 @@
 #include "modules/communication/lowfredatacontainer.h"
 #include "modules/communication/highfredatacontainer.h"
 #include "modules/communication/udpdatacontainer.h"
+#include "modules/communication/configdata.h"
 
 #include "include/ibox/UDPVehicle.hpp"
 #include "include/ibox/inbound_communication_header.h"
@@ -15,7 +16,7 @@ namespace platoon
 {
 namespace communication
 {
-ReceiveUDP::ReceiveUDP() : lcm_("udpm://239.255.76.67:7667?ttl=1"), loop_("ReceiveUDP")
+ReceiveUDP::ReceiveUDP() : lcm_("udpm://239.255.76.67:7667?ttl=1"), loop_("ReceiveUDP"), platoon_number_(0), isupdate_(false)
 {
     if (!lcm_.good())
     {
@@ -79,6 +80,7 @@ void ReceiveUDP::Loop()
     loop_.loop();
     LINFO << " Receive UDP info is end ";
 }
+
 /**
  * 3.0version
 */
@@ -143,18 +145,19 @@ int ReceiveUDP::DecodeV2xVechileInfo3()
         v2x_other_vehicle_data.vehicle_sequence = udp_other_vehicle_data.vehicle_sequence;
 
         int key = v2x_other_vehicle_data.vehicle_id;
+
+        ego_vehicle_gps_data_ = HighFreDataContainer::GetInstance()->ego_vehicle_gps_data_.getData(isupdate_);
     
-        if (HighFreDataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) 
+        if (isupdate_) 
         {
-            const VehicleGpsData &ego_vehicle_gps_data = HighFreDataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
             platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(v2x_other_vehicle_data.relative_x, v2x_other_vehicle_data.relative_y,
-                                                                ego_vehicle_gps_data.heading,
-                                                                ego_vehicle_gps_data.longitude,ego_vehicle_gps_data.latitude,
-                                                                ego_vehicle_gps_data.height,
+                                                                ego_vehicle_gps_data_.heading,
+                                                                ego_vehicle_gps_data_.longitude,ego_vehicle_gps_data_.latitude,
+                                                                ego_vehicle_gps_data_.height,
                                                                 v2x_other_vehicle_data.longitude, v2x_other_vehicle_data.latitude,
                                                                 v2x_other_vehicle_data.altitude);
             platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(v2x_other_vehicle_data.relative_heading,
-                                                                    ego_vehicle_gps_data.heading, v2x_other_vehicle_data.heading);
+                                                                    ego_vehicle_gps_data_.heading, v2x_other_vehicle_data.heading);
         } 
         else 
         {
@@ -168,10 +171,10 @@ int ReceiveUDP::DecodeV2xVechileInfo3()
         /* storage the platoon number is equal vehicle to platoon_vehicles_dara_*/
         if (ConfigData::GetInstance()->hmi_fms_valid_)
         {
-            int ego_platoon_number = LowFreDataContanier::GetInstance()->hmi_fms_info.getData().platoon_number;
+            platoon_number_ = LowFreDataContanier::GetInstance()->hmi_fms_info_.getData(isupdate_).platoon_number;
             //printf("the ego vehicle platoon number is %d\n", ego_platoon_number);
             //printf("the other vehicle platoon number is %d\n", v2x_other_vehicle_data.platoon_number);
-            if (ego_platoon_number > 0 && ego_platoon_number == v2x_other_vehicle_data.platoon_number) 
+            if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
             {
                 if_platoon = "Yes_hmi";
                 UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
@@ -179,8 +182,8 @@ int ReceiveUDP::DecodeV2xVechileInfo3()
         }
         else if (LowFreDataContanier::GetInstance()->fms_pre_info_.isUpToDate()) 
         {
-            int ego_platoon_number = LowFreDataContanier::GetInstance()->fms_pre_info_.getData().platoonnumber();
-            if (ego_platoon_number > 0 && ego_platoon_number == v2x_other_vehicle_data.platoon_number) 
+            platoon_number_ = LowFreDataContanier::GetInstance()->fms_pre_info_.getData(isupdate_).platoonnumber();
+            if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
             {
                 if_platoon = "Yes_FMS";
                 UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
@@ -276,17 +279,18 @@ int ReceiveUDP::DecodeV2xVehicleInfo2() {
 
         int key = v2x_other_vehicle_data.vehicle_id;
     
-        if (HighFreDataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) 
+        ego_vehicle_gps_data_ = HighFreDataContainer::GetInstance()->ego_vehicle_gps_data_.getData(isupdate_);
+    
+        if (isupdate_) 
         {
-            const VehicleGpsData &ego_vehicle_gps_data = HighFreDataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
             platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(v2x_other_vehicle_data.relative_x, v2x_other_vehicle_data.relative_y,
-                                                                ego_vehicle_gps_data.heading,
-                                                                ego_vehicle_gps_data.longitude,ego_vehicle_gps_data.latitude,
-                                                                ego_vehicle_gps_data.height,
+                                                                ego_vehicle_gps_data_.heading,
+                                                                ego_vehicle_gps_data_.longitude,ego_vehicle_gps_data_.latitude,
+                                                                ego_vehicle_gps_data_.height,
                                                                 v2x_other_vehicle_data.longitude, v2x_other_vehicle_data.latitude,
                                                                 v2x_other_vehicle_data.altitude);
             platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(v2x_other_vehicle_data.relative_heading,
-                                                                    ego_vehicle_gps_data.heading, v2x_other_vehicle_data.heading);
+                                                                    ego_vehicle_gps_data_.heading, v2x_other_vehicle_data.heading);
         } 
         else 
         {
@@ -300,10 +304,10 @@ int ReceiveUDP::DecodeV2xVehicleInfo2() {
         /* storage the platoon number is equal vehicle to platoon_vehicles_dara_*/
         if (ConfigData::GetInstance()->hmi_fms_valid_)
         {
-            int ego_platoon_number = LowFreDataContanier::GetInstance()->hmi_fms_info.getData().platoon_number;
+            platoon_number_ = LowFreDataContanier::GetInstance()->hmi_fms_info_.getData(isupdate_).platoon_number;
             //printf("the ego vehicle platoon number is %d\n", ego_platoon_number);
             //printf("the other vehicle platoon number is %d\n", v2x_other_vehicle_data.platoon_number);
-            if (ego_platoon_number > 0 && ego_platoon_number == v2x_other_vehicle_data.platoon_number) 
+            if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
             {
                 if_platoon = "Yes_hmi";
                 UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
@@ -311,8 +315,8 @@ int ReceiveUDP::DecodeV2xVehicleInfo2() {
         }
         else if (LowFreDataContanier::GetInstance()->fms_pre_info_.isUpToDate()) 
         {
-            int ego_platoon_number = LowFreDataContanier::GetInstance()->fms_pre_info_.getData().platoonnumber();
-            if (ego_platoon_number > 0 && ego_platoon_number == v2x_other_vehicle_data.platoon_number) 
+            platoon_number_ = LowFreDataContanier::GetInstance()->fms_pre_info_.getData(isupdate_).platoonnumber();
+            if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
             {
                 if_platoon = "Yes_FMS";
                 UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
@@ -399,17 +403,18 @@ int ReceiveUDP::SilDecodeV2xVechileInfo()
         return -1;
     }
 
-    if (HighFreDataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate()) 
+    ego_vehicle_gps_data_ = HighFreDataContainer::GetInstance()->ego_vehicle_gps_data_.getData(isupdate_);
+    
+    if (isupdate_) 
     {
-        const VehicleGpsData &ego_vehicle_gps_data = HighFreDataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
         platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(v2x_other_vehicle_data.relative_x, v2x_other_vehicle_data.relative_y,
-                                                            ego_vehicle_gps_data.heading,
-                                                            ego_vehicle_gps_data.longitude,ego_vehicle_gps_data.latitude,
-                                                            ego_vehicle_gps_data.height,
+                                                            ego_vehicle_gps_data_.heading,
+                                                            ego_vehicle_gps_data_.longitude,ego_vehicle_gps_data_.latitude,
+                                                            ego_vehicle_gps_data_.height,
                                                             v2x_other_vehicle_data.longitude, v2x_other_vehicle_data.latitude,
                                                             v2x_other_vehicle_data.altitude);
         platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(v2x_other_vehicle_data.relative_heading,
-                                                                ego_vehicle_gps_data.heading, v2x_other_vehicle_data.heading);
+                                                                ego_vehicle_gps_data_.heading, v2x_other_vehicle_data.heading);
     } 
     else 
     {
@@ -419,13 +424,14 @@ int ReceiveUDP::SilDecodeV2xVechileInfo()
     UDPDataContainer::GetInstance()->v2x_other_vehicles_data_.setData(key, v2x_other_vehicle_data);
 
     std::string if_platoon = "No";
+    
     /* storage the platoon number is equal vehicle to platoon_vehicles_dara_*/
     if (ConfigData::GetInstance()->hmi_fms_valid_)
     {
-        int ego_platoon_number = LowFreDataContanier::GetInstance()->hmi_fms_info.getData().platoon_number;
+        platoon_number_ = LowFreDataContanier::GetInstance()->hmi_fms_info_.getData(isupdate_).platoon_number;
         //printf("the ego vehicle platoon number is %d\n", ego_platoon_number);
         //printf("the other vehicle platoon number is %d\n", v2x_other_vehicle_data.platoon_number);
-        if (ego_platoon_number > 0 && ego_platoon_number == v2x_other_vehicle_data.platoon_number) 
+        if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
         {
             if_platoon = "Yes_hmi";
             UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
@@ -433,8 +439,8 @@ int ReceiveUDP::SilDecodeV2xVechileInfo()
     }
     else if (LowFreDataContanier::GetInstance()->fms_pre_info_.isUpToDate()) 
     {
-        int ego_platoon_number = LowFreDataContanier::GetInstance()->fms_pre_info_.getData().platoonnumber();
-        if (ego_platoon_number > 0 && ego_platoon_number == v2x_other_vehicle_data.platoon_number) 
+        platoon_number_ = LowFreDataContanier::GetInstance()->fms_pre_info_.getData(isupdate_).platoonnumber();
+        if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
         {
             if_platoon = "Yes_FMS";
             UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);

@@ -66,6 +66,8 @@ class FrontVehicle
 
         float      desire_long_acc;
 
+        int32_t    ego_drive_mode;
+
     public:
         /**
          * Encode a message into binary form.
@@ -234,6 +236,9 @@ int FrontVehicle::_encodeNoHash(void *buf, int offset, int maxlen) const
     tlen = __float_encode_array(buf, offset + pos, maxlen - pos, &this->desire_long_acc, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
+    tlen = __int32_t_encode_array(buf, offset + pos, maxlen - pos, &this->ego_drive_mode, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
     return pos;
 }
 
@@ -313,6 +318,9 @@ int FrontVehicle::_decodeNoHash(const void *buf, int offset, int maxlen)
     tlen = __float_decode_array(buf, offset + pos, maxlen - pos, &this->desire_long_acc, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
+    tlen = __int32_t_decode_array(buf, offset + pos, maxlen - pos, &this->ego_drive_mode, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
     return pos;
 }
 
@@ -343,12 +351,13 @@ int FrontVehicle::_getEncodedSizeNoHash() const
     enc_size += __float_encoded_array_size(NULL, 1);
     enc_size += __float_encoded_array_size(NULL, 1);
     enc_size += __float_encoded_array_size(NULL, 1);
+    enc_size += __int32_t_encoded_array_size(NULL, 1);
     return enc_size;
 }
 
 uint64_t FrontVehicle::_computeHash(const __lcm_hash_ptr *)
 {
-    uint64_t hash = 0xf96140e3e14bb7edLL;
+    uint64_t hash = 0x7aad6c817fa93ad1LL;
     return (hash<<1) + ((hash>>63)&1);
 }
 

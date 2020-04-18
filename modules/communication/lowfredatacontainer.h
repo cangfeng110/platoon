@@ -20,17 +20,11 @@ public:
 
     templateDataContainer_Mutex<FMSApplyResultInfo> fms_apply_result_;
 
-    templateDataContainer_Mutex<HmiFmsInfo> hmi_fms_info;
+    templateDataContainer_Mutex<HmiFmsInfo> hmi_fms_info_;
 
-    static LowFreDataContanier* GetInstance()
-    {
-        return instance_;
-    }
+    static LowFreDataContanier* GetInstance();
 
-    void DecreaseTtl()
-    {
-        planning_data_.decreaseTTL();
-    }
+    void DecreaseTtl();
 
 private:
     static LowFreDataContanier* instance_;

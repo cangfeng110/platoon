@@ -17,7 +17,6 @@
 class Udp{
 public:
     Udp(std::string &ip, const int port);
-    Udp(){}
     ~Udp();
 
     void init();

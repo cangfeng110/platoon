@@ -5,12 +5,11 @@
 #include <stdio.h>
 
 //#include "modules/communication/datacontainer.h"
-#include "modules/communication/highfredatacontainer.h"
-#include "modules/communication/lowfredatacontainer.h"
-#include "modules/communication/udpdatacontainer.h"
-#include "modules/communication/senddatacontanier.h"
 #include "modules/communication/configdata.h"
 //#include "modules/communication/fmsdata.h"
+#include "modules/communication/highfredatacontainer.h"
+#include "modules/communication/lowfredatacontainer.h"
+#include "modules/communication/senddatacontanier.h"
 #include "include/protocol/lcmDataNameTypeDefine.h"
 #include "modules/customfunction/functiontool.h"
 
@@ -27,17 +26,31 @@ FMS::FMS() : m_fms_order_(F_Invalid)
 }
 
 /**
+ * update this class need date from other datacontanier
+ * 
+*/
+void FMS::UpdateInfo()
+{
+    fms_pre_info_ = LowFreDataContanier::GetInstance()->fms_pre_info_.getData(fms_pre_info_isupdate_);
+    fms_back_info_ = LowFreDataContanier::GetInstance()->fms_apply_result_.getData(fms_back_info_isupdate_);
+    planning_info_ = LowFreDataContanier::GetInstance()->planning_data_.getData(planning_info_isupdate_);
+    hmi_fms_info_ = LowFreDataContanier::GetInstance()->hmi_fms_info_.getData(hmi_info_isupdate_);
+    manager_info_ = SendDataContanier::GetInstance()->manager_data_.getData(manager_info_isupdate_);
+    ego_vehicle_gps_data_ = HighFreDataContainer::GetInstance()->ego_vehicle_gps_data_.getData(ego_gps_isupdate_);
+}
+
+/**
  * update reference point when need to cal apply info or cal if disband
  * 
 */
 void FMS::UpdatePoint()
 {
-    if (LowFreDataContanier::GetInstance()->fms_pre_info_.isUpToDate())
+    if (fms_pre_info_isupdate_)
     {
         m_enqueue_point_.clear();
         m_dequeue_point_.clear();
-        RefPoint enqueue_point = LowFreDataContanier::GetInstance()->fms_pre_info_.getData().startnode();
-        RefPoint dequeue_point = LowFreDataContanier::GetInstance()->fms_pre_info_.getData().endnode();
+        const RefPoint& enqueue_point = fms_pre_info_.startnode();
+        const RefPoint& dequeue_point = fms_pre_info_.endnode();
         m_enqueue_point_.push_back(enqueue_point.posx());
         m_enqueue_point_.push_back(enqueue_point.posy());
         m_dequeue_point_.push_back(dequeue_point.posx());
@@ -47,21 +60,20 @@ void FMS::UpdatePoint()
 
 ApplyResult FMS::CalApplyResult()
 {
-    if (LowFreDataContanier::GetInstance()->fms_apply_result_.isUpToDate())
+    if (fms_back_info_isupdate_)
     {
-        FMSApplyResultInfo temp = LowFreDataContanier::GetInstance()->fms_apply_result_.getData();
-        if (temp.applyresult())
+        if (fms_back_info_.applyresult())
         {
-            if (temp.applyinfo() == FmsApplyOrder(BeJoiner))
+            if (fms_back_info_.applyinfo() == FmsApplyOrder(BeJoiner))
                 return AllowJoin;
-            else if (temp.applyinfo() == FmsApplyOrder(BeLeader))
+            else if (fms_back_info_.applyinfo() == FmsApplyOrder(BeLeader))
                 return AllowLeader;
         }
         else
         {
-            if (temp.applyinfo() == FmsApplyOrder(BeJoiner))
+            if (fms_back_info_.applyinfo() == FmsApplyOrder(BeJoiner))
                 return RefuseJoiner;
-            else if (temp.applyinfo() == FmsApplyOrder(BeLeader))
+            else if (fms_back_info_.applyinfo() == FmsApplyOrder(BeLeader))
                 return RefuseLeader;
             else 
                 return NoAnser;
@@ -84,25 +96,24 @@ void FMS::CalApplyOrder()
     }  
     else 
     {
-        if (!LowFreDataContanier::GetInstance()->planning_data_.isUpToDate())
+        if (!planning_info_isupdate_)
         {
             m_to_fms_info_.set_applyinfo(FmsApplyOrder(NoApply));
             return;
         } 
-        EgoPlanningMsg plan_info = LowFreDataContanier::GetInstance()->planning_data_.getData();
-        if (DriveMode(plan_info.actual_drive_mode) == Auto)
+        if (DriveMode(planning_info_.actual_drive_mode) == Auto)
         {   
-            if (HighFreDataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate())
+            if (ego_gps_isupdate_)
             {   
                 double relative_x, relative_y;
-                VehicleGpsData ego_vehicle_location = HighFreDataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
                 platoon::common::TransfromGpsAbsoluteToEgoRelaCoord (relative_x, relative_y,
-                                                                ego_vehicle_location.heading,
-                                                                ego_vehicle_location.longitude, ego_vehicle_location.latitude,
-                                                                ego_vehicle_location.height,
+                                                                ego_vehicle_gps_data_.heading,
+                                                                ego_vehicle_gps_data_.longitude, ego_vehicle_gps_data_.latitude,
+                                                                ego_vehicle_gps_data_.height,
                                                                 m_enqueue_point_[0], m_enqueue_point_[1],
-                                                                ego_vehicle_location.height);
-                if (fabs(relative_x) < ConfigData::GetInstance()->enqueue_threshold_)
+                                                                ego_vehicle_gps_data_.height);
+                double dis = sqrt((relative_x * relative_x + relative_y * relative_y));
+                if (dis < ConfigData::GetInstance()->enqueue_threshold_)
                 {
                     ApplyResult result = CalApplyResult();
                     if (result == AllowJoin || result == AllowLeader || result == RefuseJoiner)
@@ -111,14 +122,21 @@ void FMS::CalApplyOrder()
                         m_to_fms_info_.set_applyinfo(FmsApplyOrder(BeJoiner));
                     else if (result == NoAnser)
                     {
-                        if (SendDataContanier::GetInstance()->manager_data_.getData().vehicle_sequence == 1)
+                        if (manager_info_isupdate_)
                         {
-                            m_to_fms_info_.set_applyinfo(FmsApplyOrder(BeLeader));
+                            if (manager_info_.vehicle_sequence == 1)
+                            {
+                                m_to_fms_info_.set_applyinfo(FmsApplyOrder(BeLeader));
+                            }
+                            else
+                            {
+                                m_to_fms_info_.set_applyinfo(FmsApplyOrder(BeJoiner));
+                            }
                         }
                         else
                         {
-                            m_to_fms_info_.set_applyinfo(FmsApplyOrder(BeJoiner));
-                        }
+                           m_to_fms_info_.set_applyinfo(FmsApplyOrder(NoApply));
+                        } 
                     }      
                 }
                 else
@@ -147,32 +165,29 @@ bool FMS::CalIfDisBand()
 {   
     double ref_longtitude, ref_latitude, ref_altitude, ref_heading;
 
-    if (!LowFreDataContanier::GetInstance()->planning_data_.isUpToDate())
+    if (!planning_info_isupdate_)
     {
         return false;
     }
-    EgoPlanningMsg plan_info = LowFreDataContanier::GetInstance()->planning_data_.getData();
-    if (plan_info.actual_drive_mode == Leader || plan_info.actual_drive_mode == LeaderWait)
+    if (planning_info_.actual_drive_mode == Leader)
     {
-        if (!HighFreDataContainer::GetInstance()->ego_vehicle_gps_data_.isUpToDate())
+        if (!ego_gps_isupdate_)
             return false;
-        VehicleGpsData temp = HighFreDataContainer::GetInstance()->ego_vehicle_gps_data_.getData();
-        ref_longtitude = temp.longitude;
-        ref_latitude = temp.latitude;
-        ref_altitude = temp.height;
-        ref_heading = temp.heading;
+        ref_longtitude = ego_vehicle_gps_data_.longitude;
+        ref_latitude = ego_vehicle_gps_data_.latitude;
+        ref_altitude = ego_vehicle_gps_data_.height;
+        ref_heading = ego_vehicle_gps_data_.heading;
     }
     else 
     {
-        if (!SendDataContanier::GetInstance()->manager_data_.isUpToDate())
+        if (!manager_info_isupdate_)
             return false;
-        PlatoonManagerInfo manager_info = SendDataContanier::GetInstance()->manager_data_.getData();
-        if (manager_info.leader_vehicle.vehicle_id < 0)
+        if (manager_info_.leader_vehicle.vehicle_id < 0)
             return false;
-        ref_longtitude = manager_info.leader_vehicle.longitude;
-        ref_latitude = manager_info.leader_vehicle.latitude;
-        ref_altitude = manager_info.leader_vehicle.altitude;
-        ref_heading = manager_info.leader_vehicle.heading;
+        ref_longtitude = manager_info_.leader_vehicle.longitude;
+        ref_latitude = manager_info_.leader_vehicle.latitude;
+        ref_altitude = manager_info_.leader_vehicle.altitude;
+        ref_heading = manager_info_.leader_vehicle.heading;
     }
 
     UpdatePoint();
@@ -188,7 +203,8 @@ bool FMS::CalIfDisBand()
                                                         ref_altitude,
                                                         m_dequeue_point_[0], m_dequeue_point_[1],
                                                         ref_altitude);
-    if (fabs(relative_x) < ConfigData::GetInstance()->dequeue_threshold_)
+    double dis = sqrt((relative_x * relative_x + relative_y * relative_y));
+    if (dis < ConfigData::GetInstance()->dequeue_threshold_)
     {
         return true;
     }
@@ -201,27 +217,25 @@ bool FMS::CalIfDisBand()
  * */
 void FMS::ResetApplyResult()
 {
-    FMSApplyResultInfo result;
-    result = LowFreDataContanier::GetInstance()->fms_apply_result_.getData();
-    result.set_applyinfo(FmsApplyOrder(0));
-    result.set_applyresult(false);
-    LowFreDataContanier::GetInstance()->fms_apply_result_.setData(result);
+    fms_back_info_.set_applyinfo(FmsApplyOrder(0));
+    fms_back_info_.set_applyresult(false);
+    LowFreDataContanier::GetInstance()->fms_apply_result_.setData(fms_back_info_);
 }
 
 void FMS::CalFmsOrder()
 {
     if (ConfigData::GetInstance()->hmi_fms_valid_)
     {
-        if (LowFreDataContanier::GetInstance()->hmi_fms_info.isUpToDate())
+        if (hmi_info_isupdate_)
         {
-            m_fms_order_ = FmsOrder(LowFreDataContanier::GetInstance()->hmi_fms_info.getData().fms_order);
+            m_fms_order_ = FmsOrder(hmi_fms_info_.fms_order);
         }
     }
     else
     {
-        if (!LowFreDataContanier::GetInstance()->planning_data_.isUpToDate())
+        if (!planning_info_isupdate_)
             return;
-        DriveMode ego_drive_mode = DriveMode(LowFreDataContanier::GetInstance()->planning_data_.getData().actual_drive_mode);
+        DriveMode ego_drive_mode = DriveMode(planning_info_.actual_drive_mode);
         if (ego_drive_mode == Auto)
         {
             ApplyResult result = CalApplyResult();
@@ -237,7 +251,8 @@ void FMS::CalFmsOrder()
             }   
         }
         else if (ego_drive_mode == Enqueue || ego_drive_mode == KeepQueue
-                 || ego_drive_mode == Abnormal || ego_drive_mode == Leader)
+                 || ego_drive_mode == Abnormal || ego_drive_mode == Leader
+                 || ego_drive_mode == LeaderWait)
         {
             if (CalIfDisBand())
                 m_fms_order_ = F_DisBand;  
@@ -247,10 +262,12 @@ void FMS::CalFmsOrder()
 }
 
 /**
- * update fms order 1 HZ
+ * update fms order 20 HZ
 */
 void FMS::UpdateFmsOrder()
 {
+    UpdateInfo();
+    CalFmsOrder();
     if (ConfigData::GetInstance()->debug_FmsPreInfo_)
     {
         PrintFmsPreInfo();
@@ -259,37 +276,37 @@ void FMS::UpdateFmsOrder()
     {
         PrintFmsBackInfo();
     }
-    CalFmsOrder();
+    
 }
 
 /**
- * update to fms info 1 HZ
+ * update to fms info 20 HZ
 */
 void FMS::UpdateToFmsInfo()
 {
+    UpdateInfo();
     
     m_to_fms_info_.set_vehicleid(ConfigData::GetInstance()->vehicle_license_);
 
     CalApplyOrder();
 
-    if (LowFreDataContanier::GetInstance()->planning_data_.isUpToDate())
+    if (planning_info_isupdate_)
     {
-        FmsDriveMode ego_drive_mode = FmsDriveMode(LowFreDataContanier::GetInstance()->planning_data_.getData().actual_drive_mode);
+        FmsDriveMode ego_drive_mode = FmsDriveMode(planning_info_.actual_drive_mode);
         m_to_fms_info_.set_actualdrivemode(ego_drive_mode);
     }
     
-    if (SendDataContanier::GetInstance()->manager_data_.isUpToDate())
+    if (manager_info_isupdate_)
     {
-        PlatoonManagerInfo temp =  SendDataContanier::GetInstance()->manager_data_.getData();
-        int vehicle_squence = temp.vehicle_sequence;
-        int platoon_number = temp.platoon_number;
+        int vehicle_squence = manager_info_.vehicle_sequence;
+        int platoon_number = manager_info_.platoon_number;
         m_to_fms_info_.set_vehiclesquence(vehicle_squence);
         m_to_fms_info_.set_platoonnumber(platoon_number);
     }
 
-    if (LowFreDataContanier::GetInstance()->fms_pre_info_.isUpToDate())
+    if (fms_pre_info_isupdate_)
     {
-        std::string  order_id = LowFreDataContanier::GetInstance()->fms_pre_info_.getData().id();
+        std::string  order_id =fms_pre_info_.id();
         m_to_fms_info_.set_fmsmessageid(order_id); 
         if (ConfigData::GetInstance()->debug_ToFmsInfo_)
         {
@@ -363,18 +380,17 @@ void FMS::PrintToFmsInfo()
 
 void FMS::PrintFmsPreInfo()
 {
-    if (LowFreDataContanier::GetInstance()->fms_pre_info_.isUpToDate())
+    if (fms_pre_info_isupdate_)
     {
-        FMSPreFormationInfo temp = LowFreDataContanier::GetInstance()->fms_pre_info_.getData();
         using namespace std;
         cout << "FMS Pre Info" << endl;
-        cout << "vehicle license is : " << temp.vehicleid() << endl;
-        cout << "platoon number is : " << int(temp.platoonnumber()) << endl;
-        cout << "platoon member size is : " << temp.platoonmember_size() << endl;
-        printf("formation long is : %f\n", temp.startnode().posx());
-        printf("formation lat is : %f\n", temp.startnode().posy());
-        printf("leaving long is : %f\n", temp.endnode().posx());
-        printf("leaving lat is : %f\n", temp.endnode().posy());
+        cout << "vehicle license is : " << fms_pre_info_.vehicleid() << endl;
+        cout << "platoon number is : " << int(fms_pre_info_.platoonnumber()) << endl;
+        cout << "platoon member size is : " << fms_pre_info_.platoonmember_size() << endl;
+        printf("formation long is : %f\n", fms_pre_info_.startnode().posx());
+        printf("formation lat is : %f\n", fms_pre_info_.startnode().posy());
+        printf("leaving long is : %f\n", fms_pre_info_.endnode().posx());
+        printf("leaving lat is : %f\n", fms_pre_info_.endnode().posy());
     }
     else 
     {
@@ -385,12 +401,11 @@ void FMS::PrintFmsPreInfo()
 void FMS::PrintFmsBackInfo()
 {
     using namespace std;
-    if (LowFreDataContanier::GetInstance()->fms_apply_result_.isUpToDate())
+    if (fms_back_info_isupdate_)
     {
-        FMSApplyResultInfo temp = LowFreDataContanier::GetInstance()->fms_apply_result_.getData();
         cout << "FMS Back Info" << endl;
-        cout << "vehicle license is : " << temp.vehicleid() << endl;
-        cout << "vehicle platoon number is : " << temp.platoonnumber() << endl;
+        cout << "vehicle license is : " << fms_back_info_.vehicleid() << endl;
+        cout << "vehicle platoon number is : " << fms_back_info_.platoonnumber() << endl;
         PrintApplyBack(ApplyResult(CalApplyResult()));
     }
     else 
@@ -399,6 +414,8 @@ void FMS::PrintFmsBackInfo()
     }
     
 }
+
+
 
 }//namespace communication
 }//namespace platoon

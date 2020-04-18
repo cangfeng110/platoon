@@ -16,16 +16,10 @@ public:
 
     templateDataContainer_Mutex<VehicleVcuData>     ego_vehicle_vcu_data_;
 
-    static HighFreDataContainer* GetInstance()
-    {
-        return instance_;
-    }
-
-    void DecreaseTtl()
-    {
-     ego_vehicle_gps_data_.decreaseTTL();
-     ego_vehicle_vcu_data_.decreaseTTL();   
-    }
+    static HighFreDataContainer* GetInstance();
+   
+    void DecreaseTtl();
+   
 
 private:
     static HighFreDataContainer* instance_;
@@ -36,8 +30,6 @@ private:
     
     HighFreDataContainer& operator=(const HighFreDataContainer&)=delete; 
 };
-
-HighFreDataContainer* HighFreDataContainer::instance_ = new HighFreDataContainer();
 
 }//namespace communication
 }//namespace platoon

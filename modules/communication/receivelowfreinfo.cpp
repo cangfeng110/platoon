@@ -1,13 +1,17 @@
+#include <sys/time.h>
+
 #include "modules/communication/receivelowfreinfo.h"
 #include "modules/communication/lowfredatacontainer.h"
 #include "modules/communication/udpdatacontainer.h"
 #include "modules/communication/configdata.h"
+#include "modules/communication/datadefine.h"
 
 namespace platoon
 {
 namespace communication
 {
-ReceiveLowFreInfo::ReceiveLowFreInfo():lcm_("udpm://239.255.76.67:7667?ttl=1"), loop_("ReceiveLowFreInfo")
+ReceiveLowFreInfo::ReceiveLowFreInfo() : lcm_("udpm://239.255.76.67:7667?ttl=1"), loop_("ReceiveLowFreInfo"), 
+                                       actual_drive_mode_(7), fms_order_(0), safe_distance_(10.0),platoon_number_(0)
 {
     if (!lcm_.good())
     {
@@ -56,51 +60,48 @@ void ReceiveLowFreInfo::HandleHmiFmsInfo(const lcm::ReceiveBuffer *rbuf,
     {
         printf("asdf reveive HMI info : %d\n", hmi_count);
     }
-    if (LowFreDataContanier::GetInstance()->hmi_fms_info.isUpToDate())
-    {
-        if ( LowFreDataContanier::GetInstance()->hmi_fms_info.getData().fms_order != msg->fms_order)
-            std::cout << "asdf HMI FMS order changed : " << int(msg->fms_order) << std::endl;
-        if (LowFreDataContanier::GetInstance()->hmi_fms_info.getData().safe_distance != msg->safe_distance)
-            std::cout << "asdf safe distance changed : " << msg->safe_distance << std::endl;
-        if (LowFreDataContanier::GetInstance()->hmi_fms_info.getData().platoon_number != msg->platoon_number)
-        {
-            std::cout << "asdf platoon number changed : " << msg->platoon_number << std::endl;
-            UDPDataContainer::GetInstance()->platoon_vehicles_data_.getData().clear();
-        }
-    }
-    else
+    if(fms_order_ != msg->fms_order)
     {
         std::cout << "asdf HMI FMS order changed : " << int(msg->fms_order) << std::endl;
-        std::cout << "asdf safe distance changed : " << msg->safe_distance << std::endl;
-        std::cout << "asdf platoon number changed : " << msg->platoon_number << std::endl;
     }
-    LowFreDataContanier::GetInstance()->hmi_fms_info.setData(*msg);
+    if (safe_distance_ != msg->safe_distance)
+        std::cout << "asdf safe distance changed : " << msg->safe_distance << std::endl;
+    if (platoon_number_ != msg->platoon_number)
+    {
+        std::cout << "asdf platoon number changed : " << msg->platoon_number << std::endl;
+        UDPDataContainer::GetInstance()->platoon_vehicles_data_.clearMap();
+    }
+    LowFreDataContanier::GetInstance()->hmi_fms_info_.setData(*msg);
+    fms_order_ = msg->fms_order;
+    safe_distance_ = msg->safe_distance;
+    platoon_number_ = msg->platoon_number;
 }
+void print_drive_mode(const DriveMode& mode);
 
 void ReceiveLowFreInfo::HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
                                         const std::string &channel,
                                         const EgoPlanningMsg *msg) 
 {
     assert(channel == "EGO_PLANNINGMSG_FOR_PLATOON");
+    static struct timeval tv0;
+    static struct timeval tv1;
+    gettimeofday (&tv1, NULL);
+    printf ("HandlePlanning ms %ld\n", ((tv1.tv_sec - tv0.tv_sec)*1000000 + (tv1.tv_usec - tv0.tv_usec)) / 1000);
+    tv0 = tv1;
     static int plan_count = 0;
     plan_count++;
     if (plan_count % debug_plan_hz_ == 0)
     {
         printf("asdf reveive plan info : %d\n\n", plan_count);
     }
-    if (LowFreDataContanier::GetInstance ()->planning_data_.isUpToDate())
+    
+    if (actual_drive_mode_ != msg->actual_drive_mode )
     {
-        EgoPlanningMsg ego_planning_msg = LowFreDataContanier::GetInstance ()->planning_data_.getData ();
-        if (msg->actual_drive_mode != ego_planning_msg.actual_drive_mode)
-        {
-            printf ("asdf actual_drive_mode changed: %d\n", msg->actual_drive_mode);
-        }
-    }
-    else 
-    {
-        printf ("asdf actual_drive_mode changed: %d\n", msg->actual_drive_mode);
+        printf ("asdf actual_drive_mode changed: ");
+        print_drive_mode(DriveMode(msg->actual_drive_mode));
     }
     LowFreDataContanier::GetInstance()->planning_data_.setData(*msg);
+    actual_drive_mode_ = msg->actual_drive_mode;
 }
 
 bool ReceiveLowFreInfo::ReceiveFmsPreInfo()
@@ -108,30 +109,20 @@ bool ReceiveLowFreInfo::ReceiveFmsPreInfo()
     bool result  = RxMsgPtr<FMSPreFormationInfo>("FMS_PRE_INFO", pre_info_ptr_);
     if(result)
     {
-        if (LowFreDataContanier::GetInstance()->fms_pre_info_.isUpToDate())
+        if (pre_serial_id_ == pre_info_ptr_->id())
         {
-            std::string old_id = LowFreDataContanier::GetInstance()->fms_pre_info_.getData().id();
-            std::string new_id = pre_info_ptr_->id();
-            if (new_id == old_id)
-            {
-                result = false;
-            }
-            else
-            {
-                std::cout << "FMS Pre Info Changed! " << std::endl;
-                LowFreDataContanier::GetInstance()->fms_pre_info_.setData(*pre_info_ptr_);
-                /**
-                 * clear paltoon-vehicles-map, because a new platoon is be calcuted
-                */
-               UDPDataContainer::GetInstance()->platoon_vehicles_data_.getData().clear();
-            }
+            result = false;
         }
         else
         {
             std::cout << "FMS Pre Info Changed! " << std::endl;
             LowFreDataContanier::GetInstance()->fms_pre_info_.setData(*pre_info_ptr_);
+            /**
+             * clear paltoon-vehicles-map, because a new platoon is be calcuted
+            */
+            UDPDataContainer::GetInstance()->platoon_vehicles_data_.clearMap();
+            pre_serial_id_ = pre_info_ptr_->id();
         }
-            
     }
     return result;
  }
@@ -141,26 +132,16 @@ bool ReceiveLowFreInfo::ReceiveFmsPreInfo()
     bool result = RxMsgPtr<FMSApplyResultInfo>("FMS_APPLY_RESULT_INFO", apply_result_ptr_);
     if (result)
     {
-        if (LowFreDataContanier::GetInstance()->fms_apply_result_.isUpToDate())
+        if (back_serial_id_ == apply_result_ptr_->id())
         {
-            std::string old_id = LowFreDataContanier::GetInstance()->fms_apply_result_.getData().id();
-            std::string new_id = apply_result_ptr_->id();
-            if (new_id == old_id)
-            {
-                result = false;
-            }
-            else
-            {
-                std::cout << "FMS Apply Back is changed ! " << std::endl;
-                LowFreDataContanier::GetInstance()->fms_apply_result_.setData(*apply_result_ptr_);
-            } 
+            result = false;
         }
         else
         {
             std::cout << "FMS Apply Back is changed ! " << std::endl;
             LowFreDataContanier::GetInstance()->fms_apply_result_.setData(*apply_result_ptr_);
+            back_serial_id_ = apply_result_ptr_->id();
         }
-        
     }
     return result;
  }

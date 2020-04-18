@@ -52,6 +52,18 @@ private:
 
     base::EventLoop loop_;
 
+    int actual_drive_mode_;
+
+    int8_t fms_order_;
+    
+    float safe_distance_;
+
+    int platoon_number_;
+
+    std::string pre_serial_id_;
+
+    std::string back_serial_id_;
+
     int debug_plan_hz_;
 
     int debug_hmi_hz_;

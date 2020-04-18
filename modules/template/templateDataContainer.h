@@ -73,9 +73,10 @@ public:
         timeToLive = ConfigData::GetInstance()->time_to_live_;
     }
 
-    T getData()
+    T getData(bool& valid)
     {
         std::lock_guard<std::mutex> lock(_mutex);
+        valid = (timeToLive > 0) ? true : false;
         return _data;
     }
 
@@ -87,7 +88,7 @@ public:
             timeToLive --;
         }
     }
-
+    
     bool isUpToDate()
     {
         return (timeToLive >= 0) ? true : false;
@@ -158,6 +159,13 @@ public:
         _data[key].setData(message);
     }
 
+    std::map<int, templateDataContainer<T> > getData(bool& valid)
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
+        valid = _data.size() > 0 ? true : false;
+        return _data;
+    }
+
     std::map<int, templateDataContainer<T> > getData()
     {
         std::lock_guard<std::mutex> lock(_mutex);
@@ -179,6 +187,11 @@ public:
             else
                 it ++;
         }
+    }
+    void clearMap()
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
+        _data.clear();
     }
 
     bool isUpToDate()

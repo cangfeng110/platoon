@@ -1,5 +1,5 @@
-#ifndef _UDP_DATACONTAINER_H
-#define _UDP_DATACONTAINER_H
+#ifndef _UDP_DATACONTAINER_H_
+#define _UDP_DATACONTAINER_H_
 
 #include "modules/template/templateDataContainer.h"
 #include "include/protocol/lcmDataNameTypeDefine.h"
@@ -15,16 +15,9 @@ public:
 
     templateDataContainer_Map_Mutex<VehicleData>   v2x_other_vehicles_data_;
 
-    static UDPDataContainer* GetInstance()
-    {
-        return instance_;
-    }
+    static UDPDataContainer* GetInstance();
 
-    void DecreaseTtl()
-    {
-        platoon_vehicles_data_.decreaseTTL();
-        v2x_other_vehicles_data_.decreaseTTL();
-    }
+    void DecreaseTtl();
 
 private:
     static UDPDataContainer* instance_;
@@ -37,7 +30,7 @@ private:
     
 };
 
-UDPDataContainer* UDPDataContainer::instance_ = new UDPDataContainer();
+
 
 }// namespace communication
 }// namespace platoon

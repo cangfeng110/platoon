@@ -3,7 +3,6 @@
 
 #include "include/base/NonCopyable.h"
 #include "include/protocol/lcmDataNameTypeDefine.h"
-#include "modules/communication/datacontainer.h"
 #include "modules/communication/worldmodle.h"
 #include "modules/communication/configdata.h"
 #include "modules/communication/datadefine.h"
@@ -21,21 +20,19 @@ public:
 
 private:
 //data member
-    DriveMode actual_drive_mode;
-    DriveMode desire_drive_mode;
-    int _ID;
+    DriveMode actual_drive_mode_;
+    DriveMode desire_drive_mode_;
+    int ID_;
     float m_safe_distance_;
     /**
      * this vector is to sort to calculated id 
     */
-    std::vector<VehicleData> other_vehicles;
-
+    std::vector<VehicleData> other_vehicles_;
     /* this vector storage communication status, 
      * if normal, storage vehicle id
      * else, storage -vehicel_id;
      */
     std::vector<int8_t> vehicle_status_;
-
     /** 
      * this map storae all the platoon vehicle id and platoon id 
      * the key is paltoon id
@@ -44,17 +41,33 @@ private:
     **/
     std::map<int,int> platoon_id_map_;
 
-    FmsOrder m_fms_order_;
-
     WorldModle m_worldmodle_;
 
-    int m_debug_flags;
-    int m_debug_thw_HZ;
-    bool m_debug_StateFlow;
+    //below info is from other datacontainer, from other threads
+    VehicleGpsData ego_gps_info_;
+    bool ego_gps_isupdate_;
+    VehicleVcuData ego_vcu_info_;
+    bool ego_vcu_isupdate_;
+    EgoPlanningMsg planning_info_;
+    bool plan_info_isupdate_;
+    std::map<int, templateDataContainer<VehicleData>> platoon_vehicles_info_;
+    bool platoon_info_isupdate_;
+    HmiFmsInfo hmi_fms_info_;
+    bool hmi_isupdate_;
+    FMSPreFormationInfo fms_pre_info_;
+    bool pre_info_isupdate_;
+    //below info is from senddatacontainer, from same thread
+    FmsOrder m_fms_order_;
+    bool fms_order_isupdate_;
+
+    int m_debug_flags_;
+    int m_debug_thw_HZ_;
+    bool m_debug_StateFlow_;
     bool hmi_fms_valid_;
     
 private:
 //function member
+    void UpdateInfo();
     float THWDis ();
     float FrontDis ();
     void CalculateID ();
