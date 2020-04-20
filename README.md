@@ -7,3 +7,5 @@ truck platoon
 ### 20200415
 * add min formation to keep threshold distance 
 * dont't clean plan info, because there has not receive plan info in 300 ms.
+### 20200416
+* modify FrontVehicle.hpp info

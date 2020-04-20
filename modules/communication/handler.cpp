@@ -5,6 +5,7 @@
 #include <string.h>
 #include <fstream>
 #include <math.h>
+#include <time.h>
 
 #include "modules/communication/fmsdata.h"
 #include "modules/communication/udp.h"
@@ -231,6 +232,8 @@ int Handler::BroastEgoVehicleInfo()
 */
 int Handler::DecodeV2xVechileInfo() 
 {
+    // clock_t start, end;
+    // start = clock();
     bzero(buffer_, MAX_RECV_LENGTH);
 
     int len = ::recvfrom(sockfd_, buffer_, MAX_RECV_LENGTH, 0, NULL, NULL);
@@ -352,6 +355,10 @@ int Handler::DecodeV2xVechileInfo()
             printf ("other vehicle relative_x is: %f\n", v2x_other_vehicle_data.relative_x);
             printf ("other vehicle relative_y is: %f\n\n", v2x_other_vehicle_data.relative_y);
         }
+        // end = clock();
+        // double dur = 1000.0 * (end - start)/CLOCKS_PER_SEC;
+        // printf("the cost time is (ms) : %lf\n", dur);
+
         return key;
     }
 }

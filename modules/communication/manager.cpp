@@ -325,13 +325,14 @@ bool Manager::IfAbnormal()
             bool if_abnormal = false;
             bool if_cut_in =  false;
             bool if_manual = false;
+            bool if_gps_error = !(bool(DataContainer::GetInstance()->platoon_vehicles_data_.getData()[vehicle_id].getData().gps_status));
             if (i > 1)//leader vehicle don't need to check cut_in_flag and anbormal status
             {
                 if_abnormal = (DriveMode(temp.actual_drive_mode) == Abnormal) ? true : false;
                 if_cut_in = (temp.cut_in_flag == 1) ? true : false;
                 if_manual = (DriveMode(temp.actual_drive_mode) == Manual) ? true : false;
             }
-            if (if_disconnect || if_abnormal || if_cut_in || if_manual)
+            if (if_disconnect || if_abnormal || if_cut_in || if_manual || if_gps_error)
             {
                 if (ConfigData::GetInstance()->debug_StateFlow_)
                 {   if (if_disconnect)
@@ -345,11 +346,11 @@ bool Manager::IfAbnormal()
                     if (if_cut_in)
                     {
                         std::cout << "Current Abnormal, front vehicles cut in : " << vehicle_id << std::endl;
-                    }     
+                    }   
                     if (if_gps_error)
                     {
                         std::cout << "Current Abnormal, front vehicles gps error : " << vehicle_id << std::endl;
-                    }
+                    }  
                     if (if_manual)
                     {
                         std::cout << "Current Abnormal, front vehicles manual : " << vehicle_id << std::endl;

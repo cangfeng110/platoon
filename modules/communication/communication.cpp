@@ -201,6 +201,11 @@ void communication::HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
                                         const EgoPlanningMsg *msg) 
 {
     assert(channel == "EGO_PLANNINGMSG_FOR_PLATOON");
+    // static struct timeval tv0;
+    // static struct timeval tv1;
+    // gettimeofday (&tv1, NULL);
+    // printf ("HandlePlanning ms %ld\n", ((tv1.tv_sec - tv0.tv_sec)*1000000 + (tv1.tv_usec - tv0.tv_usec)) / 1000);
+    // tv0 = tv1;
     static int plan_count = 0;
     plan_count++;
     if (plan_count % m_debug_plan_HZ == 0)
@@ -214,6 +219,8 @@ void communication::HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
         {
             printf ("asdf actual_drive_mode changed: %d\n", msg->actual_drive_mode);
         }
+        // auto dur = msg->PlanningHeader.nTimeStamp - ego_planning_msg.PlanningHeader.nTimeStamp;
+        // printf("the time interverl is : %d\n", dur);
     }
     else 
     {
@@ -375,6 +382,8 @@ void communication::PublishToFusionInfo()
         // v3.0 new data
         to_fusion.platoon_number = temp.platoon_number;
         to_fusion.vehicle_sequence = temp.vehicle_sequence;
+
+        to_fusion.ego_drive_mode = DataContainer::GetInstance()->planning_data_.getData().actual_drive_mode;
 
         lcm_.publish ("TO_FUSION_INFO", &to_fusion); 
 
