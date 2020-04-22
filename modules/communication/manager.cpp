@@ -569,7 +569,7 @@ void Manager::ProcessCommand ()
                 if (debug_count % m_debug_thw_HZ == 0)
                     printf("IN Auto\n\n");
             }
-            if (desire_drive_mode == Notset || desire_drive_mode == Manual)
+            if (desire_drive_mode == Notset || desire_drive_mode == Manual || desire_drive_mode == Abnormal)
             {
                 desire_drive_mode = Auto;
             }
@@ -796,9 +796,13 @@ void Manager::ProcessCommand ()
 void Manager::UpdatePlatoonManagerInfo ()
 {
     // the id only can change in the Auto/manual mode
-    if (actual_drive_mode == Auto || actual_drive_mode == Manual)
+    // if (actual_drive_mode == Auto || actual_drive_mode == Manual)
+    // {
+    //      CalculateID ();
+    // }
+    if (IsCalID())
     {
-         CalculateID ();
+        CalculateID();
     }
     else if (m_debug_flags & DEBUG_CalculateID)
     {
@@ -978,29 +982,6 @@ void Manager::UpdatePlatoonManagerInfo ()
             }
         }
     }
-  /*for (auto map_it : DataContainer::GetInstance()->platoon_vehicles_data_.getData())
-    {
-        if (map_it.second.isUpToDate())
-        {
-            vehicle_status_.push_back(map_it.second.getData().vehicle_id);
-            if (m_debug_flags & DEBUG_V2XCommunication)
-            {
-                struct timeval tv;
-                gettimeofday (&tv, NULL);
-                printf ("\nV %d: has data %ld.%ld\n\n", map_it.second.getData().vehicle_id, tv.tv_sec, tv.tv_usec);
-            }
-        }
-        else
-        {
-            vehicle_status_.push_back(0 - map_it.second.getData().vehicle_id);
-            if (m_debug_flags & DEBUG_V2XCommunication)
-            {
-                struct timeval tv;
-                gettimeofday (&tv, NULL);
-                printf ("V %d: lost>500 %ld.%ld\n\n", map_it.second.getData().vehicle_id, tv.tv_sec, tv.tv_usec);
-            }
-        }      
-    } */
     // add ego vehicel id in the vector end
     vehicle_status_.push_back(ConfigData::GetInstance()->vehicle_id_);
     
@@ -1010,6 +991,52 @@ void Manager::UpdatePlatoonManagerInfo ()
     DataContainer::GetInstance ()->manager_data_.setData (platoon_manager_info);
 }
 
+/**
+ * function: judge if need to recalid
+ * true present need to cal id
+ * false present don't need;
+*/
+bool Manager::IsCalID()
+{
+    if (actual_drive_mode == Manual)
+        return true;
+    if (actual_drive_mode == Auto)
+    {
+        auto platoon_temp = DataContainer::GetInstance()->platoon_vehicles_data_.getData();
+        auto v2x_temp = DataContainer::GetInstance()->v2x_other_vehicles_data_.getData();
+        if (platoon_id_map_.size() < platoon_temp.size())//this present have new vehicle ,need to cal id
+        {
+            //std::cout << "Need, id map size is smaller than platon map" << std::endl;
+            return true;
+        }
+        else
+        {
+            for (auto temp : platoon_id_map_)
+            {
+                int vehicle_id = temp.second;
+                // is communication normal
+                bool is_con_normal = platoon_temp[vehicle_id].isUpToDate();
+                if (!is_con_normal) //if platoon map does't has this vehicle
+                {   // to find is in the v2x map, 
+                    is_con_normal = v2x_temp[vehicle_id].isUpToDate();
+                    if (!is_con_normal)
+                    {
+                        //std::cout << " Don't Need cal id " << "vehicle: " << vehicle_id << "is disconnect" << std::endl;
+                        return false;
+                    }    
+                    else
+                    {
+                        //std::cout << "the platoon number is changed" << std::endl;
+                    }
+                    
+                }
+            }
+            //std::cout << "Communication Normal, Need to cal id" << std::endl;
+            return true;
+        }
+    }
+    return false; 
+}
 } // namesapce manager
 
 } // namespace platoon

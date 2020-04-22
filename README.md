@@ -9,3 +9,5 @@ truck platoon
 * dont't clean plan info, because there has not receive plan info in 300 ms.
 ### 20200416
 * modify FrontVehicle.hpp info
+### 20200422
+* add how to judge id if need to cal

@@ -65,6 +65,7 @@ private:
     bool IsAllowDequeue();
     DriveMode FrontMode();
     void ProcessCommand ();
+    bool IsCalID();
     
 };
 
