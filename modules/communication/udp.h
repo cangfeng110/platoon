@@ -17,6 +17,8 @@
 class Udp{
 public:
     Udp(std::string &ip, const int port);
+    //add empty construct function
+    Udp(){}
     ~Udp();
 
     void init();

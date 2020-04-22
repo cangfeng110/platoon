@@ -29,18 +29,6 @@ public:
 
     void Loop();
 
-    void HandleHmiFmsInfo(const lcm::ReceiveBuffer *rbuf,
-                                  const std::string &channel,
-                                  const HmiFmsInfo *msg);
-
-    void HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
-                            const std::string &channel,
-                            const EgoPlanningMsg *msg);
-
-    bool ReceiveFmsPreInfo();
-   
-    bool ReceiveFmsApplyBack();
-
 private:
     lcm::LCM lcm_;
 
@@ -67,6 +55,18 @@ private:
     int debug_plan_hz_;
 
     int debug_hmi_hz_;
+
+    void HandleHmiFmsInfo(const lcm::ReceiveBuffer *rbuf,
+                                  const std::string &channel,
+                                  const HmiFmsInfo *msg);
+
+    void HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
+                            const std::string &channel,
+                            const EgoPlanningMsg *msg);
+
+    bool ReceiveFmsPreInfo();
+   
+    bool ReceiveFmsApplyBack();
 };
 } //namespace communication
 }//namespace platoon

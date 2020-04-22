@@ -30,6 +30,7 @@ public:
 
     void Loop();
 
+
 private:
 
     int debug_flags_;
@@ -46,17 +47,23 @@ private:
 
     lcm::LCM lcm_;
 
+    std::unique_ptr<base::Channel> lcm_channel_;
+
     int platoon_number_;
 
     bool isupdate_;
 
     VehicleGpsData ego_vehicle_gps_data_;
-    
+
     int DecodeV2xVechileInfo3();
 
     int DecodeV2xVehicleInfo2(); 
 
     int SilDecodeV2xVechileInfo();
+
+    void HandleLogV2xInfo(const lcm::ReceiveBuffer* rbuf, 
+                          const std::string& channel,
+                          const VehicleData* msg);
 
 };
 }//namespace communication

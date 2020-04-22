@@ -18,6 +18,8 @@ public:
     // manager data
     templateDataContainer_Mutex<PlatoonManagerInfo> manager_data_;
 
+    templateDataContainer_Mutex<ToFusionData>  to_fusion_data_;
+
     templateDataContainer_Mutex<FmsOrder> fms_order_;
 
     static SendDataContanier* GetInstance();

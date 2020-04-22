@@ -48,7 +48,14 @@ ReceiveUDP::ReceiveUDP() : lcm_("udpm://239.255.76.67:7667?ttl=1"), loop_("Recei
     v2x_channel_.reset(new base::Channel(&loop_, sockfd_, "V2X_UDP"));
 
     // chose version
-    if (ConfigData::GetInstance()->is_sil_test_)
+    if (ConfigData::GetInstance()->test_with_log_)
+    {
+        lcm_.subscribe("V2X_OTHER_VEHICLE_INFO", &ReceiveUDP::HandleLogV2xInfo, this);
+        lcm_channel_.reset(new base::Channel(&loop_, lcm_.getFileno(), "LogTest"));
+        lcm_channel_->setReadCallback(std::bind(&lcm::LCM::handle, &lcm_));
+        lcm_channel_->enableReading();
+    }
+    else if (ConfigData::GetInstance()->is_sil_test_)
     {
         v2x_channel_->setReadCallback(std::bind(&ReceiveUDP::SilDecodeV2xVechileInfo, this));
     }
@@ -468,6 +475,78 @@ int ReceiveUDP::SilDecodeV2xVechileInfo()
         printf ("other vehicle relative_y is: %f\n\n", v2x_other_vehicle_data.relative_y);
     }
     return key;
+}
+void ReceiveUDP::HandleLogV2xInfo(const lcm::ReceiveBuffer* rbuf, 
+                          const std::string& channel,
+                          const VehicleData* msg)
+{
+    assert(channel == "V2X_OTHER_VEHICLE_INFO");
+
+    VehicleData v2x_other_vehicle_data = *msg; 
+    int key = v2x_other_vehicle_data.vehicle_id;
+
+    ego_vehicle_gps_data_ = HighFreDataContainer::GetInstance()->ego_vehicle_gps_data_.getData(isupdate_);
+    if (isupdate_) 
+    {
+        platoon::common::TransfromGpsAbsoluteToEgoRelaCoord(v2x_other_vehicle_data.relative_x, v2x_other_vehicle_data.relative_y,
+                                                            ego_vehicle_gps_data_.heading,
+                                                            ego_vehicle_gps_data_.longitude,ego_vehicle_gps_data_.latitude,
+                                                            ego_vehicle_gps_data_.height,
+                                                            v2x_other_vehicle_data.longitude, v2x_other_vehicle_data.latitude,
+                                                            v2x_other_vehicle_data.altitude);
+        platoon::common::TransfromGpsAbsoluteToEgoRelaAzimuth(v2x_other_vehicle_data.relative_heading,
+                                                                ego_vehicle_gps_data_.heading, v2x_other_vehicle_data.heading);
+    } 
+    else 
+    {
+        v2x_other_vehicle_data.relative_x = INVALID_FLOAT;
+        v2x_other_vehicle_data.relative_y = INVALID_FLOAT;
+    }
+    UDPDataContainer::GetInstance()->v2x_other_vehicles_data_.setData(key, v2x_other_vehicle_data);
+
+    std::string if_platoon = "No";
+    
+    /* storage the platoon number is equal vehicle to platoon_vehicles_dara_*/
+    if (ConfigData::GetInstance()->hmi_fms_valid_)
+    {
+        platoon_number_ = LowFreDataContanier::GetInstance()->hmi_fms_info_.getData(isupdate_).platoon_number;
+        //printf("the ego vehicle platoon number is %d\n", ego_platoon_number);
+        //printf("the other vehicle platoon number is %d\n", v2x_other_vehicle_data.platoon_number);
+        if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
+        {
+            if_platoon = "Yes_hmi";
+            UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
+        }
+    }
+    else if (LowFreDataContanier::GetInstance()->fms_pre_info_.isUpToDate()) 
+    {
+        platoon_number_ = LowFreDataContanier::GetInstance()->fms_pre_info_.getData(isupdate_).platoonnumber();
+        if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
+        {
+            if_platoon = "Yes_FMS";
+            UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
+        }
+    }
+
+    if (debug_flags_ & DEBUG_V2xVehicleInfo) 
+    {
+        using namespace std;
+        cout << "-----------Display other vehicle info--------------" << endl;
+        cout << "other vehicle id is : " << key << endl;
+        cout << "if a platoon vehicle : " << if_platoon << endl;
+        printf("other vehicle platoon number is : %d\n", v2x_other_vehicle_data.platoon_number);
+        printf("other vehicle sequence is : %d\n", v2x_other_vehicle_data.vehicle_sequence);
+        printf("other vehicle gps time is : %f\n", v2x_other_vehicle_data.gps_time);
+        printf ("other vehicle longitude is : %f\n", v2x_other_vehicle_data.longitude);
+        printf ("other vehicle latitude is  : %f\n", v2x_other_vehicle_data.latitude);
+        printf ("other vehicle altitude is : %f\n", v2x_other_vehicle_data.altitude);
+        printf ("other vehicle heading is(rad) : %f\n", v2x_other_vehicle_data.heading);
+        printf ("other vehicle speed is(km/h) : %f\n", v2x_other_vehicle_data.speed * 3.6);
+        printf ("other vehicel acc is : %f\n", v2x_other_vehicle_data.longtitude_acc);
+        printf ("other vehicle relative_x is: %f\n", v2x_other_vehicle_data.relative_x);
+        printf ("other vehicle relative_y is: %f\n\n", v2x_other_vehicle_data.relative_y);
+    }
+
 }
 
 }

@@ -13,7 +13,7 @@ LowFreDataContanier* LowFreDataContanier::GetInstance()
 
 void LowFreDataContanier::DecreaseTtl()
 {
-    planning_data_.decreaseTTL();
+    //planning_data_.decreaseTTL();
 }
 
 } // namespace communication

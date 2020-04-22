@@ -1,11 +1,12 @@
 #ifndef __MANAGER_H__
 #define __MANAGER_H__
-
-#include "include/base/NonCopyable.h"
-#include "include/protocol/lcmDataNameTypeDefine.h"
 #include "modules/communication/worldmodle.h"
 #include "modules/communication/configdata.h"
 #include "modules/communication/datadefine.h"
+#include "include/base/NonCopyable.h"
+#include "include/protocol/lcmDataNameTypeDefine.h"
+#include "include/proto/ProtoClassNameyTypeDefine.h"
+
 
 namespace platoon {
 namespace communication {
@@ -13,7 +14,6 @@ namespace communication {
 class Manager : public base::NonCopyable {
 public:
     Manager();
-    ~Manager();
 
     //void SetFmsInfo (const FmsInfo& fms_info);
     void UpdatePlatoonManagerInfo ();
@@ -46,16 +46,25 @@ private:
     //below info is from other datacontainer, from other threads
     VehicleGpsData ego_gps_info_;
     bool ego_gps_isupdate_;
+
     VehicleVcuData ego_vcu_info_;
     bool ego_vcu_isupdate_;
+
     EgoPlanningMsg planning_info_;
     bool plan_info_isupdate_;
+
     std::map<int, templateDataContainer<VehicleData>> platoon_vehicles_info_;
     bool platoon_info_isupdate_;
+
+    std::map<int, templateDataContainer<VehicleData>> v2x_vehicles_info_;
+    bool v2x_info_isupdate_;
+
     HmiFmsInfo hmi_fms_info_;
     bool hmi_isupdate_;
+
     FMSPreFormationInfo fms_pre_info_;
     bool pre_info_isupdate_;
+    
     //below info is from senddatacontainer, from same thread
     FmsOrder m_fms_order_;
     bool fms_order_isupdate_;
@@ -63,7 +72,6 @@ private:
     int m_debug_flags_;
     int m_debug_thw_HZ_;
     bool m_debug_StateFlow_;
-    bool hmi_fms_valid_;
     
 private:
 //function member
@@ -78,6 +86,7 @@ private:
     bool IsAllowDequeue();
     DriveMode FrontMode();
     void ProcessCommand ();
+    bool IsCalID();
     
 };
 

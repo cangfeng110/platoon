@@ -25,13 +25,6 @@ public:
 
     void Loop();
 
-    void HandleEgoVehicleGpsInfo(const lcm::ReceiveBuffer *rbuf,
-                                 const std::string &channel,
-                                 const VehicleGpsData *msg);
-    void HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
-                                  const std::string &channel,
-                                  const VehicleVcuData *msg);
-
 private:
 
     lcm::LCM lcm_;
@@ -43,6 +36,13 @@ private:
     int debug_gps_hz_;
 
     int debug_vcu_hz_;
+
+    void HandleEgoVehicleGpsInfo(const lcm::ReceiveBuffer *rbuf,
+                                 const std::string &channel,
+                                 const VehicleGpsData *msg);
+    void HandleEgoVehicleVcuInfo(const lcm::ReceiveBuffer *rbuf,
+                                  const std::string &channel,
+                                  const VehicleVcuData *msg);
 };
 }//namespace communication
 }//mamespace platoon

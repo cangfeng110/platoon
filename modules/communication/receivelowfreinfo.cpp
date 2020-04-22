@@ -83,11 +83,11 @@ void ReceiveLowFreInfo::HandlePlanningInfo(const lcm::ReceiveBuffer *rbuf,
                                         const EgoPlanningMsg *msg) 
 {
     assert(channel == "EGO_PLANNINGMSG_FOR_PLATOON");
-    static struct timeval tv0;
-    static struct timeval tv1;
-    gettimeofday (&tv1, NULL);
-    printf ("HandlePlanning ms %ld\n", ((tv1.tv_sec - tv0.tv_sec)*1000000 + (tv1.tv_usec - tv0.tv_usec)) / 1000);
-    tv0 = tv1;
+    // static struct timeval tv0;
+    // static struct timeval tv1;
+    // gettimeofday (&tv1, NULL);
+    // printf ("HandlePlanning ms %ld\n", ((tv1.tv_sec - tv0.tv_sec)*1000000 + (tv1.tv_usec - tv0.tv_usec)) / 1000);
+    // tv0 = tv1;
     static int plan_count = 0;
     plan_count++;
     if (plan_count % debug_plan_hz_ == 0)

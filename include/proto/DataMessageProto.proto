@@ -395,9 +395,7 @@ message VehicleFleetInfo {
         INVILIED=7;//无效
         HEADER_WAITING=8;//头车等待----组队未完成时的头车状态，头车降速等待后续车辆
         CUT_IN=9;// cut_in----当前车被插队
-
     }
-
 
     FleetApplyType applyInfo = 1; //车队请求信息
     VehicleFleetMode actualDriveMode = 2; //车辆队列行驶状态
@@ -405,5 +403,4 @@ message VehicleFleetInfo {
     int32 vehicleSquence = 4; //车辆在车队中的顺序
     string vehicleId = 5; //车辆编号
     string fmsMessageId = 6; //车辆当前响应的fms指令流水号
-
 }
