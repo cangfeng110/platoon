@@ -21,8 +21,8 @@ SendPDM::SendPDM() : platoon_number_(0)
     m_debug_flags_ = ConfigData::GetInstance()->GetDebugFlags();
     send_ip_ = ConfigData::GetInstance()->remote_ip_;
     send_port_ = ConfigData::GetInstance()->remote_port_;
-    sudp_ = Udp(send_ip_, send_port_);
-    sudp_.init();
+    // sudp_ = Udp(send_ip_, send_port_);
+    // sudp_.init();
 }
 
 void SendPDM::UpdateInfo()
@@ -154,12 +154,15 @@ int SendPDM::BroastEgoVehicleInfo3()
 
     // udp send
     // assign ip port
+    
     char* buffer = new char[header_len + verify_len + data_len];
     memcpy(buffer, &send_header, header_len);
     memcpy(buffer + header_len, &verify_header, verify_len);
     memcpy(buffer + header_len + verify_len, &ego_vehicle_info, data_len);
-    //sudp_.init();
-    sudp_.send(buffer, header_len + verify_len + data_len);
+    
+    Udp sudp(send_ip_,send_port_);
+    sudp.init();
+    sudp.send(buffer, header_len + verify_len + data_len);
     delete []buffer;
 
     if(m_debug_flags_ & DEBUG_BroadcastEgoVehicleInfo)
@@ -272,8 +275,9 @@ int SendPDM::SilBroastEgoVehicleInfo()
 
     char* buffer = new char[data_len];
     memcpy(buffer, &ego_vehicle_info, data_len);
-    //sudp_.init();
-    sudp_.send(buffer, data_len);
+    Udp sudp(send_ip_,send_port_);
+    sudp.init();
+    sudp.send(buffer, data_len);
    
 
     if(m_debug_flags_ & DEBUG_BroadcastEgoVehicleInfo)
@@ -407,8 +411,10 @@ int SendPDM::BroastEgoVehicleInfo2()
     char * buffer = new char[header_len + data_len];
     memcpy(buffer, &send_header, header_len);
     memcpy(buffer + header_len, &ego_vehicle_info, data_len);
-    //sudp_.init();
-    sudp_.send(buffer, header_len + data_len);
+
+    Udp sudp(send_ip_,send_port_);
+    sudp.init();
+    sudp.send(buffer, header_len + data_len);
     delete []buffer;
 
     if(m_debug_flags_ & DEBUG_BroadcastEgoVehicleInfo)

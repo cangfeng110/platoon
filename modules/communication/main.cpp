@@ -1,9 +1,5 @@
 #include <thread>
 
-
-#include "modules/main.h"
-
-#include "modules/communication/communication.h"
 #include "modules/communication/receivehighfreinfo.h"
 #include "modules/communication/receivelowfreinfo.h"
 #include "modules/communication/receiveudp.h"
@@ -15,7 +11,7 @@
 
 using namespace platoon::communication;
 // ipc need
-//INITIALIZE_EASYLOGGINGPP
+INITIALIZE_EASYLOGGINGPP
 
 void CreatRecHighLoop()
 {

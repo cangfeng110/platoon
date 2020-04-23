@@ -42,7 +42,7 @@ private:
     PlatoonManagerInfo manager_info_;
     bool manager_isupdate_;
     //
-    Udp sudp_;
+    //Udp sudp_;
     std::string send_ip_;
     int send_port_;
 

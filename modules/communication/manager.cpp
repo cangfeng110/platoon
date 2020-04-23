@@ -108,12 +108,12 @@ void Manager::UpdateInfo()
         actual_drive_mode_ = DriveMode(planning_info_.actual_drive_mode);
     }
 
-    std::cout << "gps is update : " << ego_gps_isupdate_ << std::endl
-              << "vcu is update : " << ego_vcu_isupdate_ << std::endl
-              << "platoon info is update : " << platoon_info_isupdate_ << std::endl
-              << " planning info is update : " <<  plan_info_isupdate_ << std::endl
-              << "hmi_fms_info is update : " << hmi_isupdate_ <<std::endl
-              << "m_fms_order_ is update : " << m_fms_order_ << std::endl;
+    // std::cout << "gps is update : " << ego_gps_isupdate_ << std::endl
+    //           << "vcu is update : " << ego_vcu_isupdate_ << std::endl
+    //           << "platoon info is update : " << platoon_info_isupdate_ << std::endl
+    //           << " planning info is update : " <<  plan_info_isupdate_ << std::endl
+    //           << "hmi_fms_info is update : " << hmi_isupdate_ <<std::endl
+    //           << "m_fms_order_ is update : " << m_fms_order_ << std::endl;
 }
 
 float Manager::THWDis ()
@@ -1039,7 +1039,7 @@ bool Manager::IsCalID()
     {
         if (platoon_id_map_.size() < platoon_vehicles_info_.size())//this present have new vehicle ,need to cal id
         {
-            std::cout << "Need, id map size is smaller than platon map" << std::endl;
+            //std::cout << "Need, id map size is smaller than platon map" << std::endl;
             return true;
         }
         else
@@ -1054,17 +1054,17 @@ bool Manager::IsCalID()
                     is_con_normal = v2x_vehicles_info_[vehicle_id].isUpToDate();
                     if (!is_con_normal)
                     {
-                        std::cout << " Don't Need cal id " << "vehicle: " << vehicle_id << "is disconnect" << std::endl;
+                        //std::cout << " Don't Need cal id " << "vehicle: " << vehicle_id << "is disconnect" << std::endl;
                         return false;
                     }    
                     else
                     {
-                        std::cout << "the platoon number is changed" << std::endl;
+                        //std::cout << "the platoon number is changed" << std::endl;
                     }
                     
                 }
             }
-            std::cout << "Communication Normal, Need to cal id" << std::endl;
+            //std::cout << "Communication Normal, Need to cal id" << std::endl;
             return true;
         }
     }
