@@ -23,3 +23,6 @@ truck platoon
 * add multi-hop communication needs information in SendPDM::BroastEgoVehicleInfo3
 * fix a logic error in Manager::ProcssCommond abnormal switch, 
   when front dis <= threshold and refuse to keep, shoule goto enqueue.
+
+### 20200507
+* modify subleader process logic, when ego vehicle cut in is disapper, m_fms_order is enqueue;

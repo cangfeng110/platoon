@@ -139,18 +139,17 @@ void FMS::CalApplyOrder()
                 }
                 else
                 {
-                    m_to_fms_info_.set_applyinfo(FmsApplyOrder(NoApply)); //
+                    m_to_fms_info_.set_applyinfo(FmsApplyOrder(NoApply)); //dis to refpoint is smaller than threshold
                 }
             }
             else
             {
                 m_to_fms_info_.set_applyinfo(FmsApplyOrder(NoApply)); // ego gps is invalid
             }
-            
         }
         else
         {
-            m_to_fms_info_.set_applyinfo(FmsApplyOrder(NoApply));
+            m_to_fms_info_.set_applyinfo(FmsApplyOrder(NoApply));// vehicle status is not auto mode
         }
     }
 }
@@ -211,7 +210,7 @@ bool FMS::CalIfDisBand()
 }
 
 /**
- * when the apply result has be responed, this function is  recalled
+ * when the apply result has be responed, this function is recalled to clear fms back info
  * */
 void FMS::ResetApplyResult()
 {

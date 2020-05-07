@@ -563,7 +563,7 @@ void Manager::ProcessCommand ()
     {
         if (debug_count % m_debug_thw_HZ_ == 0)
         {
-            printf ("asdf thw dis is : %f, front dis is : %f\n, safe distance is : %f, threshold dis is: %f\n", 
+            printf ("begin: thw dis is : %f, front dis is : %f\n safe distance is : %f, threshold dis is: %f\n", 
                     thw_dis , front_dis, m_safe_distance_, threshold_dis); 
             printf ("acutla drive mode is : ");
             print_drive_mode(actual_drive_mode_);
@@ -586,7 +586,7 @@ void Manager::ProcessCommand ()
             if (m_debug_StateFlow_)
             {
                 if (debug_count % m_debug_thw_HZ_ == 0)
-                    printf("IN Manual\n\n");
+                    printf("IN Manual\n");
             }
             //when vehicle is manual, desire must be manual,  not leader need reset commond
             if (ID_ > 1)
@@ -599,7 +599,7 @@ void Manager::ProcessCommand ()
             if (m_debug_StateFlow_)
             {
                 if (debug_count % m_debug_thw_HZ_ == 0)
-                    printf("IN SubLeader\n\n");
+                    printf("IN SubLeader\n");
             }
             // when ego vehicle cut in is disapper, subplatoon should join the major platoon
             if (planning_info_.cut_in == 0)
@@ -608,8 +608,9 @@ void Manager::ProcessCommand ()
             if (m_debug_StateFlow_)
             {
                 if (debug_count % m_debug_thw_HZ_ == 0)
-                    printf("IN Auto\n\n");
+                    printf("IN Auto\n");
             }
+            //last desire mode is notset/manual/abnormal, when plan goto auto, desire should goto auto.
             if (desire_drive_mode_ == Notset || desire_drive_mode_ == Manual || desire_drive_mode_ == Abnormal)
             {
                 desire_drive_mode_ = Auto;
@@ -628,10 +629,6 @@ void Manager::ProcessCommand ()
                 }
                 if(IfAbnormal())
                     break;
-                //DriveMode front_drive_mode = FrontMode();
-                
-                //if (front_drive_mode == Leader || front_drive_mode == LeaderWait
-                //    || front_drive_mode == KeepQueue || front_drive_mode == Enqueue)
                 if (IsAllowEnqueue())
                 {
                     if (fabs(thw_dis - INVALID_FLOAT) <= Epslion || fabs(front_dis - INVALID_FLOAT) <= Epslion)
@@ -649,7 +646,7 @@ void Manager::ProcessCommand ()
             if (m_debug_StateFlow_)
             {
                 if (debug_count % m_debug_thw_HZ_ == 0)
-                    printf("IN LeaderWait\n\n");
+                    printf("IN LeaderWait\n");
             }
             if (IsAllJoinPlatoon())
             {
@@ -660,7 +657,7 @@ void Manager::ProcessCommand ()
             if (m_debug_StateFlow_)
             {
                 if (debug_count % m_debug_thw_HZ_ == 0)
-                    printf("IN Leader\n\n");
+                    printf("IN Leader\n");
             }
             if (m_fms_order_ == F_Dequeue)
             {
@@ -678,7 +675,7 @@ void Manager::ProcessCommand ()
             if (m_debug_StateFlow_)
             {
                 if (debug_count % m_debug_thw_HZ_ == 0)
-                    printf("IN Enqueue\n\n");
+                    printf("IN Enqueue\n");
             }
             if (IfAbnormal())
             {
@@ -697,16 +694,11 @@ void Manager::ProcessCommand ()
             }
             else
             {   
-                //assert((_ID -1) > 0);
                 if (ID_ <= 1)
                 {
                     std::cerr << "ERROR, this vehicle should not go to keep \n";
                     break;
                 }
-                //DriveMode front_drive_mode = FrontMode();
-                // check front vehicle status
-                // if (front_drive_mode == Leader || front_drive_mode == LeaderWait || 
-                //     front_drive_mode == SubLeader|| front_drive_mode == KeepQueue)
                 if (IsAllowKeep())
                 {
                     if (fabs(threshold_dis - INVALID_FLOAT) <= Epslion || fabs(front_dis - INVALID_FLOAT) <= Epslion)
@@ -724,7 +716,7 @@ void Manager::ProcessCommand ()
             if (m_debug_StateFlow_)
             {
                 if (debug_count % m_debug_thw_HZ_ == 0)
-                    printf("IN Dequeue\n\n");
+                    printf("IN Dequeue\n");
             }
             if (IfAbnormal())
             {
@@ -744,7 +736,7 @@ void Manager::ProcessCommand ()
             if (m_debug_StateFlow_)
             {
                 if (debug_count % m_debug_thw_HZ_ == 0)
-                    printf("IN KeepQueue\n\n");
+                    printf("IN KeepQueue\n");
             }
             if (IfAbnormal())
             {
@@ -764,7 +756,8 @@ void Manager::ProcessCommand ()
                     desire_drive_mode_ = Dequeue;
                 }
                 else
-                {// if front vehicle is enqueue, behind vehicle should to enqueue too
+                {// if front vehicle is enqueue, behind vehicle should to enqueue too, 
+                 // this statiution happen when subleader goto formation
                     DriveMode front_drive_mode = FrontMode();
                     if (front_drive_mode == Enqueue)
                     {
@@ -791,7 +784,7 @@ void Manager::ProcessCommand ()
             {
                 desire_drive_mode_ = SubLeader;
                 /**
-                 * from Cut_IN to auto present a task is over , need to clear fms enqueue oreder,
+                 * from Cut_IN to Subleader present a task is over , need to clear fms enqueue oreder,
                  * invoid repeat enqueue, because in auto, id will be cal.
                 */
                 ResetFmsOrder();
@@ -810,11 +803,8 @@ void Manager::ProcessCommand ()
                         {
                             break;
                         }
-                        //DriveMode front_drive_mode = FrontMode();
                         if (front_dis <= threshold_dis)
                         {
-                            //if (front_drive_mode == Leader || front_drive_mode == LeaderWait || 
-                            //    front_drive_mode == SubLeader|| front_drive_mode == KeepQueue)
                             if (IsAllowKeep())
                             {
                                 desire_drive_mode_ = KeepQueue;
@@ -826,9 +816,6 @@ void Manager::ProcessCommand ()
                         }
                         else
                         {
-                            // if ( front_drive_mode == Leader || front_drive_mode == Enqueue 
-                            //   || front_drive_mode == KeepQueue || front_drive_mode == LeaderWait
-                            //   || front_drive_mode == SubLeader)
                             if (IsAllowEnqueue())
                             {
                                 desire_drive_mode_ = Enqueue;
@@ -854,7 +841,6 @@ void Manager::ProcessCommand ()
             }  
             if (front_dis >= thw_dis * ConfigData::GetInstance()->to_auto_threshold_)
             {
-               
                 desire_drive_mode_ = Auto;
                 /**
                  * from abnormal to auto present a task is over , need to clear fms enqueue oreder,
@@ -868,7 +854,7 @@ void Manager::ProcessCommand ()
                 {
                     if (m_debug_StateFlow_)
                     {
-                        std::cout << "In Abnormal and current is normal" << std::endl;
+                        std::cout << "In Abnormal but current is normal" << std::endl;
                         std::cout << "fms order is " << int(m_fms_order_) << std::endl;
                     }
                     if (m_fms_order_ == F_DisBand || m_fms_order_ == F_Dequeue) //if fms order is F_Dequeue , no back to enqueue;
@@ -881,11 +867,8 @@ void Manager::ProcessCommand ()
                         {
                             break;
                         }
-                        //DriveMode front_drive_mode = FrontMode();
                         if (front_dis <= threshold_dis)
                         {
-                            // if (front_drive_mode == Leader || front_drive_mode == LeaderWait || 
-                            //     front_drive_mode == SubLeader|| front_drive_mode == KeepQueue)
                             if (IsAllowKeep())
                             {
                                 desire_drive_mode_ = KeepQueue;
@@ -899,9 +882,6 @@ void Manager::ProcessCommand ()
                         }
                         else
                         {
-                            // if ( front_drive_mode == Leader || front_drive_mode == Enqueue 
-                            //   || front_drive_mode == KeepQueue || front_drive_mode == LeaderWait
-                            //   || front_drive_mode == SubLeader)
                             if (IsAllowEnqueue())
                             {
                                 desire_drive_mode_ = Enqueue;
@@ -920,14 +900,14 @@ void Manager::ProcessCommand ()
             if (m_debug_StateFlow_)
             {
                 if (debug_count % m_debug_thw_HZ_ == 0)
-                    printf("IN Default\n\n");
+                    printf("IN Default\n");
             }
             //ignore command
             break;
     }
     if (desire_drive_mode_ != old_drive_mode)
     {
-        printf ("asdf desire_drive_mode changed : ");
+        printf ("desire_drive_mode changed : ");
         print_drive_mode(desire_drive_mode_);
     }
 }
@@ -1000,7 +980,6 @@ void Manager::UpdatePlatoonManagerInfo ()
         printf ("vehicle number is : %d\n",platoon_manager_info.vehicle_num);
         printf ("vehicle sequence is : %d\n", platoon_manager_info.vehicle_sequence);
         printf ("hmi safe distance is : %f\n",platoon_manager_info.safe_distance);
-        
     }
     /**
      * updata leader front vehicle info
@@ -1014,6 +993,7 @@ void Manager::UpdatePlatoonManagerInfo ()
         int front_id = platoon_id_map_[ID_ - 1];
         // may be one paltoon can divided into more platoon
         platoon_manager_info.vehicle_sequence = ID_ - leader_map_index + 1;
+        //this judge is for subplatoon
         if (desire_drive_mode_ == SubLeader || actual_drive_mode_ == CutIN)
             platoon_manager_info.vehicle_sequence = 1;
 
