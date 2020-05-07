@@ -140,6 +140,22 @@ int SendPDM::BroastEgoVehicleInfo3()
     verify_header.secmark = 0;
     verify_header.discardage = abs(ConfigData::GetInstance()->discard_time_);
     verify_header.maxIOsize = 0;
+    // multi-hop need 
+    switch (ego_vehicle_info.vehicle_sequence)
+    {
+        case 1:
+            verify_header.reseverd = 1;
+            break;
+        case 3:
+            verify_header.reseverd = 11;
+            break;
+        case 5:
+            verify_header.reseverd = 12;
+            break;
+        default:
+            verify_header.reseverd = 0;
+            break;
+    }
     int verify_len = sizeof(verify_header);
 
      //assign inbound header

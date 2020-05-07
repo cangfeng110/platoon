@@ -87,6 +87,9 @@ private:
     DriveMode FrontMode();
     void ProcessCommand ();
     bool IsCalID();
+    int FindLeader(int& map_index);
+    bool IsAllowEnqueue();
+    bool IsAllowKeep();
     
 };
 

@@ -27,6 +27,7 @@ namespace platoon
         Notset = 7,
         LeaderWait = 8,
         CutIN = 9,
+        SubLeader = 10,
     };
 
     enum FmsOrder
