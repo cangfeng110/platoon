@@ -305,15 +305,16 @@ void FMS::UpdateToFmsInfo()
     {
         std::string  order_id =fms_pre_info_.id();
         m_to_fms_info_.set_fmsmessageid(order_id); 
-        if (ConfigData::GetInstance()->debug_ToFmsInfo_)
-        {
-            PrintToFmsInfo();
-        }
+        // if (ConfigData::GetInstance()->debug_ToFmsInfo_)
+        // {
+        //     PrintToFmsInfo();
+        // }
     }
 }
 
-const ToFMSInfo& FMS::GetToFmsInfo() const
+ToFMSInfo& FMS::GetToFmsInfo()
 {
+    //PrintToFmsInfo();
     return m_to_fms_info_;
 }
 

@@ -26,3 +26,6 @@ truck platoon
 
 ### 20200507
 * modify subleader process logic, when ego vehicle cut in is disapper, m_fms_order is enqueue;
+
+### 20200508
+* fix to fms info error

@@ -13,7 +13,7 @@ class FMS
 {
 public:
     FMS();
-    const ToFMSInfo& GetToFmsInfo() const;
+    ToFMSInfo& GetToFmsInfo();
     void UpdateToFmsInfo();
     void UpdateFmsOrder();
 

@@ -16,24 +16,24 @@ Process::Process() : lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("MainProcess"
 
     if (ConfigData::GetInstance()->is_sil_test_)
     {
-        loop_.runEvery(1000 / ConfigData::GetInstance()->broadcast_HZ_, std::bind(&SendPDM::SilBroastEgoVehicleInfo, send_pdm_));
+        loop_.runEvery(1000 / ConfigData::GetInstance()->broadcast_HZ_, std::bind(&SendPDM::SilBroastEgoVehicleInfo, &send_pdm_));
     }
     else if (ConfigData::GetInstance()->is_protocol_2_)
     {
-        loop_.runEvery(1000 / ConfigData::GetInstance()->broadcast_HZ_, std::bind(&SendPDM::BroastEgoVehicleInfo2, send_pdm_));
+        loop_.runEvery(1000 / ConfigData::GetInstance()->broadcast_HZ_, std::bind(&SendPDM::BroastEgoVehicleInfo2, &send_pdm_));
     }
     else
     {
-        loop_.runEvery(1000 / ConfigData::GetInstance()->broadcast_HZ_, std::bind(&SendPDM::BroastEgoVehicleInfo3, send_pdm_));
+        loop_.runEvery(1000 / ConfigData::GetInstance()->broadcast_HZ_, std::bind(&SendPDM::BroastEgoVehicleInfo3, &send_pdm_));
     }
 
     loop_.runEvery(1000 / ConfigData::GetInstance()->broadcast_HZ_, std::bind(&Process::PublishManagerInfo, this));
 
     loop_.runEvery(50, std::bind(&Process::PublishToFusionInfo, this));
 
-    loop_.runEvery(1000, std::bind(&FMS::UpdateFmsOrder, fms_));
+    loop_.runEvery(1000, std::bind(&FMS::UpdateFmsOrder, &fms_));
 
-    loop_.runEvery(1000, std::bind(&FMS::UpdateToFmsInfo, fms_));
+    loop_.runEvery(1000, std::bind(&FMS::UpdateToFmsInfo, &fms_));
 
     loop_.runEvery(1000, std::bind(&Process::PublishToFmsInfo, this));
 }
@@ -73,12 +73,23 @@ void Process::PublishToFmsInfo()
     if (LowFreDataContanier::GetInstance()->fms_pre_info_.isUpToDate())
     {
         ToFMSInfo temp = fms_.GetToFmsInfo();
-        sendMessageViaLcm<ToFMSInfo>("PLATOON_APPLY_INFO", temp);
+        bool result = sendMessageViaLcm<ToFMSInfo>("PLATOON_APPLY_INFO", temp);
         ++tf_count;
         if (tf_count % debug_pmi_HZ_ == 0)
         {
             printf ("asdf PLATOON_APPLY_INFO published %d\n\n", tf_count);
         }
+        if (ConfigData::GetInstance()->debug_ToFmsInfo_)
+        {
+            printf("To FMS Info\n");
+            printf("vehicle apply info is : %d\n", temp.applyinfo());
+            printf("vehicle actual drive mode is : %d\n ", temp.actualdrivemode());
+            printf("vehicle platoon number is : %d\n", temp.platoonnumber());
+            printf("vehicle sequence is : %d\n", temp.vehiclesquence());
+            std::cout << "vehicle license is : " << temp.vehicleid() << std::endl;
+            std::cout << "serial number is : " << temp.fmsmessageid() << std::endl;
+            std::cout << "send to fms result is " << result << std::endl;
+        } 
     }
 }
 
