@@ -53,6 +53,8 @@ struct UDPVehicle
 
         float      desire_long_acc;
 
+        float      safe_distance;
+
 }__attribute__ ((packed)) ;
 
 #endif

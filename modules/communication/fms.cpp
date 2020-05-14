@@ -1,6 +1,7 @@
 #include "modules/communication/fms.h"
 
 #include <math.h>
+#include <algorithm>
 #include <iostream>
 #include <stdio.h>
 
@@ -16,7 +17,7 @@ namespace platoon
 namespace communication
 {
 
-FMS::FMS() : m_fms_order_(F_Invalid)
+FMS::FMS() : m_fms_order_(F_Invalid), hmi_order_(F_Invalid), vehicle_ID_(0)
 {
     m_enqueue_point_.reserve(2);
     m_dequeue_point_ .reserve(2);
@@ -25,7 +26,7 @@ FMS::FMS() : m_fms_order_(F_Invalid)
 
 /**
  * update this class need date from other datacontanier
- * 
+ * F_Invalid
 */
 void FMS::UpdateInfo()
 {
@@ -33,8 +34,13 @@ void FMS::UpdateInfo()
     fms_back_info_ = LowFreDataContanier::GetInstance()->fms_apply_result_.getData(fms_back_info_isupdate_);
     planning_info_ = LowFreDataContanier::GetInstance()->planning_data_.getData(planning_info_isupdate_);
     hmi_fms_info_ = LowFreDataContanier::GetInstance()->hmi_fms_info_.getData(hmi_info_isupdate_);
-    manager_info_ = SendDataContanier::GetInstance()->manager_data_.getData(manager_info_isupdate_);
     ego_vehicle_gps_data_ = HighFreDataContainer::GetInstance()->ego_vehicle_gps_data_.getData(ego_gps_isupdate_);
+    manager_info_ = SendDataContanier::GetInstance()->manager_data_.getData(manager_info_isupdate_);
+    vehicle_ID_ = SendDataContanier::GetInstance()->vehicle_ID_.getData(ID_isupdate_);
+    if (!ID_isupdate_)
+        vehicle_ID_ = 0;
+    if (hmi_info_isupdate_)
+        hmi_order_ = FmsOrder(hmi_fms_info_.fms_order);
 }
 
 /**
@@ -122,7 +128,7 @@ void FMS::CalApplyOrder()
                     {
                         if (manager_info_isupdate_)
                         {
-                            if (manager_info_.vehicle_sequence == 1)
+                            if (vehicle_ID_ == 1)
                             {
                                 m_to_fms_info_.set_applyinfo(FmsApplyOrder(BeLeader));
                             }
@@ -221,16 +227,16 @@ void FMS::ResetApplyResult()
 
 void FMS::CalFmsOrder()
 {
-    if (ConfigData::GetInstance()->hmi_fms_valid_)
-    {
-        if (hmi_info_isupdate_)
-        {
-            m_fms_order_ = FmsOrder(hmi_fms_info_.fms_order);
-        }
-    }
-    else
-    {
-        if (!planning_info_isupdate_)
+    // if (ConfigData::GetInstance()->hmi_fms_valid_)
+    // {
+    //     if (hmi_info_isupdate_)
+    //     {
+    //         m_fms_order_ = FmsOrder(hmi_fms_info_.fms_order);
+    //     }
+    // }
+    // else
+    // {
+        if (!planning_info_isupdate_)// if planinfo is not update, m_fms_order don't change
             return;
         DriveMode ego_drive_mode = DriveMode(planning_info_.actual_drive_mode);
         if (ego_drive_mode == Auto)
@@ -246,18 +252,51 @@ void FMS::CalFmsOrder()
                 m_fms_order_ = F_Enqueue;
                 ResetApplyResult();
             }   
+            else 
+            {
+                m_fms_order_ = F_Invalid;
+            }
         }
-        else if (ego_drive_mode == Enqueue || ego_drive_mode == KeepQueue
-                 || ego_drive_mode == Abnormal || ego_drive_mode == Leader
-                 || ego_drive_mode == LeaderWait)
+        // else if (ego_drive_mode == Enqueue || ego_drive_mode == KeepQueue
+        //          || ego_drive_mode == Abnormal || ego_drive_mode == Leader
+        //          || ego_drive_mode == LeaderWait || ego_drive_mode == SubLeader)
+        else if (ego_drive_mode != Manual || ego_drive_mode != Notset)
         {
             if (CalIfDisBand())
-                m_fms_order_ = F_DisBand;  
+                m_fms_order_ = F_Dequeue;  
         } 
-    } 
-    SendDataContanier::GetInstance()->fms_order_.setData(m_fms_order_);
+    //} 
 }
-
+/**
+ * chose order from hmi order and fms order
+ * F_Dequeue > F_Leader > F_Enqueue
+*/
+void FMS::ChoseOrder()
+{
+    if (m_fms_order_ == F_Dequeue || hmi_order_ == F_Dequeue)
+        SendDataContanier::GetInstance()->fms_order_.setData(F_Dequeue);
+    else if (m_fms_order_ == F_Leader || hmi_order_ == F_Leader)
+        SendDataContanier::GetInstance()->fms_order_.setData(F_Leader);
+    else if (m_fms_order_ == F_Enqueue || hmi_order_ == F_Enqueue)
+        SendDataContanier::GetInstance()->fms_order_.setData(F_Enqueue);
+    else 
+        SendDataContanier::GetInstance()->fms_order_.setData(F_Invalid);
+}
+/**
+ * chose platoon number from hmi info and fms info
+ * 
+*/
+ void FMS::ChosePloNumber()
+ {
+    int hmi_plnumber = 0;
+    int fms_plnumber = 0;
+    if (hmi_info_isupdate_)
+        hmi_plnumber = hmi_fms_info_.platoon_number;
+    if (fms_pre_info_isupdate_)
+        fms_plnumber = fms_pre_info_.platoonnumber();
+    int platoon_number = std::max(hmi_plnumber, fms_plnumber);
+    SendDataContanier::GetInstance()->platoon_number_.setData(platoon_number);
+ }
 /**
  * update fms order 20 HZ
 */
@@ -265,6 +304,8 @@ void FMS::UpdateFmsOrder()
 {
     UpdateInfo();
     CalFmsOrder();
+    ChoseOrder();
+    ChosePloNumber();
     if (ConfigData::GetInstance()->debug_FmsPreInfo_)
     {
         PrintFmsPreInfo();
@@ -287,6 +328,8 @@ void FMS::UpdateToFmsInfo()
 
     CalApplyOrder();
 
+    m_to_fms_info_.set_vehiclesquence(vehicle_ID_);
+
     if (planning_info_isupdate_)
     {
         FmsDriveMode ego_drive_mode = FmsDriveMode(planning_info_.actual_drive_mode);
@@ -297,7 +340,7 @@ void FMS::UpdateToFmsInfo()
     {
         int vehicle_squence = manager_info_.vehicle_sequence;
         int platoon_number = manager_info_.platoon_number;
-        m_to_fms_info_.set_vehiclesquence(vehicle_squence);
+        //m_to_fms_info_.set_vehiclesquence(vehicle_squence);
         m_to_fms_info_.set_platoonnumber(platoon_number);
     }
 
@@ -305,14 +348,14 @@ void FMS::UpdateToFmsInfo()
     {
         std::string  order_id =fms_pre_info_.id();
         m_to_fms_info_.set_fmsmessageid(order_id); 
-        // if (ConfigData::GetInstance()->debug_ToFmsInfo_)
-        // {
-        //     PrintToFmsInfo();
-        // }
+        if (ConfigData::GetInstance()->debug_ToFmsInfo_)
+        {
+            PrintToFmsInfo();
+        }
     }
 }
 
-ToFMSInfo& FMS::GetToFmsInfo()
+const ToFMSInfo& FMS::GetToFmsInfo() const
 {
     //PrintToFmsInfo();
     return m_to_fms_info_;
@@ -385,6 +428,7 @@ void FMS::PrintFmsPreInfo()
         cout << "vehicle license is : " << fms_pre_info_.vehicleid() << endl;
         cout << "platoon number is : " << int(fms_pre_info_.platoonnumber()) << endl;
         cout << "platoon member size is : " << fms_pre_info_.platoonmember_size() << endl;
+        cout << "safe dis is : " << fms_pre_info_.safe_distance() << endl;
         printf("formation long is : %f\n", fms_pre_info_.startnode().posx());
         printf("formation lat is : %f\n", fms_pre_info_.startnode().posy());
         printf("leaving long is : %f\n", fms_pre_info_.endnode().posx());
@@ -411,8 +455,6 @@ void FMS::PrintFmsBackInfo()
         cout << "FMS Apply Back is gone !" << std::endl;
     }
 }
-
-
 
 }//namespace communication
 }//namespace platoon

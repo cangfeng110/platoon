@@ -1,5 +1,7 @@
 #ifndef _DATA_DEFINE_H
 #define _DATA_DEFINE_H
+#include <map>
+#include <string>
 namespace platoon
 {
     #define ACCURACY_10 1E10
@@ -55,6 +57,8 @@ namespace platoon
         AllowJoin = 3,
         AllowLeader = 4,
     };
+
+    
 }
 
 #endif

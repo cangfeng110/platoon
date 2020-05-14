@@ -106,11 +106,13 @@ int SendPDM::BroastEgoVehicleInfo3()
     {
         ego_vehicle_info.desire_drive_mode = manager_info_.desire_drive_mode;
         ego_vehicle_info.vehicle_sequence = manager_info_.vehicle_sequence;
+        ego_vehicle_info.safe_distance = manager_info_.safe_distance;
     } 
     else 
     {
         ego_vehicle_info.desire_drive_mode = 7;
         ego_vehicle_info.vehicle_sequence = -1;
+        ego_vehicle_info.safe_distance = 10.0;
     }
    
     // platoon-planning info
@@ -198,7 +200,8 @@ int SendPDM::BroastEgoVehicleInfo3()
         printf ("ego vehicle altitude is : %f\n", ego_vehicle_info.altitude);
         printf ("ego vehicle heading is : %f\n", ego_vehicle_info.heading);
         printf ("ego vehicle speed is(km/h) : %f\n", ego_vehicle_info.speed * 3.6);
-        printf ("ego vehicle acc is : %f\n\n", ego_vehicle_info.longtitude_acc);
+        printf ("ego vehicle acc is : %f\n", ego_vehicle_info.longtitude_acc);
+        printf ("ego safe dis is : %f\n\n", ego_vehicle_info.safe_distance);
     }
 
     return 1;
@@ -263,11 +266,13 @@ int SendPDM::SilBroastEgoVehicleInfo()
     {
         ego_vehicle_info.desire_drive_mode = manager_info_.desire_drive_mode;
         ego_vehicle_info.vehicle_sequence = manager_info_.vehicle_sequence;
+        ego_vehicle_info.safe_distance = manager_info_.safe_distance;
     } 
     else 
     {
         ego_vehicle_info.desire_drive_mode = 7;
         ego_vehicle_info.vehicle_sequence = -1;
+         ego_vehicle_info.safe_distance = 10.0;
     }
    
     // platoon-planning info
@@ -313,7 +318,8 @@ int SendPDM::SilBroastEgoVehicleInfo()
         printf ("ego vehicle altitude is : %f\n", ego_vehicle_info.altitude);
         printf ("ego vehicle heading is : %f\n", ego_vehicle_info.heading);
         printf ("ego vehicle speed is(km/h) : %f\n", ego_vehicle_info.speed * 3.6);
-        printf ("ego vehicle acc is : %f\n\n", ego_vehicle_info.longtitude_acc);
+        printf ("ego vehicle acc is : %f\n", ego_vehicle_info.longtitude_acc);
+        printf ("ego safe dis is : %f\n\n", ego_vehicle_info.safe_distance);
     }
 
     return 1;
@@ -381,11 +387,13 @@ int SendPDM::BroastEgoVehicleInfo2()
     {
         ego_vehicle_info.desire_drive_mode = manager_info_.desire_drive_mode;
         ego_vehicle_info.vehicle_sequence = manager_info_.vehicle_sequence;
+        ego_vehicle_info.safe_distance = manager_info_.safe_distance;
     } 
     else 
     {
         ego_vehicle_info.desire_drive_mode = 7;
         ego_vehicle_info.vehicle_sequence = -1;
+        ego_vehicle_info.safe_distance = 10.0;
     }
    
     // platoon-planning info
@@ -451,7 +459,8 @@ int SendPDM::BroastEgoVehicleInfo2()
         printf ("ego vehicle heading is : %f\n", ego_vehicle_info.heading);
         printf ("ego vehicle speed is(km/h) : %f\n", ego_vehicle_info.speed * 3.6);
         printf ("ego vehicle desire acc is : %f\n", ego_vehicle_info.desire_long_acc);
-        printf ("ego vehicle acc is : %f\n\n", ego_vehicle_info.longtitude_acc);
+        printf ("ego vehicle acc is : %f\n", ego_vehicle_info.longtitude_acc);
+        printf ("ego safe dis is : %f\n\n", ego_vehicle_info.safe_distance);
     }
 
     return 1;

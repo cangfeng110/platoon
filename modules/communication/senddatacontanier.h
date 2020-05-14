@@ -22,6 +22,10 @@ public:
 
     templateDataContainer_Mutex<FmsOrder> fms_order_;
 
+    templateDataContainer_Mutex<int> vehicle_ID_;
+
+    templateDataContainer_Mutex<int> platoon_number_;
+
     static SendDataContanier* GetInstance();
 
     void DecreaseTtl();

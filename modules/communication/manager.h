@@ -24,6 +24,8 @@ private:
     DriveMode desire_drive_mode_;
     int ID_;
     float m_safe_distance_;
+    float hmi_safe_dis_;
+    float fms_safe_dis_;
     /**
      * this vector is to sort to calculated id 
     */
@@ -40,6 +42,20 @@ private:
      * when the actual mode is auto or manual, this map will be update, else no update 
     **/
     std::map<int,int> platoon_id_map_;
+    /**
+     * this map is help function IsAllJoinPlatoon
+    */
+    std::map<std::string, int> license_map_{
+        {"沪YSG_14", 14},
+        {"沪YSG_15", 15},
+        {"沪YSG_16", 16},
+        {"沪YSG_17", 17},
+        {"沪YSG_18", 18},
+        {"沪YSG_19", 19},
+        {"沪YSG_20", 20},
+        {"沪YSG_21", 21},
+        {"沪YSG_22", 22},
+    }; 
 
     WorldModle m_worldmodle_;
 
@@ -69,6 +85,9 @@ private:
     FmsOrder m_fms_order_;
     bool fms_order_isupdate_;
 
+    int platoon_number_;
+    bool plnumber_isupdate_;
+
     int m_debug_flags_;
     int m_debug_thw_HZ_;
     bool m_debug_StateFlow_;
@@ -90,6 +109,7 @@ private:
     int FindLeader(int& map_index);
     bool IsAllowEnqueue();
     bool IsAllowKeep();
+    void CalSafeDis();
     
 };
 

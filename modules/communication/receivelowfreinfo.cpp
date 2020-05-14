@@ -118,10 +118,12 @@ bool ReceiveLowFreInfo::ReceiveFmsPreInfo()
             std::cout << "FMS Pre Info Changed! " << std::endl;
             LowFreDataContanier::GetInstance()->fms_pre_info_.setData(*pre_info_ptr_);
             /**
-             * clear paltoon-vehicles-map, because a new platoon is be calcuted
+             * clear paltoon-vehicles-map, if platoon_number is changed
             */
-            UDPDataContainer::GetInstance()->platoon_vehicles_data_.clearMap();
+            if (platoon_number_ != pre_info_ptr_->platoonnumber())
+                UDPDataContainer::GetInstance()->platoon_vehicles_data_.clearMap();
             pre_serial_id_ = pre_info_ptr_->id();
+            platoon_number_ = pre_info_ptr_->platoonnumber();
         }
     }
     return result;

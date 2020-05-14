@@ -13,7 +13,7 @@ class FMS
 {
 public:
     FMS();
-    ToFMSInfo& GetToFmsInfo();
+    const ToFMSInfo& GetToFmsInfo() const;
     void UpdateToFmsInfo();
     void UpdateFmsOrder();
 
@@ -21,6 +21,7 @@ private:
     std::vector<double> m_enqueue_point_;
     std::vector<double> m_dequeue_point_;
     FmsOrder m_fms_order_;
+    FmsOrder hmi_order_;
     bool m_hmi_fms_valid_;
     ToFMSInfo m_to_fms_info_;
 
@@ -43,6 +44,9 @@ private:
     HmiFmsInfo hmi_fms_info_;
     bool hmi_info_isupdate_;
 
+    int vehicle_ID_;
+    bool ID_isupdate_;
+
 private:
     void UpdateInfo();
     void UpdatePoint();
@@ -51,6 +55,8 @@ private:
     bool CalIfDisBand();
     void ResetApplyResult();
     void CalFmsOrder();
+    void ChoseOrder();
+    void ChosePloNumber();
 
     //print function
     void PrintApplyOrder(const ApplyOrder& order);

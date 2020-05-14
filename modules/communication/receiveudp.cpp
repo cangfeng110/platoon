@@ -4,6 +4,7 @@
 #include "modules/communication/lowfredatacontainer.h"
 #include "modules/communication/highfredatacontainer.h"
 #include "modules/communication/udpdatacontainer.h"
+#include "modules/communication/senddatacontanier.h"
 #include "modules/communication/configdata.h"
 
 #include "include/ibox/UDPVehicle.hpp"
@@ -150,6 +151,7 @@ int ReceiveUDP::DecodeV2xVechileInfo3()
         // v3.0 new data
         v2x_other_vehicle_data.platoon_number = udp_other_vehicle_data.platoon_number;
         v2x_other_vehicle_data.vehicle_sequence = udp_other_vehicle_data.vehicle_sequence;
+        v2x_other_vehicle_data.safedistance = udp_other_vehicle_data.safe_distance;
 
         int key = v2x_other_vehicle_data.vehicle_id;
 
@@ -176,25 +178,31 @@ int ReceiveUDP::DecodeV2xVechileInfo3()
         std::string if_platoon = "No";
         
         /* storage the platoon number is equal vehicle to platoon_vehicles_dara_*/
-        if (ConfigData::GetInstance()->hmi_fms_valid_)
+        // if (ConfigData::GetInstance()->hmi_fms_valid_)
+        // {
+        //     platoon_number_ = LowFreDataContanier::GetInstance()->hmi_fms_info_.getData(isupdate_).platoon_number;
+        //     //printf("the ego vehicle platoon number is %d\n", ego_platoon_number);
+        //     //printf("the other vehicle platoon number is %d\n", v2x_other_vehicle_data.platoon_number);
+        //     if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
+        //     {
+        //         if_platoon = "Yes_hmi";
+        //         UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
+        //     }
+        // }
+        // else if (LowFreDataContanier::GetInstance()->fms_pre_info_.isUpToDate()) 
+        // {
+        //     platoon_number_ = LowFreDataContanier::GetInstance()->fms_pre_info_.getData(isupdate_).platoonnumber();
+        //     if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
+        //     {
+        //         if_platoon = "Yes_FMS";
+        //         UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
+        //     }
+        // }
+        platoon_number_ = SendDataContanier::GetInstance()->platoon_number_.getData(isupdate_);
+        if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
         {
-            platoon_number_ = LowFreDataContanier::GetInstance()->hmi_fms_info_.getData(isupdate_).platoon_number;
-            //printf("the ego vehicle platoon number is %d\n", ego_platoon_number);
-            //printf("the other vehicle platoon number is %d\n", v2x_other_vehicle_data.platoon_number);
-            if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
-            {
-                if_platoon = "Yes_hmi";
-                UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
-            }
-        }
-        else if (LowFreDataContanier::GetInstance()->fms_pre_info_.isUpToDate()) 
-        {
-            platoon_number_ = LowFreDataContanier::GetInstance()->fms_pre_info_.getData(isupdate_).platoonnumber();
-            if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
-            {
-                if_platoon = "Yes_FMS";
-                UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
-            }
+            if_platoon = "Yes, FMS or Hmi";
+            UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
         }
 
         lcm_.publish("V2X_OTHER_VEHICLE_INFO", &v2x_other_vehicle_data);
@@ -283,6 +291,7 @@ int ReceiveUDP::DecodeV2xVehicleInfo2() {
         // v3.0 new data
         v2x_other_vehicle_data.platoon_number = udp_other_vehicle_data.platoon_number;
         v2x_other_vehicle_data.vehicle_sequence = udp_other_vehicle_data.vehicle_sequence;
+        v2x_other_vehicle_data.safedistance = udp_other_vehicle_data.safe_distance;
 
         int key = v2x_other_vehicle_data.vehicle_id;
     
@@ -309,27 +318,32 @@ int ReceiveUDP::DecodeV2xVehicleInfo2() {
         std::string if_platoon = "No";
         
         /* storage the platoon number is equal vehicle to platoon_vehicles_dara_*/
-        if (ConfigData::GetInstance()->hmi_fms_valid_)
+        // if (ConfigData::GetInstance()->hmi_fms_valid_)
+        // {
+        //     platoon_number_ = LowFreDataContanier::GetInstance()->hmi_fms_info_.getData(isupdate_).platoon_number;
+        //     //printf("the ego vehicle platoon number is %d\n", ego_platoon_number);
+        //     //printf("the other vehicle platoon number is %d\n", v2x_other_vehicle_data.platoon_number);
+        //     if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
+        //     {
+        //         if_platoon = "Yes_hmi";
+        //         UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
+        //     }
+        // }
+        // else if (LowFreDataContanier::GetInstance()->fms_pre_info_.isUpToDate()) 
+        // {
+        //     platoon_number_ = LowFreDataContanier::GetInstance()->fms_pre_info_.getData(isupdate_).platoonnumber();
+        //     if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
+        //     {
+        //         if_platoon = "Yes_FMS";
+        //         UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
+        //     }
+        // }
+        platoon_number_ = SendDataContanier::GetInstance()->platoon_number_.getData(isupdate_);
+        if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
         {
-            platoon_number_ = LowFreDataContanier::GetInstance()->hmi_fms_info_.getData(isupdate_).platoon_number;
-            //printf("the ego vehicle platoon number is %d\n", ego_platoon_number);
-            //printf("the other vehicle platoon number is %d\n", v2x_other_vehicle_data.platoon_number);
-            if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
-            {
-                if_platoon = "Yes_hmi";
-                UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
-            }
+            if_platoon = "Yes, FMS or Hmi";
+            UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
         }
-        else if (LowFreDataContanier::GetInstance()->fms_pre_info_.isUpToDate()) 
-        {
-            platoon_number_ = LowFreDataContanier::GetInstance()->fms_pre_info_.getData(isupdate_).platoonnumber();
-            if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
-            {
-                if_platoon = "Yes_FMS";
-                UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
-            }
-        }
-
         lcm_.publish("V2X_OTHER_VEHICLE_INFO", &v2x_other_vehicle_data);
 
         if (debug_flags_ & DEBUG_V2xVehicleInfo) 
@@ -401,6 +415,7 @@ int ReceiveUDP::SilDecodeV2xVechileInfo()
     // v3.0 new data
     v2x_other_vehicle_data.platoon_number = udp_other_vehicle_data.platoon_number;
     v2x_other_vehicle_data.vehicle_sequence = udp_other_vehicle_data.vehicle_sequence;
+    v2x_other_vehicle_data.safedistance = udp_other_vehicle_data.safe_distance;
 
     int key = v2x_other_vehicle_data.vehicle_id;
 
@@ -433,27 +448,32 @@ int ReceiveUDP::SilDecodeV2xVechileInfo()
     std::string if_platoon = "No";
     
     /* storage the platoon number is equal vehicle to platoon_vehicles_dara_*/
-    if (ConfigData::GetInstance()->hmi_fms_valid_)
+    // if (ConfigData::GetInstance()->hmi_fms_valid_)
+    // {
+    //     platoon_number_ = LowFreDataContanier::GetInstance()->hmi_fms_info_.getData(isupdate_).platoon_number;
+    //     //printf("the ego vehicle platoon number is %d\n", ego_platoon_number);
+    //     //printf("the other vehicle platoon number is %d\n", v2x_other_vehicle_data.platoon_number);
+    //     if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
+    //     {
+    //         if_platoon = "Yes_hmi";
+    //         UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
+    //     }
+    // }
+    // else if (LowFreDataContanier::GetInstance()->fms_pre_info_.isUpToDate()) 
+    // {
+    //     platoon_number_ = LowFreDataContanier::GetInstance()->fms_pre_info_.getData(isupdate_).platoonnumber();
+    //     if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
+    //     {
+    //         if_platoon = "Yes_FMS";
+    //         UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
+    //     }
+    // }
+    platoon_number_ = SendDataContanier::GetInstance()->platoon_number_.getData(isupdate_);
+    if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
     {
-        platoon_number_ = LowFreDataContanier::GetInstance()->hmi_fms_info_.getData(isupdate_).platoon_number;
-        //printf("the ego vehicle platoon number is %d\n", ego_platoon_number);
-        //printf("the other vehicle platoon number is %d\n", v2x_other_vehicle_data.platoon_number);
-        if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
-        {
-            if_platoon = "Yes_hmi";
-            UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
-        }
+        if_platoon = "Yes, FMS or Hmi";
+        UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
     }
-    else if (LowFreDataContanier::GetInstance()->fms_pre_info_.isUpToDate()) 
-    {
-        platoon_number_ = LowFreDataContanier::GetInstance()->fms_pre_info_.getData(isupdate_).platoonnumber();
-        if (isupdate_ && platoon_number_ > 0 && platoon_number_ == v2x_other_vehicle_data.platoon_number) 
-        {
-            if_platoon = "Yes_FMS";
-            UDPDataContainer::GetInstance()->platoon_vehicles_data_.setData(key, v2x_other_vehicle_data);
-        }
-    }
-
     lcm_.publish("V2X_OTHER_VEHICLE_INFO", &v2x_other_vehicle_data);
 
     if (debug_flags_ & DEBUG_V2xVehicleInfo) 
@@ -546,7 +566,6 @@ void ReceiveUDP::HandleLogV2xInfo(const lcm::ReceiveBuffer* rbuf,
         printf ("other vehicle relative_x is: %f\n", v2x_other_vehicle_data.relative_x);
         printf ("other vehicle relative_y is: %f\n\n", v2x_other_vehicle_data.relative_y);
     }
-
 }
 
 }

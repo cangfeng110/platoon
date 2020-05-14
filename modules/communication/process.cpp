@@ -31,7 +31,7 @@ Process::Process() : lcm_("udpm://239.255.76.67:7667?ttl=1"),loop_("MainProcess"
 
     loop_.runEvery(50, std::bind(&Process::PublishToFusionInfo, this));
 
-    loop_.runEvery(1000, std::bind(&FMS::UpdateFmsOrder, &fms_));
+    loop_.runEvery(100, std::bind(&FMS::UpdateFmsOrder, &fms_));
 
     loop_.runEvery(1000, std::bind(&FMS::UpdateToFmsInfo, &fms_));
 
@@ -79,17 +79,17 @@ void Process::PublishToFmsInfo()
         {
             printf ("asdf PLATOON_APPLY_INFO published %d\n\n", tf_count);
         }
-        if (ConfigData::GetInstance()->debug_ToFmsInfo_)
-        {
-            printf("To FMS Info\n");
-            printf("vehicle apply info is : %d\n", temp.applyinfo());
-            printf("vehicle actual drive mode is : %d\n ", temp.actualdrivemode());
-            printf("vehicle platoon number is : %d\n", temp.platoonnumber());
-            printf("vehicle sequence is : %d\n", temp.vehiclesquence());
-            std::cout << "vehicle license is : " << temp.vehicleid() << std::endl;
-            std::cout << "serial number is : " << temp.fmsmessageid() << std::endl;
-            std::cout << "send to fms result is " << result << std::endl;
-        } 
+        // if (ConfigData::GetInstance()->debug_ToFmsInfo_)
+        // {
+        //     printf("To FMS Info\n");
+        //     printf("vehicle apply info is : %d\n", temp.applyinfo());
+        //     printf("vehicle actual drive mode is : %d\n ", temp.actualdrivemode());
+        //     printf("vehicle platoon number is : %d\n", temp.platoonnumber());
+        //     printf("vehicle sequence is : %d\n", temp.vehiclesquence());
+        //     std::cout << "vehicle license is : " << temp.vehicleid() << std::endl;
+        //     std::cout << "serial number is : " << temp.fmsmessageid() << std::endl;
+        //     std::cout << "send to fms result is " << result << std::endl;
+        // } 
     }
 }
 
