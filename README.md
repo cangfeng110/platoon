@@ -37,3 +37,5 @@ truck platoon
 * modify send fms vehiclesequence, form ID not from to managerinfo
 * add Manager::CalSafeDis and modify **vehicleinfo.cpp**
 * add CalSafDis in Manager
+### 20200514
+* modify Manager::IfAbnormal, only check leader and front vehcile connection.

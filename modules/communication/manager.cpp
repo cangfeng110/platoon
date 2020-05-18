@@ -305,7 +305,7 @@ bool Manager::IfAbnormal()
             return true;
         } 
     }
-    else
+    else 
     {
         return true; // leader vehicle is dis connnection
     }
@@ -325,31 +325,14 @@ bool Manager::IfAbnormal()
                 }
                 return true;
             }
-            else 
+            else // other vehicle dont't need to check disconnect 
             {
                 continue;
             }
         }   
         const VehicleData& temp = platoon_vehicles_info_[vehicle_id].getData();
-        // gps status dones't need to check
-        // bool if_gps_error = (temp.gps_status == 0) ? true : false;
-        // if (if_gps_error)
-        // {
-        //     if (m_debug_StateFlow_)
-        //     {
-        //         std::cout << "Current Abnormal, front vehicles gps error : " << vehicle_id << std::endl;
-        //     }
-        //     return true;
-        // }    
-        // bool if_abnormal = false;
-        // //bool if_cut_in =  false;
-        // bool if_manual = false;
-        // if (i > leader_map_index)//leader vehicle don't need to check cut_in_flag and anbormal status
-        // {
         bool if_abnormal = (DriveMode(temp.actual_drive_mode) == Abnormal) ? true : false;
         bool if_manual = (DriveMode(temp.actual_drive_mode) == Manual) ? true : false;
-        //}
-        //if (if_abnormal || if_cut_in || if_manual)
         if (if_abnormal || if_manual)
         {
             if (m_debug_StateFlow_)
@@ -1310,6 +1293,6 @@ void Manager::CalSafeDis()
         }
     }
 }
-} // namesapce communication
 
+} // namesapce communication
 } // namespace platoon

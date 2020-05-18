@@ -462,7 +462,6 @@ int SendPDM::BroastEgoVehicleInfo2()
         printf ("ego vehicle acc is : %f\n", ego_vehicle_info.longtitude_acc);
         printf ("ego safe dis is : %f\n\n", ego_vehicle_info.safe_distance);
     }
-
     return 1;
 }
 
