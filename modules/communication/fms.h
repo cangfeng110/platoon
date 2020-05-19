@@ -25,6 +25,10 @@ private:
     bool m_hmi_fms_valid_;
     ToFMSInfo m_to_fms_info_;
 
+    int hmi_plnumber_;
+    int fms_plnumber_;
+    int final_plnumber_;
+
     //below data need to read from other datacontanier ,from other threads
     FMSPreFormationInfo fms_pre_info_;
     bool fms_pre_info_isupdate_;

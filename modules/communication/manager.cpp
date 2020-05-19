@@ -976,7 +976,7 @@ void Manager::UpdatePlatoonManagerInfo ()
         printf ("platoon number is : %d\n",platoon_manager_info.platoon_number);
         printf ("vehicle number is : %d\n",platoon_manager_info.vehicle_num);
         printf ("vehicle sequence is : %d\n", platoon_manager_info.vehicle_sequence);
-        printf ("hmi safe distance is : %f\n",platoon_manager_info.safe_distance);
+        printf ("safe distance is : %f\n",platoon_manager_info.safe_distance);
     }
     /**
      * updata leader front vehicle info
@@ -1280,14 +1280,12 @@ void Manager::CalSafeDis()
     else
     {
         int leader_vehicle_id = platoon_id_map_[1];
-        float leader_safe_dis = 10.0;
         if (platoon_info_isupdate_)
         {
             if (platoon_vehicles_info_[leader_vehicle_id].isUpToDate())
             {
-                leader_safe_dis = platoon_vehicles_info_[leader_vehicle_id].getData().safedistance;
+                m_safe_distance_ = platoon_vehicles_info_[leader_vehicle_id].getData().safedistance;
             }
-            m_safe_distance_ = leader_safe_dis;
             // printf("leader safe dis is : %f\n", leader_safe_dis);
             // printf("m_safe dis is : %f\n", m_safe_distance_);
         }

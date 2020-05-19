@@ -9,6 +9,7 @@
 #include "modules/communication/highfredatacontainer.h"
 #include "modules/communication/lowfredatacontainer.h"
 #include "modules/communication/senddatacontanier.h"
+#include "modules/communication/udpdatacontainer.h"
 #include "include/protocol/lcmDataNameTypeDefine.h"
 #include "modules/customfunction/functiontool.h"
 
@@ -17,7 +18,8 @@ namespace platoon
 namespace communication
 {
 
-FMS::FMS() : m_fms_order_(F_Invalid), hmi_order_(F_Invalid), vehicle_ID_(0)
+FMS::FMS() : m_fms_order_(F_Invalid), hmi_order_(F_Invalid), vehicle_ID_(0),
+            hmi_plnumber_(0), fms_plnumber_(0), final_plnumber_(0)
 {
     m_enqueue_point_.reserve(2);
     m_dequeue_point_ .reserve(2);
@@ -288,14 +290,29 @@ void FMS::ChoseOrder()
 */
  void FMS::ChosePloNumber()
  {
-    int hmi_plnumber = 0;
-    int fms_plnumber = 0;
-    if (hmi_info_isupdate_)
-        hmi_plnumber = hmi_fms_info_.platoon_number;
-    if (fms_pre_info_isupdate_)
-        fms_plnumber = fms_pre_info_.platoonnumber();
-    int platoon_number = std::max(hmi_plnumber, fms_plnumber);
-    SendDataContanier::GetInstance()->platoon_number_.setData(platoon_number);
+    //int hmi_plnumber = 0;
+    //int fms_plnumber = 0;
+    if (hmi_info_isupdate_ && abs(hmi_plnumber_ - hmi_fms_info_.platoon_number) > 0.1)
+    {
+        hmi_plnumber_ = hmi_fms_info_.platoon_number;
+        /**
+         * clear paltoon-vehicles-map, if platoon_number is changed
+         */
+        if (hmi_plnumber_ != final_plnumber_)
+            UDPDataContainer::GetInstance()->platoon_vehicles_data_.clearMap();
+        final_plnumber_ = hmi_plnumber_;
+    }
+    else if (fms_pre_info_isupdate_ && abs(fms_plnumber_ - fms_pre_info_.platoonnumber()) > 0.1)
+    {
+        fms_plnumber_ = fms_pre_info_.platoonnumber();
+        /**
+         * clear paltoon-vehicles-map, if platoon_number is changed
+         */
+        if (hmi_plnumber_ != final_plnumber_)
+            UDPDataContainer::GetInstance()->platoon_vehicles_data_.clearMap(); 
+        final_plnumber_ = fms_plnumber_;
+    }   
+    SendDataContanier::GetInstance()->platoon_number_.setData(final_plnumber_);
  }
 /**
  * update fms order 20 HZ

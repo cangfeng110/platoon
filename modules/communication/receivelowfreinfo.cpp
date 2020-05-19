@@ -69,7 +69,7 @@ void ReceiveLowFreInfo::HandleHmiFmsInfo(const lcm::ReceiveBuffer *rbuf,
     if (platoon_number_ != msg->platoon_number)
     {
         std::cout << "asdf platoon number changed : " << msg->platoon_number << std::endl;
-        UDPDataContainer::GetInstance()->platoon_vehicles_data_.clearMap();
+        //UDPDataContainer::GetInstance()->platoon_vehicles_data_.clearMap();
     }
     LowFreDataContanier::GetInstance()->hmi_fms_info_.setData(*msg);
     fms_order_ = msg->fms_order;
@@ -117,11 +117,9 @@ bool ReceiveLowFreInfo::ReceiveFmsPreInfo()
         {
             std::cout << "FMS Pre Info Changed! " << std::endl;
             LowFreDataContanier::GetInstance()->fms_pre_info_.setData(*pre_info_ptr_);
-            /**
-             * clear paltoon-vehicles-map, if platoon_number is changed
-            */
-            if (platoon_number_ != pre_info_ptr_->platoonnumber())
-                UDPDataContainer::GetInstance()->platoon_vehicles_data_.clearMap();
+           
+            // if (platoon_number_ != pre_info_ptr_->platoonnumber())
+            //     UDPDataContainer::GetInstance()->platoon_vehicles_data_.clearMap();
             pre_serial_id_ = pre_info_ptr_->id();
             platoon_number_ = pre_info_ptr_->platoonnumber();
         }
