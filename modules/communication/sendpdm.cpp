@@ -21,8 +21,6 @@ SendPDM::SendPDM() : platoon_number_(0)
     m_debug_flags_ = ConfigData::GetInstance()->GetDebugFlags();
     send_ip_ = ConfigData::GetInstance()->remote_ip_;
     send_port_ = ConfigData::GetInstance()->remote_port_;
-    // sudp_ = Udp(send_ip_, send_port_);
-    // sudp_.init();
 }
 
 void SendPDM::UpdateInfo()
@@ -31,19 +29,9 @@ void SendPDM::UpdateInfo()
     ego_vcu_info_ = HighFreDataContainer::GetInstance()->ego_vehicle_vcu_data_.getData(vcu_isupdate_);
     planning_info_ = LowFreDataContanier::GetInstance()->planning_data_.getData(plan_isupdate_);
     manager_info_ = SendDataContanier::GetInstance()->manager_data_.getData(manager_isupdate_);
-    bool isupdate;
-    if (ConfigData::GetInstance()->hmi_fms_valid_)
-    {
-        platoon_number_ = LowFreDataContanier::GetInstance()->hmi_fms_info_.getData(isupdate).platoon_number;
-        if (!isupdate)
-            platoon_number_ = 0;
-    }
-    else
-    {
-        platoon_number_ = LowFreDataContanier::GetInstance()->fms_pre_info_.getData(isupdate).platoonnumber();
-        if (!isupdate)
-            platoon_number_ = 0;
-    }
+    platoon_number_ = SendDataContanier::GetInstance()->platoon_number_.getData(plnum_isupdate);
+    if (!plnum_isupdate)
+        platoon_number_ = 0;
 }
 /**
  * new protocol
@@ -272,7 +260,7 @@ int SendPDM::SilBroastEgoVehicleInfo()
     {
         ego_vehicle_info.desire_drive_mode = 7;
         ego_vehicle_info.vehicle_sequence = -1;
-         ego_vehicle_info.safe_distance = 10.0;
+        ego_vehicle_info.safe_distance = 10.0;
     }
    
     // platoon-planning info

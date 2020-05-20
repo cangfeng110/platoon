@@ -29,6 +29,7 @@ private:
 
     //below info is from other datacontainer, from other threads
     int platoon_number_;
+    bool plnum_isupdate;
 
     VehicleGpsData ego_gps_info_;
     bool gps_isupdate_;
@@ -41,8 +42,7 @@ private:
 
     PlatoonManagerInfo manager_info_;
     bool manager_isupdate_;
-    //
-    //Udp sudp_;
+    
     std::string send_ip_;
     int send_port_;
 
