@@ -22,7 +22,7 @@ private:
     std::vector<double> m_dequeue_point_;
     FmsOrder m_fms_order_;
     FmsOrder hmi_order_;
-    bool m_hmi_fms_valid_;
+    //bool m_hmi_fms_valid_;
     ToFMSInfo m_to_fms_info_;
 
     int hmi_plnumber_;

@@ -352,25 +352,19 @@ bool Manager::IfAbnormal()
     return result;
 }
 /**
- * when fms enqueue and leader order is be executabe , 
- * this function is be recall to clear fms order, avoid repate enqueue / leader
- * dequeue or disband order don't need to be cleared
+ * function: to clear fms order 
+ * when vehicle from abnormal to auto /  to manual , this fuc is caled
+ * 
  * */
 void Manager::ResetFmsOrder()
 {
-    if (ConfigData::GetInstance()->hmi_fms_valid_)
-    {
-        hmi_fms_info_.fms_order = int8_t(F_Invalid);
-        LowFreDataContanier::GetInstance()->hmi_fms_info_.setData(hmi_fms_info_);
-        SendDataContanier::GetInstance()->fms_order_.setData(F_Invalid);
-    } 
-    else 
-    {
-        SendDataContanier::GetInstance()->fms_order_.setData(F_Invalid);
-    }
+    hmi_fms_info_.fms_order = int8_t(F_Invalid);
+    LowFreDataContanier::GetInstance()->hmi_fms_info_.setData(hmi_fms_info_);
+    SendDataContanier::GetInstance()->fms_order_.setData(F_Invalid);
 }
 /**
  * functin TransLicensToId and license_map is to help function IsAllJoinPlatoon
+ * no use
 */
 int TransLicensToId(const std::string& license)
 {
@@ -564,7 +558,7 @@ void Manager::ProcessCommand ()
             print_drive_mode(actual_drive_mode_);
         }
     }
-    // this is only for test,clear status
+    // this is only for test, clear status
     if (m_fms_order_ == F_Reset)
     {
         desire_drive_mode_ = Notset;
@@ -1014,6 +1008,9 @@ void Manager::UpdatePlatoonManagerInfo ()
             }
             platoon_manager_info.leader_vehicle = leader_vehicle;
             platoon_manager_info.leader_frenet_dis = m_worldmodle_.GetFrenetDis(leader_id);
+            // judge if gps status is useful
+            if (platoon_manager_info.leader_vehicle.gps_status == 0)
+                platoon_manager_info.leader_vehicle.vehicle_id = -1;
 
             if (m_debug_flags_ & DEBUG_ManagerInfo)
             {   
@@ -1053,6 +1050,9 @@ void Manager::UpdatePlatoonManagerInfo ()
             }
             platoon_manager_info.front_vehicle = front_vehicle;
             platoon_manager_info.front_frenet_dis = m_worldmodle_.GetFrenetDis(front_id);
+            // judge if gps status is useful
+            if (platoon_manager_info.front_vehicle.gps_status == 0)
+                platoon_manager_info.front_vehicle.vehicle_id = -1;
 
             to_fusion_info.vehicle_id = front_vehicle.vehicle_id;
             to_fusion_info.vehicle_length = front_vehicle.vehicle_length;

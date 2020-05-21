@@ -23,7 +23,7 @@ FMS::FMS() : m_fms_order_(F_Invalid), hmi_order_(F_Invalid), vehicle_ID_(0),
 {
     m_enqueue_point_.reserve(2);
     m_dequeue_point_ .reserve(2);
-    m_hmi_fms_valid_ = ConfigData::GetInstance()->hmi_fms_valid_;
+    //m_hmi_fms_valid_ = ConfigData::GetInstance()->hmi_fms_valid_;
 }
 
 /**
@@ -229,45 +229,35 @@ void FMS::ResetApplyResult()
 
 void FMS::CalFmsOrder()
 {
-    // if (ConfigData::GetInstance()->hmi_fms_valid_)
-    // {
-    //     if (hmi_info_isupdate_)
-    //     {
-    //         m_fms_order_ = FmsOrder(hmi_fms_info_.fms_order);
-    //     }
-    // }
-    // else
-    // {
-        if (!planning_info_isupdate_)// if planinfo is not update, m_fms_order don't change
-            return;
-        DriveMode ego_drive_mode = DriveMode(planning_info_.actual_drive_mode);
-        if (ego_drive_mode == Auto)
+    if (!planning_info_isupdate_)// if planinfo is not update, m_fms_order don't change
+        return;
+    DriveMode ego_drive_mode = DriveMode(planning_info_.actual_drive_mode);
+    if (ego_drive_mode == Auto)
+    {
+        ApplyResult result = CalApplyResult();
+        if (result == AllowLeader)
         {
-            ApplyResult result = CalApplyResult();
-            if (result == AllowLeader)
-            {
-                m_fms_order_ = F_Leader;
-                ResetApplyResult();
-            }
-            else if (result == AllowJoin)
-            {
-                m_fms_order_ = F_Enqueue;
-                ResetApplyResult();
-            }   
-            else 
-            {
-                m_fms_order_ = F_Invalid;
-            }
+            m_fms_order_ = F_Leader;
+            ResetApplyResult();
         }
-        // else if (ego_drive_mode == Enqueue || ego_drive_mode == KeepQueue
-        //          || ego_drive_mode == Abnormal || ego_drive_mode == Leader
-        //          || ego_drive_mode == LeaderWait || ego_drive_mode == SubLeader)
-        else if (ego_drive_mode != Manual || ego_drive_mode != Notset)
+        else if (result == AllowJoin)
         {
-            if (CalIfDisBand())
-                m_fms_order_ = F_Dequeue;  
-        } 
-    //} 
+            m_fms_order_ = F_Enqueue;
+            ResetApplyResult();
+        }   
+        else 
+        {//clear previous m_fms_order
+            m_fms_order_ = F_Invalid;
+        }
+    }
+    // else if (ego_drive_mode == Enqueue || ego_drive_mode == KeepQueue
+    //          || ego_drive_mode == Abnormal || ego_drive_mode == Leader
+    //          || ego_drive_mode == LeaderWait || ego_drive_mode == SubLeader)
+    else if (ego_drive_mode != Manual || ego_drive_mode != Notset)
+    {
+        if (CalIfDisBand())
+            m_fms_order_ = F_Dequeue;  
+    }  
 }
 /**
  * chose order from hmi order and fms order
@@ -282,7 +272,10 @@ void FMS::ChoseOrder()
     else if (m_fms_order_ == F_Enqueue || hmi_order_ == F_Enqueue)
         SendDataContanier::GetInstance()->fms_order_.setData(F_Enqueue);
     else 
-        SendDataContanier::GetInstance()->fms_order_.setData(F_Invalid);
+    {//init senddatacontanier::fms_order, only cal once, when 
+        if (!SendDataContanier::GetInstance()->fms_order_.isUpToDate())
+            SendDataContanier::GetInstance()->fms_order_.setData(F_Invalid);
+    }
 }
 /**
  * chose platoon number from hmi info and fms info
@@ -443,6 +436,7 @@ void FMS::PrintFmsPreInfo()
         using namespace std;
         cout << "FMS Pre Info" << endl;
         cout << "vehicle license is : " << fms_pre_info_.vehicleid() << endl;
+        cout << "serial id is : " << fms_pre_info_.id() << endl;
         cout << "platoon number is : " << int(fms_pre_info_.platoonnumber()) << endl;
         cout << "platoon member size is : " << fms_pre_info_.platoonmember_size() << endl;
         cout << "safe dis is : " << fms_pre_info_.safe_distance() << endl;

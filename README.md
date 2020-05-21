@@ -57,3 +57,8 @@ truck platoon
 ### 20200520
 #### author: zhangshuai
 * modify SendPDM::UpdateInfo, platoon number is from SendDataContanier, origin is switch from hmi or fms, now is both all can use.
+
+### 20200521
+#### author: zhangshuai
+* modify Manager::UpdateManagerInfo, when vehicle's gps status is error, vehicle id = -1.
+* momdify Manager::ResetFmsOrder, don't use hmi_fms_valid as the judge option
