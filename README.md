@@ -62,3 +62,9 @@ truck platoon
 #### author: zhangshuai
 * modify Manager::UpdateManagerInfo, when vehicle's gps status is error, vehicle id = -1.
 * momdify Manager::ResetFmsOrder, don't use hmi_fms_valid as the judge option
+
+### 20200523
+#### author: zhangshuai
+* modify FMS::ChoseOrder, when hmi or fms order is F_Invalid, only write SendDataContanier::Fmsorder once;
+* modify Manager::Processcommond, IN Subleader,if cut_in flag is disappear, Set SendDataContanier::Fmsorder = F_enqueue and set m_fms_order = F_enqueue.
+* modify when fms refuse Bejoiner, continue to apply.

@@ -556,12 +556,16 @@ void Manager::ProcessCommand ()
                     thw_dis , front_dis, m_safe_distance_, threshold_dis); 
             printf ("acutla drive mode is : ");
             print_drive_mode(actual_drive_mode_);
+            printf("cut_in flag : %d\n", planning_info_.cut_in);
+            printf("ID is : %d\n",ID_);
+            printf("m_fms_order is : %d\n", m_fms_order_);
         }
     }
     // this is only for test, clear status
     if (m_fms_order_ == F_Reset)
     {
         desire_drive_mode_ = Notset;
+        ResetFmsOrder();
         if (m_debug_StateFlow_)
         {
             if(debug_count % m_debug_thw_HZ_)
@@ -599,6 +603,7 @@ void Manager::ProcessCommand ()
             else if (planning_info_.cut_in == 0)
             {
                 m_fms_order_ = F_Enqueue;
+                SendDataContanier::GetInstance()->fms_order_.setData(F_Enqueue);
             }
         case Auto:
             if (m_debug_StateFlow_)
@@ -772,6 +777,7 @@ void Manager::ProcessCommand ()
             {
                 if (debug_count % m_debug_thw_HZ_ == 0)
                     printf("IN CutIN\n");
+                    //printf("cut in flag is : %d\n", planning_info_.cut_in);
             }
             // leader vehicle can't go to cut in
             if (ID_ == 1)
@@ -917,15 +923,24 @@ void Manager::ProcessCommand ()
 void Manager::UpdatePlatoonManagerInfo ()
 {
     UpdateInfo();
-    // the id only can change in the Auto/manual mode
-    if (IsCalID())
+    if (ConfigData::GetInstance()->test_with_log_)
     {
          CalculateID ();
     }
-    else if (m_debug_flags_ & DEBUG_CalculateID)
+    else
     {
-        printf("id will be not chaned; vehicle sequence is : %d \n\n", ID_);
+        if (IsCalID())
+        {
+            CalculateID ();
+        }
+        else if (m_debug_flags_ & DEBUG_CalculateID)
+        {
+            printf("id will be not chaned; vehicle sequence is : %d \n\n", ID_);
+        }  
     }
+    
+    // the id only can change in the Auto/manual mode
+    
     // assign vehicle ID to datacontanier
     SendDataContanier::GetInstance()->vehicle_ID_.setData(ID_);
 
@@ -1098,8 +1113,7 @@ void Manager::UpdatePlatoonManagerInfo ()
                 printf ("front vehicle relative_y is : %f\n",platoon_manager_info.front_vehicle.relative_y);
                 printf ("front vehicle drive mode is : ");
                 print_drive_mode(DriveMode(platoon_manager_info.front_vehicle.actual_drive_mode));
-                printf("\n");
-                printf("front safe distance is : %f\n", platoon_manager_info.front_vehicle.safedistance);
+                printf("front safe distance is : %f\n\n", platoon_manager_info.front_vehicle.safedistance);
                 
             }
         }

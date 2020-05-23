@@ -122,11 +122,11 @@ void FMS::CalApplyOrder()
                 if (dis < ConfigData::GetInstance()->enqueue_threshold_)
                 {
                     ApplyResult result = CalApplyResult();
-                    if (result == AllowJoin || result == AllowLeader || result == RefuseJoiner)
+                    if (result == AllowJoin || result == AllowLeader)
                         m_to_fms_info_.set_applyinfo(FmsApplyOrder(NoApply));
                     else if (result == RefuseLeader)
                         m_to_fms_info_.set_applyinfo(FmsApplyOrder(BeJoiner));
-                    else if (result == NoAnser)
+                    else if (result == NoAnser || result == RefuseJoiner)
                     {
                         if (manager_info_isupdate_)
                         {
