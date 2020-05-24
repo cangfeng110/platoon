@@ -670,11 +670,13 @@ void Manager::ProcessCommand ()
                 if (IsAllowDequeue())
                 {
                     desire_drive_mode_ = Auto;
+                    ResetFmsOrder();
                 }
             }
             else if (m_fms_order_ == F_DisBand)
             {
                 desire_drive_mode_ = Auto;
+                ResetFmsOrder();
             }
             break;
         case Enqueue: //add abnormal and dequeue
@@ -724,6 +726,7 @@ void Manager::ProcessCommand ()
                 if (debug_count % m_debug_thw_HZ_ == 0)
                     printf("IN Dequeue\n");
             }
+            ResetFmsOrder();
             if (IfAbnormal())
             {
                 desire_drive_mode_ = Abnormal;

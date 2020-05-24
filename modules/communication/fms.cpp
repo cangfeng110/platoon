@@ -266,11 +266,17 @@ void FMS::CalFmsOrder()
 void FMS::ChoseOrder()
 {
     if (m_fms_order_ == F_Dequeue || hmi_order_ == F_Dequeue)
+    {
         SendDataContanier::GetInstance()->fms_order_.setData(F_Dequeue);
+    }   
     else if (m_fms_order_ == F_Leader || hmi_order_ == F_Leader)
+    {
         SendDataContanier::GetInstance()->fms_order_.setData(F_Leader);
+    }   
     else if (m_fms_order_ == F_Enqueue || hmi_order_ == F_Enqueue)
+    {
         SendDataContanier::GetInstance()->fms_order_.setData(F_Enqueue);
+    }    
     else 
     {//init senddatacontanier::fms_order, only cal once, when 
         if (!SendDataContanier::GetInstance()->fms_order_.isUpToDate())
