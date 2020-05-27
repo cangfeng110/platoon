@@ -77,3 +77,9 @@ truck platoon
 ### 20200525
 #### author: zhangshuai
 * add platoon_19/22.conf
+
+### 20200526
+#### author: zhangshuai
+* modify to fusion info , desire_drive_mode replace actual_drive_mode
+* modify chosenumber
+* modify ResetFmsInfo, void no init data

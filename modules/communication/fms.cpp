@@ -291,7 +291,7 @@ void FMS::ChoseOrder()
  {
     //int hmi_plnumber = 0;
     //int fms_plnumber = 0;
-    if (hmi_info_isupdate_ && abs(hmi_plnumber_ - hmi_fms_info_.platoon_number) > 0.1)
+    if (hmi_info_isupdate_ && hmi_plnumber_ != hmi_fms_info_.platoon_number)
     {
         hmi_plnumber_ = hmi_fms_info_.platoon_number;
         /**
@@ -300,16 +300,23 @@ void FMS::ChoseOrder()
         if (hmi_plnumber_ != final_plnumber_)
             UDPDataContainer::GetInstance()->platoon_vehicles_data_.clearMap();
         final_plnumber_ = hmi_plnumber_;
+        // std::cout << "PL Changed HMI" << std::endl
+        //           << "hmi platoon number is : " << hmi_plnumber_ << std::endl
+        //           << "final platoon number is : " << final_plnumber_ << std::endl;
     }
-    else if (fms_pre_info_isupdate_ && abs(fms_plnumber_ - fms_pre_info_.platoonnumber()) > 0.1)
+    else if (fms_pre_info_isupdate_ && fms_plnumber_ != fms_pre_info_.platoonnumber())
     {
         fms_plnumber_ = fms_pre_info_.platoonnumber();
         /**
          * clear paltoon-vehicles-map, if platoon_number is changed
          */
-        if (hmi_plnumber_ != final_plnumber_)
+        if (fms_plnumber_ != final_plnumber_)
             UDPDataContainer::GetInstance()->platoon_vehicles_data_.clearMap(); 
         final_plnumber_ = fms_plnumber_;
+        // std::cout << "PL Changed FMS" << std::endl
+        //           << "hmi platoon number is : " << hmi_plnumber_ << std::endl
+        //           << "fms platoon number is : " << fms_plnumber_ << std::endl
+        //           << "final platoon number is : " << final_plnumber_ << std::endl;
     }   
     SendDataContanier::GetInstance()->platoon_number_.setData(final_plnumber_);
  }

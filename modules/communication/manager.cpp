@@ -359,6 +359,8 @@ bool Manager::IfAbnormal()
 void Manager::ResetFmsOrder()
 {
     hmi_fms_info_.fms_order = int8_t(F_Invalid);
+    hmi_fms_info_.safe_distance = m_safe_distance_;
+    hmi_fms_info_.platoon_number = platoon_number_;
     LowFreDataContanier::GetInstance()->hmi_fms_info_.setData(hmi_fms_info_);
     SendDataContanier::GetInstance()->fms_order_.setData(F_Invalid);
 }
@@ -975,7 +977,7 @@ void Manager::UpdatePlatoonManagerInfo ()
     platoon_manager_info.leader_vehicle.vehicle_id = -1;
     platoon_manager_info.front_vehicle.vehicle_id = -1;
     //init to_fusion_info 
-    to_fusion_info.ego_drive_mode = int(actual_drive_mode_);
+    to_fusion_info.ego_drive_mode = int(desire_drive_mode_);
     to_fusion_info.vehicle_id = -1;
     
     if (m_debug_flags_ & DEBUG_ManagerInfo)
