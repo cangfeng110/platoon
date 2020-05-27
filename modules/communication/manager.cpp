@@ -452,18 +452,6 @@ bool Manager::IsAllJoinPlatoon()
                 }
                 return false;
             }
-            // auto it = platoon_vehicles_info_.find(vehicle_id);
-            // if (it != platoon_vehicles_info_.end())
-            // {
-            //     if (DriveMode(it->second.getData().actual_drive_mode) != KeepQueue)
-            //     {
-            //         return false;
-            //     }
-            // }
-            // else
-            // {
-            //     return false;
-            // }   
         }
     }
     return true;
@@ -597,7 +585,11 @@ void Manager::ProcessCommand ()
             if (m_fms_order_ == F_Dequeue)
             {
                 if (IsAllowDequeue())
-                    desire_drive_mode_ = Dequeue;
+                {
+                    desire_drive_mode_ = Auto;
+                    // from Leader/SubLeader to Auto, present leaving, need reset
+                    ResetFmsOrder();
+                }
             }
             // when ego vehicle cut in is disapper, subplatoon should join the major platoon
             else if (planning_info_.cut_in == 0)
@@ -611,7 +603,7 @@ void Manager::ProcessCommand ()
                 if (debug_count % m_debug_thw_HZ_ == 0)
                     printf("IN Auto\n");
             }
-            //last desire mode is notset/manual/abnormal, when plan goto auto, desire should goto auto.
+            //last desire mode is notset/manual/abnormal, when actual goto auto, desire should goto auto.
             if (desire_drive_mode_ == Notset || desire_drive_mode_ == Manual || desire_drive_mode_ == Abnormal)
             {
                 desire_drive_mode_ = Auto;
@@ -619,7 +611,6 @@ void Manager::ProcessCommand ()
             if (m_fms_order_ == F_Leader)
             {
                 desire_drive_mode_ = LeaderWait;
-               //ResetFmsOrder();
             }
             else if (m_fms_order_ == F_Enqueue)
             {
@@ -652,7 +643,11 @@ void Manager::ProcessCommand ()
             if (m_fms_order_ == F_Dequeue)
             {
                 if (IsAllowDequeue())
+                {
                     desire_drive_mode_ = Auto;
+                    // from Leader/SubLeader to Auto, present leaving, need reset
+                    ResetFmsOrder();
+                }    
             } 
             else if (IsAllJoinPlatoon())
             {
@@ -670,12 +665,14 @@ void Manager::ProcessCommand ()
                 if (IsAllowDequeue())
                 {
                     desire_drive_mode_ = Auto;
+                    // from Leader/SubLeader to Auto, present leaving, need reset
                     ResetFmsOrder();
                 }
             }
             else if (m_fms_order_ == F_DisBand)
             {
                 desire_drive_mode_ = Auto;
+                // from Leader/SubLeader to Auto, present leaving, need reset
                 ResetFmsOrder();
             }
             break;
@@ -726,6 +723,7 @@ void Manager::ProcessCommand ()
                 if (debug_count % m_debug_thw_HZ_ == 0)
                     printf("IN Dequeue\n");
             }
+            // when actual mode goto leaving, present leaving, need reset
             ResetFmsOrder();
             if (IfAbnormal())
             {
@@ -738,7 +736,9 @@ void Manager::ProcessCommand ()
                     break;
                 }  
                 if (front_dis >= thw_dis * ConfigData::GetInstance()->leave_threshold_)
+                {
                     desire_drive_mode_ = Auto;
+                }      
             }
             break;
         case KeepQueue:
@@ -780,7 +780,6 @@ void Manager::ProcessCommand ()
             {
                 if (debug_count % m_debug_thw_HZ_ == 0)
                     printf("IN CutIN\n");
-                    //printf("cut in flag is : %d\n", planning_info_.cut_in);
             }
             // leader vehicle can't go to cut in
             if (ID_ == 1)
@@ -795,7 +794,7 @@ void Manager::ProcessCommand ()
                 desire_drive_mode_ = SubLeader;
                 /**
                  * from Cut_IN to Subleader present a task is over , need to clear fms enqueue oreder,
-                 * invoid repeat enqueue, because in auto, id will be cal.
+                 * invoid repeat enqueue.
                 */
                 ResetFmsOrder();
             }
@@ -854,7 +853,7 @@ void Manager::ProcessCommand ()
                 desire_drive_mode_ = Auto;
                 /**
                  * from abnormal to auto present a task is over , need to clear fms enqueue oreder,
-                 * invoid repeat enqueue, because in auto, id will be cal.
+                 * invoid repeat enqueue.
                 */
                 ResetFmsOrder();
             }
@@ -985,6 +984,7 @@ void Manager::UpdatePlatoonManagerInfo ()
         cout << "+++++++++++++Display Manager info+++++++++++++" << endl;
         printf (" desire_drive_mode is : ");
         print_drive_mode(DriveMode(platoon_manager_info.desire_drive_mode));
+        printf("send data platoon number is : %d\n", platoon_number_);
         printf ("platoon number is : %d\n",platoon_manager_info.platoon_number);
         printf ("vehicle number is : %d\n",platoon_manager_info.vehicle_num);
         printf ("vehicle sequence is : %d\n", platoon_manager_info.vehicle_sequence);

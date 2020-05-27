@@ -71,4 +71,9 @@ truck platoon
 
 ### 20200524
 #### author: zhangshuai
-* modify Manager::Processcommond, when platoon is leaving, reset fms order, Leader and NotLeader is difference, 
+* modify Manager::Processcommond, when platoon is leaving/to auto, reset fms order, Leader and NotLeader is difference
+* modify refpoint.txt.
+
+### 20200525
+#### author: zhangshuai
+* add platoon_19/22.conf
