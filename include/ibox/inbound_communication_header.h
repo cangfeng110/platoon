@@ -27,18 +27,40 @@ typedef struct inbound_communication_header
     uint32_t rsvd4;
 } __attribute__ ((packed)) inbound_communication_header_t;
 
+typedef struct THB_Info
+{
+    uint8_t THBon;
+    uint8_t THBtype;
+    uint16_t reserved1;
+    uint32_t reseverd2;
+} __attribute__ ((packed)) THB_Info_t;
+
 typedef struct Transparent_Transmission_Data_Header
 {
     uint8_t ttdID;
-    uint8_t reseverd;
+    uint8_t transtype;
     uint16_t reseverd1;
     uint32_t dataSN;
     uint16_t informationage;
     uint16_t secmark;
     uint16_t discardage;
-    uint16_t maxIOsize;
-    uint32_t reserved2;
-    uint32_t reserved3;
+    uint16_t reserved2;
+    THB_Info_t THBinfo;
+
 } __attribute__ ((packed)) Transparent_Transmission_Data_Header_t;
+
+// typedef struct Transparent_Transmission_Data_Header
+// {
+//     uint8_t ttdID;
+//     uint8_t reseverd;
+//     uint16_t reseverd1;
+//     uint32_t dataSN;
+//     uint16_t informationage;
+//     uint16_t secmark;
+//     uint16_t discardage;
+//     uint16_t maxIOsize;
+//     uint32_t reserved2;
+//     uint32_t reserved3;
+// } __attribute__ ((packed)) Transparent_Transmission_Data_Header_t;
 
 #endif // INBOUND_COMMUNICATION_HEADER

@@ -83,3 +83,8 @@ truck platoon
 * modify to fusion info , desire_drive_mode replace actual_drive_mode
 * modify chosenumber
 * modify ResetFmsInfo, void no init data
+
+### 20200526
+#### author: zhangshuai
+* modify ibox  protocol data in inbound_communication_header.h
+* modify BroastEgoVehicleInfo3 in sendpdm.cpp
